@@ -4,24 +4,31 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 
 // Animation 1: Pega el enlace - URL input animation
+// Sequence: cursor moves to field → clicks → types URL → cursor moves to button → clicks
 export function PegaEnlaceAnimation() {
   const [step, setStep] = useState(0);
   const url = "youtube.com/watch?v=abc123";
 
   useEffect(() => {
     const steps = [
-      { delay: 500 },   // Click on input
-      { delay: 1500 },  // Type URL
-      { delay: 2500 },  // Click button
-      { delay: 3500 },  // Reset
+      { delay: 800 },   // Step 0: Cursor moves to input field
+      { delay: 600 },   // Step 1: Click on input (shows click effect)
+      { delay: 1800 },  // Step 2: Type URL
+      { delay: 800 },   // Step 3: Cursor moves to button
+      { delay: 600 },   // Step 4: Click button
+      { delay: 1500 },  // Step 5: Reset
     ];
 
     const timeout = setTimeout(() => {
-      setStep((prev) => (prev + 1) % 4);
+      setStep((prev) => (prev + 1) % 6);
     }, steps[step].delay);
 
     return () => clearTimeout(timeout);
   }, [step]);
+
+  const isFieldFocused = step >= 1 && step <= 2;
+  const isTyping = step === 2;
+  const isButtonClicked = step === 4;
 
   return (
     <div className="relative w-full h-full flex items-center justify-center p-6">
@@ -30,20 +37,20 @@ export function PegaEnlaceAnimation() {
         <div className="relative mb-3">
           <div
             className={`w-full h-12 rounded-lg border-2 transition-colors flex items-center px-3 ${
-              step >= 1 ? "border-primary bg-primary/5" : "border-gray-200"
+              isFieldFocused ? "border-primary bg-primary/5" : "border-gray-200"
             }`}
           >
             <div className="w-5 h-5 rounded bg-red-500 mr-2 flex-shrink-0" />
             <div className="flex-1 font-mono text-sm text-gray-600 overflow-hidden">
               <motion.span
                 initial={{ width: 0 }}
-                animate={{ width: step >= 1 ? "100%" : 0 }}
-                transition={{ duration: 1, ease: "easeOut" }}
+                animate={{ width: step >= 2 ? "100%" : 0 }}
+                transition={{ duration: 1.2, ease: "easeOut" }}
                 className="inline-block overflow-hidden whitespace-nowrap"
               >
                 {url}
               </motion.span>
-              {step === 1 && (
+              {isTyping && (
                 <motion.span
                   animate={{ opacity: [1, 0] }}
                   transition={{ repeat: Infinity, duration: 0.5 }}
@@ -53,17 +60,31 @@ export function PegaEnlaceAnimation() {
             </div>
           </div>
 
-          {/* Cursor */}
+          {/* Cursor moving to input field */}
           <AnimatePresence>
             {step === 0 && (
               <motion.div
-                initial={{ x: 100, y: 50, opacity: 0 }}
-                animate={{ x: 20, y: 20, opacity: 1 }}
+                initial={{ x: 120, y: 60, opacity: 0 }}
+                animate={{ x: 80, y: 20, opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.4, ease: "easeOut" }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
                 className="absolute pointer-events-none"
               >
                 <CursorIcon />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Cursor clicking input field */}
+          <AnimatePresence>
+            {step === 1 && (
+              <motion.div
+                initial={{ opacity: 1, x: 80, y: 20 }}
+                animate={{ opacity: 1, x: 80, y: 20 }}
+                exit={{ opacity: 0 }}
+                className="absolute pointer-events-none"
+              >
+                <CursorClickIcon />
               </motion.div>
             )}
           </AnimatePresence>
@@ -72,28 +93,42 @@ export function PegaEnlaceAnimation() {
         {/* Convert button */}
         <motion.div
           animate={{
-            scale: step === 2 ? 0.95 : 1,
-            backgroundColor: step === 2 ? "#0d9488" : "#14b8a6",
+            scale: isButtonClicked ? 0.95 : 1,
+            backgroundColor: isButtonClicked ? "#0d9488" : "#14b8a6",
           }}
-          className="w-full h-10 rounded-lg bg-primary flex items-center justify-center"
+          className="w-full h-10 rounded-lg bg-primary flex items-center justify-center relative"
         >
           <span className="text-white font-semibold text-sm">Convertir</span>
-        </motion.div>
 
-        {/* Cursor clicking button */}
-        <AnimatePresence>
-          {step === 2 && (
-            <motion.div
-              initial={{ x: 100, y: -20, opacity: 0 }}
-              animate={{ x: 60, y: -25, opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="absolute pointer-events-none"
-            >
-              <CursorClickIcon />
-            </motion.div>
-          )}
-        </AnimatePresence>
+          {/* Cursor moving to button */}
+          <AnimatePresence>
+            {step === 3 && (
+              <motion.div
+                initial={{ x: -60, y: -40, opacity: 0 }}
+                animate={{ x: 20, y: 0, opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                className="absolute pointer-events-none"
+              >
+                <CursorIcon />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Cursor clicking button */}
+          <AnimatePresence>
+            {step === 4 && (
+              <motion.div
+                initial={{ opacity: 1, x: 20, y: 0 }}
+                animate={{ opacity: 1, x: 20, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="absolute pointer-events-none"
+              >
+                <CursorClickIcon />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
       </div>
     </div>
   );

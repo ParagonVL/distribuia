@@ -10,8 +10,14 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: "#2DD4BF",
-          dark: "#14B8A6",
+          DEFAULT: "#14B8A6",
+          light: "#2DD4BF",
+          dark: "#0D9488",
+        },
+        secondary: {
+          DEFAULT: "#F97316",
+          light: "#FB923C",
+          dark: "#EA580C",
         },
         navy: {
           DEFAULT: "#1E3A5F",
@@ -33,6 +39,21 @@ export default {
       fontFamily: {
         heading: ["var(--font-nunito)", "sans-serif"],
         body: ["var(--font-inter)", "sans-serif"],
+      },
+      animation: {
+        shimmer: "shimmer 2s linear infinite",
+        pulse: "pulse 1s ease-in-out infinite",
+        float: "float 3s ease-in-out infinite",
+      },
+      keyframes: {
+        shimmer: {
+          "0%": { backgroundPosition: "200% 0" },
+          "100%": { backgroundPosition: "-200% 0" },
+        },
+        float: {
+          "0%, 100%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-10px)" },
+        },
       },
     },
   },

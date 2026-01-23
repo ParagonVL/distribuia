@@ -9,7 +9,7 @@ const BASE_STEPS = [
   {
     id: 1,
     label: "Generando hilo de X",
-    shortLabel: "X Thread",
+    shortLabel: "Hilo de X",
     duration: 15000, // 15 seconds (includes API call + delay)
     targetPercent: 40,
   },
@@ -24,7 +24,7 @@ const BASE_STEPS = [
     id: 3,
     label: "Escribiendo articulo",
     shortLabel: "Articulo",
-    duration: 10000,
+    duration: 15000, // Increased to account for actual API time
     targetPercent: 100,
   },
 ];
@@ -115,7 +115,14 @@ export function GenerationProgress({ inputType = "youtube" }: GenerationProgress
   }, [startTime, steps]);
 
   return (
-    <div className="flex flex-col items-center justify-center py-12 px-4">
+    <div className="relative flex flex-col items-center justify-center py-12 px-4 rounded-xl bg-gradient-to-b from-gray-50/50 to-white border border-gray-100">
+      {/* Subtle background pattern */}
+      <div className="absolute inset-0 opacity-30 pointer-events-none overflow-hidden rounded-xl">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `radial-gradient(circle at 1px 1px, rgb(20 184 166 / 0.15) 1px, transparent 0)`,
+          backgroundSize: '24px 24px',
+        }} />
+      </div>
       {/* Main progress ring */}
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}

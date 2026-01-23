@@ -1,8 +1,21 @@
 import { extractYouTubeTranscript, type YouTubeResult } from "./youtube";
-import { extractArticleContent, type ArticleResult } from "./article";
 import { processRawText, type TextResult } from "./text";
 import type { InputType } from "@/types/database";
 import { ValidationError } from "@/lib/errors";
+
+// Dynamic import for article processor to avoid jsdom ESM issues
+async function getArticleExtractor() {
+  const { extractArticleContent } = await import("./article");
+  return extractArticleContent;
+}
+
+export interface ArticleResult {
+  title: string;
+  content: string;
+  siteName: string;
+  excerpt?: string;
+  byline?: string;
+}
 
 export interface ProcessedInput {
   source: InputType;
@@ -19,9 +32,8 @@ export interface ProcessedInput {
   };
 }
 
-export type { YouTubeResult, ArticleResult, TextResult };
+export type { YouTubeResult, TextResult };
 export { extractYouTubeTranscript } from "./youtube";
-export { extractArticleContent } from "./article";
 export { processRawText, estimateReadingTime, extractKeywords } from "./text";
 
 /**
@@ -54,6 +66,8 @@ export async function processInput(
     }
 
     case "article": {
+      // Dynamic import to avoid jsdom ESM compatibility issues
+      const extractArticleContent = await getArticleExtractor();
       const result = await extractArticleContent(trimmedInput);
       return {
         source: "article",

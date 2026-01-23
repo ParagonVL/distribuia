@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Results } from "./results";
 import {
@@ -71,6 +72,7 @@ export function ConversionForm({
   canConvert: initialCanConvert,
   remaining: initialRemaining,
 }: ConversionFormProps) {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<InputType>("youtube");
   const [inputValue, setInputValue] = useState("");
   const [tone, setTone] = useState<ToneType>("profesional");
@@ -182,6 +184,8 @@ export function ConversionForm({
         setCanConvert(false);
       }
       toast.showSuccess("Contenido generado correctamente");
+      // Refresh to update header usage count
+      router.refresh();
     } catch (err) {
       const message = err instanceof Error ? err.message : "Error desconocido";
       setError({

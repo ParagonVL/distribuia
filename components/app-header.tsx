@@ -101,6 +101,13 @@ export function AppHeader({
                     <p className="text-sm text-gray-500 truncate">{userEmail}</p>
                   </div>
                   <Link
+                    href="/history"
+                    className="block px-4 py-2 text-sm text-navy hover:bg-gray-50"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Historial
+                  </Link>
+                  <Link
                     href="/settings"
                     className="block px-4 py-2 text-sm text-navy hover:bg-gray-50"
                     onClick={() => setIsMenuOpen(false)}

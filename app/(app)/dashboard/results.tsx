@@ -426,6 +426,19 @@ export function Results({ result, onNewConversion }: ResultsProps) {
           Descargar todo (.txt)
         </button>
       </div>
+
+      {/* AI Disclaimer */}
+      <div className="mt-8 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+        <div className="flex gap-3">
+          <svg className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p className="text-sm text-amber-800">
+            <strong>Revisa antes de publicar:</strong> La IA puede cometer errores, pero tu imagen publica no puede permitirselo.
+            Te recomendamos revisar y ajustar el contenido generado para asegurarte de que refleja tu voz y cumple con tus estandares.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

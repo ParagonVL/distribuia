@@ -74,6 +74,7 @@ export async function GET(request: NextRequest) {
       .update({
         conversions_used_this_month: 0,
         billing_cycle_start: now,
+        low_usage_email_sent_this_cycle: false,
       })
       .in("id", userIds);
 

@@ -18,7 +18,7 @@ export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
     conversionsPerMonth: 10,
     regeneratesPerConversion: 3,
     name: "Starter",
-    description: "Para creadores que están empezando",
+    description: "Para creadores que estan empezando",
   },
   pro: {
     conversionsPerMonth: 30,

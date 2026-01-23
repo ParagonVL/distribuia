@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import PlanManagement from "./plan-management";
+import { ChangePasswordButton, DeleteAccountButton } from "./account-actions";
 import type { PlanType } from "@/lib/config/plans";
 
 export default async function SettingsPage() {
@@ -67,7 +68,7 @@ export default async function SettingsPage() {
           <h2 className="font-heading text-lg font-semibold text-navy mb-4">
             Seguridad
           </h2>
-          <button className="btn-secondary">Cambiar contrasena</button>
+          <ChangePasswordButton userEmail={user.email || ""} />
         </div>
 
         {/* Danger zone */}
@@ -79,9 +80,7 @@ export default async function SettingsPage() {
             Al eliminar tu cuenta, se borraran todos tus datos permanentemente.
             Esta accion no se puede deshacer.
           </p>
-          <button className="px-4 py-2 rounded-lg text-sm font-medium border border-error text-error hover:bg-error/10 transition-colors">
-            Eliminar cuenta
-          </button>
+          <DeleteAccountButton />
         </div>
       </div>
     </div>

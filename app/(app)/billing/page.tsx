@@ -33,7 +33,7 @@ export default async function BillingPage() {
     {
       id: "starter",
       name: "Starter",
-      price: 9,
+      price: 19,
       conversions: 10,
       regenerates: 3,
       popular: true,
@@ -47,7 +47,7 @@ export default async function BillingPage() {
     {
       id: "pro",
       name: "Pro",
-      price: 19,
+      price: 49,
       conversions: 30,
       regenerates: 3,
       features: [
@@ -153,15 +153,15 @@ export default async function BillingPage() {
         ))}
       </div>
 
-      {/* Payment info placeholder */}
+      {/* Payment info */}
       <div className="card mt-8">
         <h2 className="font-heading text-lg font-semibold text-navy mb-4">
-          Metodo de pago
+          Informacion de pago
         </h2>
         <p className="text-gray-500 text-sm">
-          No hay metodo de pago configurado. Anade uno para cambiar a un plan de pago.
+          Los pagos se gestionan de forma segura a traves de Stripe.
+          Al cambiar de plan, seras redirigido al portal de pago de Stripe donde podras gestionar tu suscripcion y metodos de pago.
         </p>
-        <button className="btn-secondary mt-4">Anadir metodo de pago</button>
       </div>
     </div>
   );

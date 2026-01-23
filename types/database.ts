@@ -10,6 +10,7 @@ export interface User {
   billing_cycle_start: string;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
+  low_usage_email_sent_this_cycle: boolean;
   created_at: string;
 }
 
@@ -45,6 +46,7 @@ export type Database = {
           billing_cycle_start: string;
           stripe_customer_id: string | null;
           stripe_subscription_id: string | null;
+          low_usage_email_sent_this_cycle: boolean;
           created_at: string;
         };
         Insert: {
@@ -54,6 +56,7 @@ export type Database = {
           billing_cycle_start?: string;
           stripe_customer_id?: string | null;
           stripe_subscription_id?: string | null;
+          low_usage_email_sent_this_cycle?: boolean;
           created_at?: string;
         };
         Update: {
@@ -63,6 +66,7 @@ export type Database = {
           billing_cycle_start?: string;
           stripe_customer_id?: string | null;
           stripe_subscription_id?: string | null;
+          low_usage_email_sent_this_cycle?: boolean;
           created_at?: string;
         };
         Relationships: [];

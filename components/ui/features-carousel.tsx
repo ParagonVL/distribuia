@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import { Link2, Sliders, Copy, Sparkles } from "lucide-react";
 import {
   PegaEnlaceAnimation,
@@ -41,22 +41,33 @@ export function FeaturesCarousel() {
   const [currentFeature, setCurrentFeature] = useState(0);
   const [progress, setProgress] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(containerRef, { once: false, amount: 0.3 });
 
   useEffect(() => {
-    intervalRef.current = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          setCurrentFeature((current) => (current + 1) % features.length);
-          return 0;
-        }
-        return prev + 1.5;
-      });
-    }, 80);
+    // Only start the interval when the section is in view
+    if (isInView) {
+      intervalRef.current = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 100) {
+            setCurrentFeature((current) => (current + 1) % features.length);
+            return 0;
+          }
+          return prev + 1.5;
+        });
+      }, 64);
+    } else {
+      // Clear interval when out of view
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    }
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, []);
+  }, [isInView]);
 
   const handleFeatureClick = (index: number) => {
     setCurrentFeature(index);
@@ -66,7 +77,7 @@ export function FeaturesCarousel() {
   const CurrentAnimation = features[currentFeature].Animation;
 
   return (
-    <div className="grid lg:grid-cols-2 gap-6 lg:gap-10 items-center">
+    <div ref={containerRef} className="grid lg:grid-cols-2 gap-6 lg:gap-10 items-center">
       {/* Feature list */}
       <div className="space-y-3">
         {features.map((feature, index) => {
@@ -79,29 +90,33 @@ export function FeaturesCarousel() {
               onClick={() => handleFeatureClick(index)}
               className={`w-full text-left p-4 rounded-2xl transition-all duration-300 ${
                 isActive
-                  ? "bg-white shadow-lg border border-primary/20"
-                  : "bg-transparent hover:bg-white/50"
+                  ? "bg-white/10 backdrop-blur-sm shadow-lg border border-primary/30"
+                  : "bg-transparent hover:bg-white/5"
               }`}
             >
               <div className="flex items-start gap-4">
                 <div
                   className={`w-11 h-11 rounded-xl flex items-center justify-center transition-colors flex-shrink-0 ${
-                    isActive ? "bg-primary text-white" : "bg-gray-100 text-gray-500"
+                    isActive ? "bg-primary text-white" : "bg-white/10 text-white/60"
                   }`}
                 >
                   <Icon className="w-5 h-5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-heading text-base font-semibold text-navy mb-1">
+                  <h3 className={`font-heading text-base font-semibold mb-1 ${
+                    isActive ? "text-white" : "text-white/80"
+                  }`}>
                     {feature.title}
                   </h3>
-                  <p className="text-gray-500 text-sm leading-relaxed line-clamp-2">
+                  <p className={`text-sm leading-relaxed line-clamp-2 ${
+                    isActive ? "text-white/70" : "text-white/50"
+                  }`}>
                     {feature.description}
                   </p>
                   {isActive && (
-                    <div className="mt-3 h-1 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="mt-3 h-1 bg-white/20 rounded-full overflow-hidden">
                       <motion.div
-                        className="h-full bg-gradient-to-r from-primary to-primary-dark"
+                        className="h-full bg-gradient-to-r from-primary to-teal-400"
                         initial={{ width: 0 }}
                         animate={{ width: `${progress}%` }}
                         transition={{ duration: 0.08, ease: "linear" }}
@@ -116,7 +131,7 @@ export function FeaturesCarousel() {
       </div>
 
       {/* Animation display */}
-      <div className="relative h-72 lg:h-80 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-50 border border-gray-200 overflow-hidden">
+      <div className="relative h-72 lg:h-80 rounded-2xl bg-white shadow-2xl border border-white/20 overflow-hidden">
         <motion.div
           key={currentFeature}
           initial={{ opacity: 0, scale: 0.95 }}

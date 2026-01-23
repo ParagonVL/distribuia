@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
+import { ArrowLeft } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -42,11 +44,25 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        {/* Back to home */}
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 text-gray-500 hover:text-navy transition-colors mb-6"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span className="text-sm font-medium">Volver al inicio</span>
+        </Link>
+
         {/* Logo */}
-        <Link href="/" className="flex justify-center mb-8">
-          <span className="font-heading text-3xl font-bold text-navy">
-            distribuia
-          </span>
+        <Link href="/" className="flex justify-center mb-4 h-20 overflow-hidden">
+          <Image
+            src="/logo.png"
+            alt="Distribuia"
+            width={360}
+            height={240}
+            className="w-[360px] h-auto -mt-10 -mb-14 object-contain"
+            priority
+          />
         </Link>
 
         {/* Card */}

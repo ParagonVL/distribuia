@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
+import { ArrowLeft } from "lucide-react";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
@@ -30,26 +32,46 @@ export default function RegisterPage() {
 
     setIsLoading(true);
 
-    const supabase = createClient();
-    const { error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
+    try {
+      const supabase = createClient();
+      const redirectUrl = `${window.location.origin}/auth/callback`;
 
-    if (authError) {
-      if (authError.message.includes("already registered")) {
-        setError("Este email ya está registrado");
-      } else {
-        setError("Ha ocurrido un error. Inténtalo de nuevo.");
+      const { error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+        },
+      });
+
+      if (authError) {
+        console.error("Auth error:", authError);
+        if (authError.message.includes("already registered")) {
+          setError("Este email ya está registrado");
+        } else if (authError.message.includes("valid email")) {
+          setError("Por favor, introduce un email válido");
+        } else if (authError.message.includes("password")) {
+          setError("La contraseña no cumple los requisitos");
+        } else {
+          setError(`Error: ${authError.message}`);
+        }
+        setIsLoading(false);
+        return;
       }
-      setIsLoading(false);
-      return;
+
+      setSuccess(true);
+    } catch (err: unknown) {
+      console.error("Registration error details:", {
+        error: err,
+        message: err instanceof Error ? err.message : "Unknown",
+        stack: err instanceof Error ? err.stack : undefined,
+        email: email ? "provided" : "empty",
+        passwordLength: password?.length,
+      });
+      const errorMessage = err instanceof Error ? err.message : "Error desconocido";
+      setError(`Error: ${errorMessage}`);
     }
 
-    setSuccess(true);
     setIsLoading(false);
   };
 
@@ -95,11 +117,25 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        {/* Back to home */}
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 text-gray-500 hover:text-navy transition-colors mb-6"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span className="text-sm font-medium">Volver al inicio</span>
+        </Link>
+
         {/* Logo */}
-        <Link href="/" className="flex justify-center mb-8">
-          <span className="font-heading text-3xl font-bold text-navy">
-            distribuia
-          </span>
+        <Link href="/" className="flex justify-center mb-4 h-20 overflow-hidden">
+          <Image
+            src="/logo.png"
+            alt="Distribuia"
+            width={360}
+            height={240}
+            className="w-[360px] h-auto -mt-10 -mb-14 object-contain"
+            priority
+          />
         </Link>
 
         {/* Card */}

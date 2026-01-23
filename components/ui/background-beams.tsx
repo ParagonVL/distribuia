@@ -136,7 +136,7 @@ export function BackgroundBeams({ children, className = "" }: BackgroundBeamsPro
   return (
     <div
       ref={parentRef}
-      className={`relative min-h-screen overflow-hidden ${className}`}
+      className={`relative overflow-hidden ${className}`}
     >
       {/* Beams container */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">

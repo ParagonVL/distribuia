@@ -14,7 +14,11 @@ const plans = [
     description: "Para probar",
     conversions: 2,
     regenerations: 1,
-    features: ["2 conversiones/mes", "1 regeneracion", "Todos los formatos"],
+    features: [
+      "2 videos o articulos al mes",
+      "1 version alternativa por contenido",
+      "3 formatos: X, LinkedIn post y articulo",
+    ],
   },
   {
     id: "starter",
@@ -24,7 +28,11 @@ const plans = [
     description: "Para creadores activos",
     conversions: 10,
     regenerations: 3,
-    features: ["10 conversiones/mes", "3 regeneraciones", "Todos los formatos"],
+    features: [
+      "10 videos o articulos al mes",
+      "3 versiones alternativas por contenido",
+      "3 formatos: X, LinkedIn post y articulo",
+    ],
     popular: true,
   },
   {
@@ -35,12 +43,17 @@ const plans = [
     description: "Para profesionales",
     conversions: 30,
     regenerations: 3,
-    features: ["30 conversiones/mes", "3 regeneraciones", "Todos los formatos", "Soporte prioritario"],
+    features: [
+      "30 videos o articulos al mes",
+      "3 versiones alternativas por contenido",
+      "3 formatos: X, LinkedIn post y articulo",
+      "Soporte prioritario",
+    ],
   },
 ];
 
 export function PricingSlider() {
-  const [selectedIndex, setSelectedIndex] = useState(1); // Default to Starter
+  const [selectedIndex, setSelectedIndex] = useState(0); // Default to Gratis
   const selectedPlan = plans[selectedIndex];
   const freePlan = plans[0];
 
@@ -197,14 +210,19 @@ export function PricingSlider() {
                   ))}
                 </ul>
 
-                {/* CTA */}
+                {/* CTA - Always navigate to register, users start with Gratis */}
                 <ParticleButton
                   href="/register"
                   className="w-full py-3 text-center"
                 >
-                  {selectedPlan.price === 0 ? "Empieza gratis" : `Elegir ${selectedPlan.name}`}
+                  Empieza gratis
                   <ArrowRight className="w-4 h-4" />
                 </ParticleButton>
+                {selectedPlan.price > 0 && (
+                  <p className="text-xs text-center text-gray-500 mt-2">
+                    Podras actualizar a {selectedPlan.name} despues de registrarte
+                  </p>
+                )}
               </motion.div>
             </AnimatePresence>
           </div>

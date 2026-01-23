@@ -10,11 +10,11 @@ interface PlanManagementProps {
 
 const PLAN_PRICES: Record<Exclude<PlanType, "free">, { monthly: number; priceId: string }> = {
   starter: {
-    monthly: 9,
+    monthly: 19,
     priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_STARTER_MONTHLY || "",
   },
   pro: {
-    monthly: 29,
+    monthly: 49,
     priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY || "",
   },
 };
@@ -92,7 +92,7 @@ export default function PlanManagement({
     {
       key: "starter",
       name: "Starter",
-      price: "9",
+      price: "19",
       features: [
         `${PLAN_LIMITS.starter.conversionsPerMonth} conversiones/mes`,
         `${PLAN_LIMITS.starter.regeneratesPerConversion} regeneraciones por contenido`,
@@ -103,7 +103,7 @@ export default function PlanManagement({
     {
       key: "pro",
       name: "Pro",
-      price: "29",
+      price: "49",
       features: [
         `${PLAN_LIMITS.pro.conversionsPerMonth} conversiones/mes`,
         `${PLAN_LIMITS.pro.regeneratesPerConversion} regeneraciones por contenido`,
