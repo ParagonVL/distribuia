@@ -1,13 +1,38 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+// Site access token (set to null to disable protection)
+const SITE_ACCESS_TOKEN = "distribuia2026";
+
 // Routes that require authentication
-const PROTECTED_ROUTES = ["/dashboard", "/settings", "/billing"];
+const PROTECTED_ROUTES = ["/dashboard", "/settings", "/billing", "/history"];
 
 // Routes only for unauthenticated users
 const AUTH_ROUTES = ["/login", "/register", "/signup"];
 
+// Routes that bypass token protection
+const PUBLIC_ROUTES = ["/access", "/api/access"];
+
 export async function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+
+  // Check site access token first (if enabled)
+  if (SITE_ACCESS_TOKEN) {
+    const isPublicRoute = PUBLIC_ROUTES.some((route) =>
+      pathname.startsWith(route)
+    );
+
+    if (!isPublicRoute) {
+      const accessToken = request.cookies.get("site_access_token")?.value;
+
+      if (accessToken !== SITE_ACCESS_TOKEN) {
+        // Redirect to access page
+        const accessUrl = new URL("/access", request.url);
+        return NextResponse.redirect(accessUrl);
+      }
+    }
+  }
+
   let supabaseResponse = NextResponse.next({
     request,
   });
@@ -39,8 +64,6 @@ export async function middleware(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  const pathname = request.nextUrl.pathname;
 
   // Check if the current path is a protected route
   const isProtectedRoute = PROTECTED_ROUTES.some((route) =>
