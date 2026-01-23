@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Results } from "./results";
 import {
   NoCaptionsError,
@@ -9,9 +10,9 @@ import {
   GenerationError,
   GenericError,
   RateLimitErrorState,
-  ResultsSkeleton,
 } from "./error-states";
 import { toast } from "@/components/ui/error-toast";
+import { GenerationProgress } from "@/components/ui/generation-progress";
 
 type InputType = "youtube" | "article" | "text";
 type ToneType = "profesional" | "cercano" | "tecnico";
@@ -40,6 +41,13 @@ interface ConversionOutput {
 
 interface ConversionResult {
   conversionId: string;
+  source: "youtube" | "article" | "text";
+  metadata?: {
+    title?: string;
+    videoId?: string;
+    duration?: number;
+    siteName?: string;
+  };
   outputs: {
     x_thread: ConversionOutput;
     linkedin_post: ConversionOutput;
@@ -139,7 +147,14 @@ export function ConversionForm({
         }),
       });
 
-      const data = await response.json();
+      const text = await response.text();
+      let data;
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch {
+        console.error("Failed to parse response:", text);
+        throw new Error("Respuesta inválida del servidor");
+      }
 
       if (!response.ok) {
         const errorCode = data.error?.code || "INTERNAL_ERROR";
@@ -189,9 +204,9 @@ export function ConversionForm({
     setError(null);
   };
 
-  // Show loading skeleton while generating
+  // Show progress animation while generating
   if (isLoading) {
-    return <ResultsSkeleton />;
+    return <GenerationProgress inputType={activeTab} />;
   }
 
   // Show error states for critical errors
@@ -239,7 +254,7 @@ export function ConversionForm({
       {/* Tab buttons */}
       <div className="flex gap-2 p-1 bg-gray-100 rounded-lg w-fit">
         {tabs.map((tab) => (
-          <button
+          <motion.button
             key={tab.id}
             type="button"
             onClick={() => {
@@ -252,9 +267,12 @@ export function ConversionForm({
                 ? "bg-primary text-white"
                 : "text-navy hover:bg-gray-200"
             }`}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
           >
             {tab.label}
-          </button>
+          </motion.button>
         ))}
       </div>
 
@@ -330,7 +348,7 @@ export function ConversionForm({
         </label>
         <div className="flex flex-wrap gap-2">
           {tones.map((t) => (
-            <button
+            <motion.button
               key={t.id}
               type="button"
               onClick={() => setTone(t.id)}
@@ -340,9 +358,13 @@ export function ConversionForm({
                   ? "bg-primary text-white"
                   : "bg-gray-100 text-navy hover:bg-gray-200"
               }`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              animate={tone === t.id ? { scale: [1, 1.05, 1] } : {}}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
             >
               {t.label}
-            </button>
+            </motion.button>
           ))}
         </div>
         <p className="mt-2 text-xs text-gray-500">
@@ -415,7 +437,7 @@ export function ConversionForm({
       {/* Submit button */}
       <div className="flex flex-col sm:flex-row gap-4 items-center">
         {canConvert ? (
-          <button
+          <motion.button
             type="submit"
             disabled={isLoading || !inputValue.trim()}
             className={`w-full sm:w-auto px-8 py-3 rounded-lg font-semibold transition-colors ${
@@ -423,6 +445,9 @@ export function ConversionForm({
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                 : "bg-primary hover:bg-primary-dark text-white"
             }`}
+            whileHover={!isLoading && inputValue.trim() ? { scale: 1.02, y: -1 } : {}}
+            whileTap={!isLoading && inputValue.trim() ? { scale: 0.98 } : {}}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
           >
             {isLoading ? (
               <span className="inline-flex items-center gap-2">
@@ -450,7 +475,7 @@ export function ConversionForm({
             ) : (
               "Convertir"
             )}
-          </button>
+          </motion.button>
         ) : (
           <div className="w-full sm:w-auto text-center">
             <button

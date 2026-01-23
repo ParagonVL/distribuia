@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 
 interface ConversionOutput {
   id: string;
@@ -42,16 +43,32 @@ const formatLabels: Record<OutputFormat, string> = {
   linkedin_article: "Articulo",
 };
 
+// Animation variants for staggered card entrance
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      delay: i * 0.15,
+      duration: 0.4,
+      ease: "easeOut" as const,
+    },
+  }),
+};
+
 function OutputCard({
   format,
   output,
   regeneratesPerConversion,
   sourceUrl,
+  index = 0,
 }: {
   format: OutputFormat;
   output: ConversionOutput;
   regeneratesPerConversion: number;
   sourceUrl?: string;
+  index?: number;
 }) {
   const [content, setContent] = useState(output.content);
   const [version, setVersion] = useState(output.version);
@@ -193,7 +210,15 @@ function OutputCard({
   };
 
   return (
-    <div className="card flex flex-col h-full">
+    <motion.div
+      className="card flex flex-col h-full hover:shadow-lg hover:border-primary/20 transition-shadow duration-300"
+      variants={cardVariants}
+      initial="hidden"
+      animate="visible"
+      custom={index}
+      whileHover={{ y: -2 }}
+      transition={{ duration: 0.2 }}
+    >
       <h3 className="font-heading text-lg font-semibold text-navy mb-4">
         {formatLabels[format]}
       </h3>
@@ -293,7 +318,7 @@ function OutputCard({
           </button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -374,18 +399,20 @@ export function Results({ result, onNewConversion }: ResultsProps) {
           output={result.outputs[activeTab]}
           regeneratesPerConversion={result.usage.regeneratesPerConversion}
           sourceUrl={sourceUrl}
+          index={0}
         />
       </div>
 
       {/* Desktop: three column grid */}
       <div className="hidden sm:grid sm:grid-cols-3 gap-6">
-        {formats.map((format) => (
+        {formats.map((format, index) => (
           <OutputCard
             key={format}
             format={format}
             output={result.outputs[format]}
             regeneratesPerConversion={result.usage.regeneratesPerConversion}
             sourceUrl={sourceUrl}
+            index={index}
           />
         ))}
       </div>
