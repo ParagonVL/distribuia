@@ -6,6 +6,36 @@ import type { OutputFormat, ToneType } from "@/types/database";
 // Maximum content length to send to the API (roughly 5K tokens = ~20K chars)
 const MAX_CONTENT_LENGTH = 20000;
 
+// Retry configuration for connection errors
+const MAX_RETRIES = 3;
+const INITIAL_RETRY_DELAY = 1000; // 1 second
+
+/**
+ * Sleep for a given number of milliseconds
+ */
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Check if an error is a connection/network error that should be retried
+ */
+function isRetryableError(error: unknown): boolean {
+  if (error instanceof Error) {
+    const message = error.message.toLowerCase();
+    return (
+      message.includes("connection") ||
+      message.includes("network") ||
+      message.includes("timeout") ||
+      message.includes("econnrefused") ||
+      message.includes("econnreset") ||
+      message.includes("socket") ||
+      message.includes("fetch failed")
+    );
+  }
+  return false;
+}
+
 /**
  * Truncate content to avoid exceeding token limits
  */
@@ -61,32 +91,58 @@ export async function generateContent(
   const systemPrompt = getPromptForFormat(format, tone, topics);
   const userPrompt = getUserPrompt(truncatedContent, format);
 
-  try {
-    const completion = await groq.chat.completions.create({
-      model: GROQ_MODEL,
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt },
-      ],
-      temperature: DEFAULT_TEMPERATURE,
-      max_tokens: DEFAULT_MAX_TOKENS,
-    });
+  let lastError: unknown;
 
-    const generatedContent = completion.choices[0]?.message?.content;
+  // Retry loop for connection errors
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      console.log(`[Groq] Attempt ${attempt}/${MAX_RETRIES} for ${format}`);
 
-    if (!generatedContent) {
-      throw new GroqAPIError("No se recibió contenido de la API.");
+      const completion = await groq.chat.completions.create({
+        model: GROQ_MODEL,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+        temperature: DEFAULT_TEMPERATURE,
+        max_tokens: DEFAULT_MAX_TOKENS,
+      });
+
+      const generatedContent = completion.choices[0]?.message?.content;
+
+      if (!generatedContent) {
+        throw new GroqAPIError("No se recibió contenido de la API.");
+      }
+
+      console.log(`[Groq] Successfully generated ${format} on attempt ${attempt}`);
+
+      return {
+        content: generatedContent.trim(),
+        tokensUsed: {
+          prompt: completion.usage?.prompt_tokens || 0,
+          completion: completion.usage?.completion_tokens || 0,
+          total: completion.usage?.total_tokens || 0,
+        },
+      };
+    } catch (error) {
+      lastError = error;
+
+      // Check if this is a retryable error
+      if (isRetryableError(error) && attempt < MAX_RETRIES) {
+        const delay = INITIAL_RETRY_DELAY * Math.pow(2, attempt - 1); // Exponential backoff
+        console.log(`[Groq] Connection error on attempt ${attempt}, retrying in ${delay}ms...`);
+        await sleep(delay);
+        continue;
+      }
+
+      // Not retryable or out of retries, break to error handling
+      break;
     }
+  }
 
-    return {
-      content: generatedContent.trim(),
-      tokensUsed: {
-        prompt: completion.usage?.prompt_tokens || 0,
-        completion: completion.usage?.completion_tokens || 0,
-        total: completion.usage?.total_tokens || 0,
-      },
-    };
-  } catch (error) {
+  // Error handling for the last error
+  const error = lastError;
+  {
     // Log the full error for debugging
     console.error("[Groq] Generation error details:", {
       errorName: error instanceof Error ? error.name : "Unknown",
