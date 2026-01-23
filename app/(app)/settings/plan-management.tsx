@@ -132,15 +132,28 @@ export default function PlanManagement({
             (currentPlan === "pro" && (plan.key === "starter" || plan.key === "free")) ||
             (currentPlan === "starter" && plan.key === "free");
 
+          const isPopular = plan.key === "pro";
+
           return (
             <div
               key={plan.key}
-              className={`p-6 rounded-xl border-2 transition-all ${
+              className={`p-6 rounded-xl border-2 transition-all relative ${
                 isCurrent
                   ? "border-primary bg-primary/5"
-                  : "border-gray-200 hover:border-gray-300"
+                  : isPopular
+                    ? "border-primary shadow-xl shadow-primary/20"
+                    : "border-gray-200 hover:border-gray-300"
               }`}
             >
+              {/* Glow effect for popular plan */}
+              {isPopular && !isCurrent && (
+                <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-teal-400/20 rounded-xl blur-lg -z-10" />
+              )}
+              {isPopular && (
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-primary to-teal-400 text-white text-xs font-semibold px-4 py-1.5 rounded-full shadow-lg">
+                  Popular
+                </span>
+              )}
               {isCurrent && (
                 <span className="inline-block px-2 py-1 text-xs font-medium bg-primary text-white rounded-full mb-3">
                   Plan actual
@@ -186,7 +199,11 @@ export default function PlanManagement({
                 <button
                   onClick={() => handleUpgrade(plan.key as "starter" | "pro")}
                   disabled={loading === plan.key}
-                  className="w-full btn-primary text-sm"
+                  className={`w-full text-sm py-2.5 rounded-lg font-medium transition-all ${
+                    isPopular
+                      ? "bg-gradient-to-r from-primary to-teal-400 text-white hover:from-primary-dark hover:to-teal-500 shadow-lg shadow-primary/30 hover:shadow-primary/50"
+                      : "btn-primary"
+                  }`}
                 >
                   {loading === plan.key ? "Cargando..." : "Cambiar a " + plan.name}
                 </button>

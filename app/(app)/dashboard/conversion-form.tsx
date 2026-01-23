@@ -481,20 +481,22 @@ export function ConversionForm({
             )}
           </motion.button>
         ) : (
-          <div className="w-full sm:w-auto text-center">
-            <button
-              type="button"
-              disabled
-              className="w-full sm:w-auto px-8 py-3 rounded-lg font-semibold bg-gray-300 text-gray-500 cursor-not-allowed"
-            >
-              Limite alcanzado
-            </button>
-            <a
-              href="/billing"
-              className="block mt-2 text-sm text-primary hover:text-primary-dark font-medium"
-            >
-              Mejora tu plan
-            </a>
+          <div className="w-full sm:w-auto">
+            <div className="p-4 sm:p-6 bg-gradient-to-r from-primary/10 to-teal-400/10 border border-primary/20 rounded-xl text-center">
+              <p className="text-navy font-medium mb-1">Has alcanzado el limite de tu plan</p>
+              <p className="text-sm text-gray-500 mb-4">Desbloquea mas conversiones para seguir creando contenido</p>
+              <motion.a
+                href="/billing"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-teal-400 hover:from-primary-dark hover:to-teal-500 text-white font-semibold rounded-lg shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all"
+                whileHover={{ scale: 1.02, y: -1 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                Mejora tu plan
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </motion.a>
+            </div>
           </div>
         )}
 

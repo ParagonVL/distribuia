@@ -33,7 +33,6 @@ const plans = [
       "3 versiones alternativas por contenido",
       "3 formatos: X, LinkedIn post y articulo",
     ],
-    popular: true,
   },
   {
     id: "pro",
@@ -43,6 +42,7 @@ const plans = [
     description: "Para profesionales",
     conversions: 30,
     regenerations: 3,
+    popular: true,
     features: [
       "30 videos o articulos al mes",
       "3 versiones alternativas por contenido",

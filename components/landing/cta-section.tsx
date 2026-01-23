@@ -5,8 +5,34 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { BackgroundPaths } from "./background-paths";
 
+// Pulsating word component for "conecta"
+function PulsatingWord({ children }: { children: React.ReactNode }) {
+  return (
+    <motion.span
+      className="inline-block text-error"
+      animate={{
+        scale: [1, 1.05, 1],
+        textShadow: [
+          "0 0 0px rgba(239, 68, 68, 0)",
+          "0 0 20px rgba(239, 68, 68, 0.5)",
+          "0 0 0px rgba(239, 68, 68, 0)",
+        ],
+      }}
+      transition={{
+        duration: 2,
+        repeat: Infinity,
+        ease: "easeInOut",
+      }}
+    >
+      {children}
+    </motion.span>
+  );
+}
+
 export function CTASection() {
-  const title = "Empieza a crear contenido que conecta";
+  // Split title to handle "conecta" separately
+  const titleStart = "Empieza a crear contenido que ";
+  const highlightWord = "conecta";
 
   return (
     <section className="relative overflow-hidden bg-white py-24 sm:py-32 px-4 sm:px-6">
@@ -18,14 +44,14 @@ export function CTASection() {
 
       {/* Content */}
       <div className="relative z-10 max-w-4xl mx-auto text-center">
-        {/* Animated heading - letter by letter */}
+        {/* Animated heading - letter by letter with pulsating conecta */}
         <motion.h2
           className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-navy mb-8 leading-tight"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
         >
-          {title.split("").map((char, i) => (
+          {titleStart.split("").map((char, i) => (
             <motion.span
               key={i}
               initial={{ opacity: 0, y: 50 }}
@@ -44,6 +70,20 @@ export function CTASection() {
               {char}
             </motion.span>
           ))}
+          <motion.span
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{
+              duration: 0.5,
+              delay: titleStart.length * 0.03,
+              type: "spring",
+              stiffness: 100,
+              damping: 12,
+            }}
+          >
+            <PulsatingWord>{highlightWord}</PulsatingWord>
+          </motion.span>
         </motion.h2>
 
         {/* Subheading */}
@@ -118,7 +158,7 @@ export function CTASection() {
             <svg className="w-5 h-5 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
-            <span>2 conversiones gratis</span>
+            <span>Primeras conversiones gratis</span>
           </div>
           <div className="flex items-center gap-2">
             <svg className="w-5 h-5 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">

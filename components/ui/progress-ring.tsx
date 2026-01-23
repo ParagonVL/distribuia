@@ -50,11 +50,19 @@ export function ProgressRing({ progress, size = 140, strokeWidth = 10 }: Progres
         />
       </svg>
 
-      {/* Glow effect */}
-      <div
-        className="absolute inset-0 rounded-full opacity-20 blur-xl"
+      {/* Glow effect - enhanced for better visibility */}
+      <motion.div
+        className="absolute inset-0 rounded-full blur-xl"
         style={{
-          background: `conic-gradient(from 0deg, #14B8A6 ${progress}%, transparent ${progress}%)`,
+          background: `conic-gradient(from -90deg, #14B8A6 ${progress}%, transparent ${progress}%)`,
+        }}
+        animate={{
+          opacity: [0.4, 0.7, 0.4],
+        }}
+        transition={{
+          duration: 1.5,
+          repeat: Infinity,
+          ease: "easeInOut",
         }}
       />
 

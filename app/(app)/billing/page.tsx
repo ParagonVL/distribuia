@@ -36,7 +36,6 @@ export default async function BillingPage() {
       price: 19,
       conversions: 10,
       regenerates: 3,
-      popular: true,
       features: [
         "10 conversiones/mes",
         "3 regeneraciones por conversion",
@@ -50,6 +49,7 @@ export default async function BillingPage() {
       price: 49,
       conversions: 30,
       regenerates: 3,
+      popular: true,
       features: [
         "30 conversiones/mes",
         "3 regeneraciones por conversion",
@@ -94,11 +94,17 @@ export default async function BillingPage() {
           <div
             key={p.id}
             className={`card relative ${
-              p.popular ? "border-2 border-primary" : ""
+              p.popular
+                ? "border-2 border-primary shadow-xl shadow-primary/20 scale-[1.02]"
+                : ""
             } ${plan === p.id ? "ring-2 ring-primary/50" : ""}`}
           >
+            {/* Glow effect for popular plan */}
             {p.popular && (
-              <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-navy text-xs font-semibold px-3 py-1 rounded-full">
+              <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-teal-400/20 rounded-xl blur-lg -z-10" />
+            )}
+            {p.popular && (
+              <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-primary to-teal-400 text-white text-xs font-semibold px-4 py-1.5 rounded-full shadow-lg">
                 Popular
               </span>
             )}
@@ -139,11 +145,11 @@ export default async function BillingPage() {
 
             <button
               disabled={plan === p.id}
-              className={`w-full mt-6 py-2 rounded-lg font-medium transition-colors ${
+              className={`w-full mt-6 py-2.5 rounded-lg font-medium transition-all ${
                 plan === p.id
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                   : p.popular
-                    ? "bg-primary text-white hover:bg-primary-dark"
+                    ? "bg-gradient-to-r from-primary to-teal-400 text-white hover:from-primary-dark hover:to-teal-500 shadow-lg shadow-primary/30 hover:shadow-primary/50 hover:scale-[1.02]"
                     : "bg-gray-100 text-navy hover:bg-gray-200"
               }`}
             >
