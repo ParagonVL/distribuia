@@ -10,6 +10,13 @@ interface ConversionOutput {
 
 interface ConversionResult {
   conversionId: string;
+  source: "youtube" | "article" | "text";
+  metadata?: {
+    title?: string;
+    videoId?: string;
+    duration?: number;
+    siteName?: string;
+  };
   outputs: {
     x_thread: ConversionOutput;
     linkedin_post: ConversionOutput;
@@ -32,17 +39,19 @@ type OutputFormat = "x_thread" | "linkedin_post" | "linkedin_article";
 const formatLabels: Record<OutputFormat, string> = {
   x_thread: "Hilo de X",
   linkedin_post: "Post de LinkedIn",
-  linkedin_article: "Articulo de LinkedIn",
+  linkedin_article: "Articulo",
 };
 
 function OutputCard({
   format,
   output,
   regeneratesPerConversion,
+  sourceUrl,
 }: {
   format: OutputFormat;
   output: ConversionOutput;
   regeneratesPerConversion: number;
+  sourceUrl?: string;
 }) {
   const [content, setContent] = useState(output.content);
   const [version, setVersion] = useState(output.version);
@@ -57,13 +66,32 @@ function OutputCard({
   const wordCount = content.split(/\s+/).filter(Boolean).length;
   const charCount = content.length;
 
-  const handleCopy = async () => {
+  const handleCopy = async (includeSource = false) => {
     try {
-      await navigator.clipboard.writeText(content);
+      let textToCopy = content;
+      if (includeSource && sourceUrl) {
+        textToCopy = `${content}\n\nFuente: ${sourceUrl}`;
+      }
+      await navigator.clipboard.writeText(textToCopy);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error("Failed to copy:", err);
+      // Fallback for older browsers
+      const textArea = document.createElement("textarea");
+      textArea.value = content;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand("copy");
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch (e) {
+        console.error("Fallback copy failed:", e);
+      }
+      document.body.removeChild(textArea);
     }
   };
 
@@ -99,9 +127,43 @@ function OutputCard({
     }
   };
 
-  const getLinkedInShareUrl = () => {
-    const text = encodeURIComponent(content.substring(0, 700));
-    return `https://www.linkedin.com/shareArticle?mini=true&text=${text}`;
+  const [linkedInCopied, setLinkedInCopied] = useState(false);
+
+  const handleOpenLinkedIn = async () => {
+    // Prepare content with optional source
+    const textToCopy = sourceUrl
+      ? `${content}\n\nFuente: ${sourceUrl}`
+      : content;
+
+    try {
+      // Try modern clipboard API first
+      await navigator.clipboard.writeText(textToCopy);
+      setLinkedInCopied(true);
+    } catch (err) {
+      console.error("Clipboard API failed, trying fallback:", err);
+      // Fallback for older browsers or permission issues
+      const textArea = document.createElement("textarea");
+      textArea.value = textToCopy;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      textArea.style.top = "-999999px";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand("copy");
+        setLinkedInCopied(true);
+      } catch (e) {
+        console.error("Fallback copy also failed:", e);
+      }
+      document.body.removeChild(textArea);
+    }
+
+    // Open LinkedIn feed in new tab
+    window.open("https://www.linkedin.com/feed/", "_blank", "noopener,noreferrer");
+
+    // Reset copied state after delay
+    setTimeout(() => setLinkedInCopied(false), 3000);
   };
 
   const formatContent = (text: string) => {
@@ -147,13 +209,28 @@ function OutputCard({
       </div>
 
       <div className="border-t border-gray-100 pt-4 mt-auto">
-        <p className="text-xs text-gray-500 mb-3">
-          {wordCount} palabras · {charCount.toLocaleString("es-ES")} caracteres
-        </p>
+        <div className="flex justify-between items-center mb-3">
+          <p className="text-xs text-gray-500">
+            {wordCount} palabras · {charCount.toLocaleString("es-ES")} caracteres
+          </p>
+          {sourceUrl && (
+            <a
+              href={sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-primary hover:text-primary-dark flex items-center gap-1"
+            >
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+              Ver original
+            </a>
+          )}
+        </div>
 
         <div className="flex flex-wrap gap-2">
           <button
-            onClick={handleCopy}
+            onClick={() => handleCopy(false)}
             className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
               copied
                 ? "bg-success/10 border-success text-success"
@@ -173,14 +250,22 @@ function OutputCard({
           </button>
 
           {format !== "x_thread" && (
-            <a
-              href={getLinkedInShareUrl()}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={handleOpenLinkedIn}
               className="px-3 py-1.5 rounded-lg text-sm font-medium bg-primary text-white hover:bg-primary-dark transition-colors"
+              title="Copia el contenido y abre LinkedIn"
             >
-              Abrir en LinkedIn
-            </a>
+              {linkedInCopied ? (
+                <span className="inline-flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Copiado - Pega en LinkedIn
+                </span>
+              ) : (
+                "Abrir en LinkedIn"
+              )}
+            </button>
           )}
 
           <button
@@ -212,9 +297,19 @@ function OutputCard({
   );
 }
 
+// Construct source URL from metadata
+function getSourceUrl(source: string, metadata?: ConversionResult["metadata"]): string | undefined {
+  if (source === "youtube" && metadata?.videoId) {
+    return `https://www.youtube.com/watch?v=${metadata.videoId}`;
+  }
+  // For articles, the URL would need to be stored in metadata (future improvement)
+  return undefined;
+}
+
 export function Results({ result, onNewConversion }: ResultsProps) {
   const [activeTab, setActiveTab] = useState<OutputFormat>("x_thread");
   const formats: OutputFormat[] = ["x_thread", "linkedin_post", "linkedin_article"];
+  const sourceUrl = getSourceUrl(result.source, result.metadata);
 
   const handleDownloadAll = () => {
     const content = formats
@@ -278,6 +373,7 @@ export function Results({ result, onNewConversion }: ResultsProps) {
           format={activeTab}
           output={result.outputs[activeTab]}
           regeneratesPerConversion={result.usage.regeneratesPerConversion}
+          sourceUrl={sourceUrl}
         />
       </div>
 
@@ -289,6 +385,7 @@ export function Results({ result, onNewConversion }: ResultsProps) {
             format={format}
             output={result.outputs[format]}
             regeneratesPerConversion={result.usage.regeneratesPerConversion}
+            sourceUrl={sourceUrl}
           />
         ))}
       </div>
