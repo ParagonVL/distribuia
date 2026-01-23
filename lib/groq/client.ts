@@ -46,15 +46,18 @@ interface ChatCompletionResponse {
 export async function groqChatCompletion(
   request: ChatCompletionRequest
 ): Promise<ChatCompletionResponse> {
-  const apiKey = process.env.GROQ_API_KEY;
+  const rawApiKey = process.env.GROQ_API_KEY;
 
-  if (!apiKey) {
+  if (!rawApiKey) {
     throw new Error(
       "GROQ_API_KEY environment variable is not set. Please add it to your .env.local file."
     );
   }
 
-  console.log("[Groq] Making direct API call to Groq...");
+  // Trim whitespace/newlines that may have been added during copy/paste
+  const apiKey = rawApiKey.trim();
+
+  console.log("[Groq] Making direct API call to Groq...", "key length:", apiKey.length);
 
   const response = await fetch(GROQ_API_URL, {
     method: "POST",
