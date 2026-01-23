@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Nunito, Inter } from "next/font/google";
 import "./globals.css";
 import { ToastContainer } from "@/components/ui/error-toast";
+import { CookieConsent } from "@/components/cookie-consent";
 
 const nunito = Nunito({
   variable: "--font-nunito",
@@ -78,6 +79,7 @@ export default function RootLayout({
       >
         {children}
         <ToastContainer />
+        <CookieConsent />
       </body>
     </html>
   );

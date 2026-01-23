@@ -397,9 +397,22 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="py-8 border-t border-gray-100">
-        <p className="text-center text-sm text-gray-500">
-          © 2025 Distribuia
-        </p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-6">
+            <p className="text-sm text-gray-500">
+              © {new Date().getFullYear()} Distribuia
+            </p>
+            <div className="flex items-center gap-4 text-sm text-gray-500">
+              <Link href="/privacidad" className="hover:text-primary transition-colors">
+                Privacidad
+              </Link>
+              <span className="text-gray-300">|</span>
+              <Link href="/terminos" className="hover:text-primary transition-colors">
+                Terminos
+              </Link>
+            </div>
+          </div>
+        </div>
       </footer>
     </div>
   );
