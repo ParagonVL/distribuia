@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // Must match the token in middleware.ts
-const SITE_ACCESS_TOKEN = "distribuia2026";
+const SITE_ACCESS_TOKEN = process.env.SITE_ACCESS_TOKEN || null;
 
 export async function POST(request: NextRequest) {
   try {

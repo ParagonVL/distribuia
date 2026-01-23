@@ -1,8 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-// Site access token (set to null to disable protection)
-const SITE_ACCESS_TOKEN = "distribuia2026";
+// Site access token (set to empty string or omit env var to disable protection)
+const SITE_ACCESS_TOKEN = process.env.SITE_ACCESS_TOKEN || null;
 
 // Routes that require authentication
 const PROTECTED_ROUTES = ["/dashboard", "/settings", "/billing", "/history"];

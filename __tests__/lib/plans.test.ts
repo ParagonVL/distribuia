@@ -1,0 +1,70 @@
+import {
+  PLAN_LIMITS,
+  getPlanLimits,
+  canCreateConversion,
+  canRegenerate,
+} from "@/lib/config/plans";
+
+describe("PLAN_LIMITS", () => {
+  it("should have correct limits for free plan", () => {
+    expect(PLAN_LIMITS.free.conversionsPerMonth).toBe(2);
+    expect(PLAN_LIMITS.free.regeneratesPerConversion).toBe(1);
+  });
+
+  it("should have correct limits for starter plan", () => {
+    expect(PLAN_LIMITS.starter.conversionsPerMonth).toBe(10);
+    expect(PLAN_LIMITS.starter.regeneratesPerConversion).toBe(3);
+  });
+
+  it("should have correct limits for pro plan", () => {
+    expect(PLAN_LIMITS.pro.conversionsPerMonth).toBe(30);
+    expect(PLAN_LIMITS.pro.regeneratesPerConversion).toBe(3);
+  });
+});
+
+describe("getPlanLimits", () => {
+  it("should return correct limits for each plan", () => {
+    expect(getPlanLimits("free")).toEqual(PLAN_LIMITS.free);
+    expect(getPlanLimits("starter")).toEqual(PLAN_LIMITS.starter);
+    expect(getPlanLimits("pro")).toEqual(PLAN_LIMITS.pro);
+  });
+
+  it("should return undefined for invalid input", () => {
+    // @ts-expect-error - Testing invalid input
+    expect(getPlanLimits("invalid")).toBeUndefined();
+  });
+});
+
+describe("canCreateConversion", () => {
+  it("should allow conversion when under limit", () => {
+    expect(canCreateConversion("free", 0)).toBe(true);
+    expect(canCreateConversion("free", 1)).toBe(true);
+    expect(canCreateConversion("starter", 5)).toBe(true);
+    expect(canCreateConversion("pro", 25)).toBe(true);
+  });
+
+  it("should deny conversion when at or over limit", () => {
+    expect(canCreateConversion("free", 2)).toBe(false);
+    expect(canCreateConversion("free", 3)).toBe(false);
+    expect(canCreateConversion("starter", 10)).toBe(false);
+    expect(canCreateConversion("pro", 30)).toBe(false);
+  });
+});
+
+describe("canRegenerate", () => {
+  it("should allow regeneration when under limit", () => {
+    // Version 1 is the original, so we can regenerate up to limit times
+    expect(canRegenerate("free", 1)).toBe(true); // Can create version 2
+    expect(canRegenerate("starter", 1)).toBe(true);
+    expect(canRegenerate("starter", 2)).toBe(true);
+    expect(canRegenerate("starter", 3)).toBe(true);
+  });
+
+  it("should deny regeneration when at limit", () => {
+    // Free plan: 1 regenerate means max version is 2
+    expect(canRegenerate("free", 2)).toBe(false);
+    // Starter/Pro: 3 regenerates means max version is 4
+    expect(canRegenerate("starter", 4)).toBe(false);
+    expect(canRegenerate("pro", 4)).toBe(false);
+  });
+});

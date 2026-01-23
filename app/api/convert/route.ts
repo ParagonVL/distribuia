@@ -17,10 +17,35 @@ import {
   GroqAPIError,
 } from "@/lib/errors";
 import { sendLowUsageEmail } from "@/lib/email/send";
+import { conversionRatelimit, checkRateLimit, getRateLimitIdentifier } from "@/lib/ratelimit";
+import logger from "@/lib/logger";
 import type { OutputFormat, ToneType, User, Conversion, Output } from "@/types/database";
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting check (before auth to prevent abuse)
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0] || request.headers.get("x-real-ip");
+    const rateLimitResult = await checkRateLimit(conversionRatelimit, getRateLimitIdentifier(null, ip));
+
+    if (rateLimitResult && !rateLimitResult.success) {
+      return NextResponse.json(
+        {
+          error: {
+            code: "RATE_LIMIT_EXCEEDED",
+            message: "Demasiadas solicitudes. Por favor, espera un momento.",
+            retryAfter: Math.ceil((rateLimitResult.reset - Date.now()) / 1000),
+          },
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(Math.ceil((rateLimitResult.reset - Date.now()) / 1000)),
+            "X-RateLimit-Remaining": String(rateLimitResult.remaining),
+          },
+        }
+      );
+    }
+
     // Parse request body
     const body = await request.json();
 
@@ -68,9 +93,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Process input (extract content from YouTube, article, or text)
-    console.log("Processing input:", { inputType, inputValueLength: inputValue.length });
+    logger.debug("Processing input", { inputType, inputValueLength: inputValue.length });
     const processedInput = await processInput(inputType, inputValue);
-    console.log("Processed input:", { source: processedInput.source, contentLength: processedInput.content.length });
+    logger.debug("Processed input", { source: processedInput.source, contentLength: processedInput.content.length });
 
     // Generate all three formats in parallel
     const generatedContent = await generateAllFormats(
@@ -94,7 +119,7 @@ export async function POST(request: NextRequest) {
       .single<Conversion>();
 
     if (conversionError || !conversion) {
-      console.error("Error saving conversion:", conversionError);
+      logger.error("Error saving conversion", conversionError);
       throw new Error("Error al guardar la conversión");
     }
 
@@ -118,7 +143,7 @@ export async function POST(request: NextRequest) {
       .select<"*", Output>();
 
     if (outputsError || !outputs) {
-      console.error("Error saving outputs:", outputsError);
+      logger.error("Error saving outputs", outputsError);
       // Try to clean up the conversion
       await supabase.from("conversions").delete().eq("id", conversion.id);
       throw new Error("Error al guardar los outputs");
@@ -134,7 +159,7 @@ export async function POST(request: NextRequest) {
       .eq("id", user.id);
 
     if (updateError) {
-      console.error("Error updating user conversion count:", updateError);
+      logger.error("Error updating user conversion count", updateError);
       // Don't throw here, the conversion was successful
     }
 
@@ -155,9 +180,9 @@ export async function POST(request: NextRequest) {
             .from("users")
             .update({ low_usage_email_sent_this_cycle: true })
             .eq("id", user.id);
-          console.log(`Low usage email sent to ${user.email}`);
+          logger.info("Low usage email sent", { email: user.email });
         } else {
-          console.error(`Failed to send low usage email: ${result.error}`);
+          logger.error("Failed to send low usage email", new Error(result.error || "Unknown error"));
         }
       });
     }
@@ -191,14 +216,10 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Convert API error:", {
+    logger.apiError("POST", "/api/convert", error, {
       errorName: error instanceof Error ? error.name : "Not an Error",
       errorConstructor: error?.constructor?.name,
-      message: error instanceof Error ? error.message : "Unknown error",
       isDistribuiaError: error instanceof DistribuiaError,
-      isYouTubeError: error instanceof YouTubeError,
-      isArticleError: error instanceof ArticleError,
-      isGroqError: error instanceof GroqAPIError,
     });
 
     // Handle our custom errors (try multiple checks due to potential module boundary issues)
@@ -208,13 +229,11 @@ export async function POST(request: NextRequest) {
       error instanceof ArticleError ||
       error instanceof GroqAPIError
     ) {
-      console.log("Returning custom error:", (error as DistribuiaError).code);
       return NextResponse.json((error as DistribuiaError).toJSON(), { status: (error as DistribuiaError).statusCode });
     }
 
     // Check if it's one of our errors by duck typing (in case instanceof fails)
     if (error && typeof error === "object" && "code" in error && "toJSON" in error && typeof (error as DistribuiaError).toJSON === "function") {
-      console.log("Returning error via duck typing:", (error as DistribuiaError).code);
       return NextResponse.json((error as DistribuiaError).toJSON(), { status: (error as DistribuiaError).statusCode || 400 });
     }
 

@@ -13,6 +13,8 @@ import {
   NotFoundError,
   ValidationError,
 } from "@/lib/errors";
+import { conversionRatelimit, checkRateLimit, getRateLimitIdentifier } from "@/lib/ratelimit";
+import logger from "@/lib/logger";
 import type { OutputFormat, ToneType, Output, User } from "@/types/database";
 
 interface OutputWithConversion extends Output {
@@ -27,6 +29,28 @@ interface OutputWithConversion extends Output {
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting check
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0] || request.headers.get("x-real-ip");
+    const rateLimitResult = await checkRateLimit(conversionRatelimit, getRateLimitIdentifier(null, ip));
+
+    if (rateLimitResult && !rateLimitResult.success) {
+      return NextResponse.json(
+        {
+          error: {
+            code: "RATE_LIMIT_EXCEEDED",
+            message: "Demasiadas solicitudes. Por favor, espera un momento.",
+            retryAfter: Math.ceil((rateLimitResult.reset - Date.now()) / 1000),
+          },
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(Math.ceil((rateLimitResult.reset - Date.now()) / 1000)),
+          },
+        }
+      );
+    }
+
     // Parse request body
     const body = await request.json();
 
@@ -108,7 +132,7 @@ export async function POST(request: NextRequest) {
       .eq("format", format);
 
     if (countError) {
-      console.error("Error counting versions:", countError);
+      logger.error("Error counting versions", countError);
       throw new Error("Error al verificar límites de regeneración");
     }
 
@@ -143,7 +167,7 @@ export async function POST(request: NextRequest) {
       .single<Output>();
 
     if (insertError || !newOutput) {
-      console.error("Error saving new output:", insertError);
+      logger.error("Error saving new output", insertError);
       throw new Error("Error al guardar el nuevo contenido");
     }
 
@@ -160,7 +184,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Regenerate API error:", error);
+    logger.apiError("POST", "/api/regenerate", error);
 
     // Handle our custom errors
     if (error instanceof DistribuiaError) {
