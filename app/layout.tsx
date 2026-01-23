@@ -19,9 +19,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Distribuia - Convierte videos en posts de LinkedIn",
+  title: "Distribuia - Convierte videos en posts",
   description:
-    "Transforma tus videos de YouTube en posts de LinkedIn y X en espanol. Rapido, nativo, sin sonar a robot.",
+    "Transforma tus videos de YouTube en posts de LinkedIn y X en español. Rápido, nativo, sin sonar a robot.",
   keywords: [
     "repurposing",
     "contenido",
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     "twitter",
     "x",
     "youtube",
-    "espanol",
+    "español",
   ],
   authors: [{ name: "Distribuia" }],
   creator: "Distribuia",
@@ -40,31 +40,26 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://distribuia.com"),
   openGraph: {
     type: "website",
     locale: "es_ES",
     url: "https://distribuia.com",
     siteName: "Distribuia",
     title: "Distribuia - Convierte videos en posts de LinkedIn",
-    description:
-      "Transforma tus videos de YouTube en posts de LinkedIn y X en espanol. Rapido, nativo, sin sonar a robot.",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Distribuia - Repurposing de contenido para creadores",
-      },
-    ],
+    description: "De YouTube a LinkedIn en 2 minutos. Español nativo.",
+    images: ["/og-image.png"],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Distribuia - Convierte videos en posts de LinkedIn",
-    description:
-      "Transforma tus videos de YouTube en posts de LinkedIn y X en espanol. Rapido, nativo, sin sonar a robot.",
+    title: "Distribuia",
+    description: "De YouTube a LinkedIn en 2 minutos.",
     images: ["/og-image.png"],
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({
