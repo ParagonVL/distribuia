@@ -13,6 +13,7 @@ let groqClient: Groq | null = null;
 export function getGroqClient(): Groq {
   if (!groqClient) {
     const apiKey = process.env.GROQ_API_KEY;
+    console.log("[Groq] Initializing client, API key present:", !!apiKey, "length:", apiKey?.length || 0);
     if (!apiKey) {
       throw new Error(
         "GROQ_API_KEY environment variable is not set. Please add it to your .env.local file."

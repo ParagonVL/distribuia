@@ -56,6 +56,7 @@ export async function generateContent(
   // Truncate content to avoid token limits
   const truncatedContent = truncateContent(content);
   console.log(`[Groq] Generating ${format}, content length: ${content.length} -> ${truncatedContent.length}`);
+  console.log(`[Groq] Using model: ${GROQ_MODEL}, temp: ${DEFAULT_TEMPERATURE}, max_tokens: ${DEFAULT_MAX_TOKENS}`);
 
   const systemPrompt = getPromptForFormat(format, tone, topics);
   const userPrompt = getUserPrompt(truncatedContent, format);
@@ -86,6 +87,15 @@ export async function generateContent(
       },
     };
   } catch (error) {
+    // Log the full error for debugging
+    console.error("[Groq] Generation error details:", {
+      errorName: error instanceof Error ? error.name : "Unknown",
+      errorMessage: error instanceof Error ? error.message : String(error),
+      errorStack: error instanceof Error ? error.stack?.substring(0, 500) : undefined,
+      errorType: typeof error,
+      errorKeys: error && typeof error === "object" ? Object.keys(error) : [],
+    });
+
     // Handle rate limiting
     if (error instanceof Error) {
       const message = error.message.toLowerCase();
@@ -114,8 +124,9 @@ export async function generateContent(
       throw error;
     }
 
-    // Unknown error
-    throw new GroqAPIError();
+    // Unknown error - include the message for debugging
+    const errorMsg = error instanceof Error ? error.message : "Error desconocido";
+    throw new GroqAPIError(errorMsg);
   }
 }
 
