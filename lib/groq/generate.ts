@@ -1,4 +1,4 @@
-import { groq, GROQ_MODEL, DEFAULT_TEMPERATURE, DEFAULT_MAX_TOKENS } from "./client";
+import { groqChatCompletion, GROQ_MODEL, DEFAULT_TEMPERATURE, DEFAULT_MAX_TOKENS } from "./client";
 import { getPromptForFormat, getUserPrompt } from "./prompts";
 import { GroqAPIError, GroqRateLimitError } from "@/lib/errors";
 import type { OutputFormat, ToneType } from "@/types/database";
@@ -98,7 +98,7 @@ export async function generateContent(
     try {
       console.log(`[Groq] Attempt ${attempt}/${MAX_RETRIES} for ${format}`);
 
-      const completion = await groq.chat.completions.create({
+      const completion = await groqChatCompletion({
         model: GROQ_MODEL,
         messages: [
           { role: "system", content: systemPrompt },
