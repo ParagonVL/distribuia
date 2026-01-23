@@ -1,4 +1,12 @@
+"use client";
+
 import Link from "next/link";
+import { ParticleText } from "@/components/ui/particle-text";
+import { ScrollIndicator } from "@/components/ui/scroll-indicator";
+import { ParticleButton } from "@/components/ui/particle-button";
+import { FeaturesCarousel } from "@/components/ui/features-carousel";
+import { DemoSection } from "@/components/ui/demo-section";
+import { ArrowRight, Check } from "lucide-react";
 
 export default function Home() {
   return (
@@ -13,385 +21,262 @@ export default function Home() {
             href="/login"
             className="px-4 py-2 rounded-lg text-navy font-medium border border-gray-300 hover:bg-gray-50 transition-colors"
           >
-            Iniciar sesión
+            Iniciar sesion
           </Link>
-          <Link
-            href="/register"
-            className="px-4 py-2 rounded-lg bg-primary hover:bg-primary-dark text-white font-medium transition-colors"
-          >
+          <ParticleButton href="/register" className="px-4 py-2">
             Prueba gratis
-          </Link>
+          </ParticleButton>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 text-center">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 text-center">
         {/* Badge */}
         <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary text-sm font-medium rounded-full mb-6">
-          Para creadores en español
+          Para creadores en espanol
         </span>
 
         {/* Heading */}
-        <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-navy max-w-4xl mx-auto mb-6 leading-tight">
-          Convierte tus videos en posts de LinkedIn que enganchan
+        <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-navy max-w-4xl mx-auto mb-4 leading-tight">
+          Convierte tus videos en posts de LinkedIn que
         </h1>
+
+        {/* Particle text effect for "enganchan" */}
+        <div className="max-w-md mx-auto mb-6">
+          <ParticleText text="enganchan" />
+        </div>
 
         {/* Subtitle */}
         <p className="text-xl text-gray-500 max-w-2xl mx-auto mb-10">
-          De YouTube a LinkedIn en 2 minutos. Español nativo, no traducido.
+          De YouTube a LinkedIn en 2 minutos. Espanol nativo, no traducido.
         </p>
 
         {/* CTA */}
-        <div className="flex flex-col items-center gap-3">
-          <Link
+        <div className="flex flex-col items-center gap-3 mb-16">
+          <ParticleButton
             href="/register"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-primary hover:bg-primary-dark text-white text-lg font-semibold rounded-lg transition-colors"
+            className="px-8 py-4 text-lg"
           >
             Empieza gratis
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 8l4 4m0 0l-4 4m4-4H3"
-              />
-            </svg>
-          </Link>
+            <ArrowRight className="w-5 h-5" />
+          </ParticleButton>
           <p className="text-sm text-gray-500">
             2 conversiones gratis. Sin tarjeta.
           </p>
         </div>
+
+        {/* Scroll indicator */}
+        <ScrollIndicator />
       </section>
 
-      {/* How it works */}
-      <section className="bg-white py-20 sm:py-24">
+      {/* How it works - Features Carousel */}
+      <section id="como-funciona" className="bg-slate-50 py-20 sm:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="font-heading text-3xl sm:text-4xl font-bold text-navy text-center mb-16">
-            Cómo funciona
-          </h2>
-
-          <div className="grid md:grid-cols-3 gap-10 max-w-5xl mx-auto">
-            {/* Step 1 */}
-            <div className="text-center">
-              <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-5">
-                <svg
-                  className="w-7 h-7 text-primary"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                  />
-                </svg>
-              </div>
-              <h3 className="font-heading text-xl font-semibold text-navy mb-2">
-                Pega el enlace
-              </h3>
-              <p className="text-gray-500">
-                YouTube, artículos o texto
-              </p>
-            </div>
-
-            {/* Step 2 */}
-            <div className="text-center">
-              <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-5">
-                <svg
-                  className="w-7 h-7 text-primary"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
-                  />
-                </svg>
-              </div>
-              <h3 className="font-heading text-xl font-semibold text-navy mb-2">
-                Elige el tono
-              </h3>
-              <p className="text-gray-500">
-                Profesional, cercano o técnico
-              </p>
-            </div>
-
-            {/* Step 3 */}
-            <div className="text-center">
-              <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-5">
-                <svg
-                  className="w-7 h-7 text-primary"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"
-                  />
-                </svg>
-              </div>
-              <h3 className="font-heading text-xl font-semibold text-navy mb-2">
-                Copia y publica
-              </h3>
-              <p className="text-gray-500">
-                Posts listos para LinkedIn y X
-              </p>
-            </div>
+          <div className="text-center mb-12">
+            <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary text-sm font-medium rounded-full mb-4">
+              Simple y rapido
+            </span>
+            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-navy">
+              Como funciona
+            </h2>
           </div>
+          <FeaturesCarousel />
         </div>
       </section>
 
+      {/* Demo Section */}
+      <DemoSection />
+
       {/* Pricing Section */}
-      <section className="py-20 sm:py-24">
+      <section className="py-20 sm:py-24 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="font-heading text-3xl sm:text-4xl font-bold text-navy text-center mb-16">
-            Planes simples
-          </h2>
+          <div className="text-center mb-16">
+            <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary text-sm font-medium rounded-full mb-4">
+              Precios simples
+            </span>
+            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-navy mb-4">
+              Elige tu plan
+            </h2>
+            <p className="text-gray-500 max-w-xl mx-auto">
+              Empieza gratis y escala cuando lo necesites. Sin compromisos.
+            </p>
+          </div>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {/* Free Plan */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-8">
-              <h3 className="font-heading text-lg font-semibold text-navy uppercase tracking-wide mb-4">
-                Gratis
-              </h3>
-              <p className="text-4xl font-bold text-navy mb-1">
-                €0
-                <span className="text-lg font-normal text-gray-500">/mes</span>
-              </p>
-              <p className="text-gray-500 mb-6">Para probar</p>
+            <div className="bg-white rounded-3xl border border-gray-200 p-8 relative overflow-hidden">
+              <div className="mb-6">
+                <h3 className="font-heading text-lg font-semibold text-navy uppercase tracking-wide mb-2">
+                  Gratis
+                </h3>
+                <p className="text-gray-500 text-sm">Para probar</p>
+              </div>
 
-              <ul className="space-y-3 mb-8">
+              <div className="mb-6">
+                <span className="text-5xl font-bold text-navy">€0</span>
+                <span className="text-gray-500">/mes</span>
+              </div>
+
+              <ul className="space-y-4 mb-8">
                 <li className="flex items-center gap-3 text-gray-600">
-                  <svg
-                    className="w-5 h-5 text-success flex-shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
+                  <div className="w-5 h-5 rounded-full bg-success/10 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3 text-success" />
+                  </div>
                   2 conversiones/mes
                 </li>
                 <li className="flex items-center gap-3 text-gray-600">
-                  <svg
-                    className="w-5 h-5 text-success flex-shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  1 regeneración
+                  <div className="w-5 h-5 rounded-full bg-success/10 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3 text-success" />
+                  </div>
+                  1 regeneracion
                 </li>
                 <li className="flex items-center gap-3 text-gray-600">
-                  <svg
-                    className="w-5 h-5 text-success flex-shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
+                  <div className="w-5 h-5 rounded-full bg-success/10 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3 text-success" />
+                  </div>
                   Todos los formatos
                 </li>
               </ul>
 
               <Link
                 href="/register"
-                className="block w-full py-3 text-center rounded-lg font-semibold border border-gray-300 text-navy hover:bg-gray-50 transition-colors"
+                className="block w-full py-3 text-center rounded-xl font-semibold border-2 border-gray-200 text-navy hover:bg-gray-50 transition-colors"
               >
                 Empieza gratis
               </Link>
             </div>
 
             {/* Starter Plan */}
-            <div className="bg-white rounded-2xl border-2 border-primary p-8 relative">
-              <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary text-white text-sm font-semibold rounded-full">
+            <div className="bg-white rounded-3xl border-2 border-primary p-8 relative overflow-hidden shadow-xl shadow-primary/10">
+              <div className="absolute top-0 right-0 bg-primary text-white text-xs font-semibold px-4 py-1.5 rounded-bl-xl">
                 Popular
-              </span>
+              </div>
 
-              <h3 className="font-heading text-lg font-semibold text-navy uppercase tracking-wide mb-4">
-                Starter
-              </h3>
-              <p className="text-4xl font-bold text-navy mb-1">
-                €19
-                <span className="text-lg font-normal text-gray-500">/mes</span>
-              </p>
-              <p className="text-gray-500 mb-6">Para creadores activos</p>
+              <div className="mb-6">
+                <h3 className="font-heading text-lg font-semibold text-navy uppercase tracking-wide mb-2">
+                  Starter
+                </h3>
+                <p className="text-gray-500 text-sm">Para creadores activos</p>
+              </div>
 
-              <ul className="space-y-3 mb-8">
+              <div className="mb-6">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl text-gray-400 line-through">€39</span>
+                  <span className="text-5xl font-bold text-navy">€19</span>
+                  <span className="text-gray-500">/mes</span>
+                </div>
+                <span className="inline-block mt-2 px-3 py-1 bg-success/10 text-success text-xs font-semibold rounded-full">
+                  Ahorra 51%
+                </span>
+              </div>
+
+              <ul className="space-y-4 mb-8">
                 <li className="flex items-center gap-3 text-gray-600">
-                  <svg
-                    className="w-5 h-5 text-success flex-shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
+                  <div className="w-5 h-5 rounded-full bg-success/10 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3 text-success" />
+                  </div>
                   10 conversiones/mes
                 </li>
                 <li className="flex items-center gap-3 text-gray-600">
-                  <svg
-                    className="w-5 h-5 text-success flex-shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
+                  <div className="w-5 h-5 rounded-full bg-success/10 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3 text-success" />
+                  </div>
                   3 regeneraciones
                 </li>
                 <li className="flex items-center gap-3 text-gray-600">
-                  <svg
-                    className="w-5 h-5 text-success flex-shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
+                  <div className="w-5 h-5 rounded-full bg-success/10 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3 text-success" />
+                  </div>
                   Todos los formatos
                 </li>
               </ul>
 
-              <Link
+              <ParticleButton
                 href="/register"
-                className="block w-full py-3 text-center rounded-lg font-semibold bg-primary hover:bg-primary-dark text-white transition-colors"
+                className="w-full py-3 text-center"
               >
                 Elegir Starter
-              </Link>
+              </ParticleButton>
             </div>
 
             {/* Pro Plan */}
-            <div className="bg-white rounded-2xl border-2 border-navy p-8">
-              <h3 className="font-heading text-lg font-semibold text-navy uppercase tracking-wide mb-4">
+            <div className="bg-white rounded-3xl border-2 border-navy p-8 relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-navy text-white text-xs font-semibold px-4 py-1.5 rounded-bl-xl">
                 Pro
-              </h3>
-              <p className="text-4xl font-bold text-navy mb-1">
-                €49
-                <span className="text-lg font-normal text-gray-500">/mes</span>
-              </p>
-              <p className="text-gray-500 mb-6">Para profesionales</p>
+              </div>
 
-              <ul className="space-y-3 mb-8">
+              <div className="mb-6">
+                <h3 className="font-heading text-lg font-semibold text-navy uppercase tracking-wide mb-2">
+                  Pro
+                </h3>
+                <p className="text-gray-500 text-sm">Para profesionales</p>
+              </div>
+
+              <div className="mb-6">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl text-gray-400 line-through">€99</span>
+                  <span className="text-5xl font-bold text-navy">€49</span>
+                  <span className="text-gray-500">/mes</span>
+                </div>
+                <span className="inline-block mt-2 px-3 py-1 bg-success/10 text-success text-xs font-semibold rounded-full">
+                  Ahorra 50%
+                </span>
+              </div>
+
+              <ul className="space-y-4 mb-8">
                 <li className="flex items-center gap-3 text-gray-600">
-                  <svg
-                    className="w-5 h-5 text-success flex-shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
+                  <div className="w-5 h-5 rounded-full bg-success/10 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3 text-success" />
+                  </div>
                   30 conversiones/mes
                 </li>
                 <li className="flex items-center gap-3 text-gray-600">
-                  <svg
-                    className="w-5 h-5 text-success flex-shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
+                  <div className="w-5 h-5 rounded-full bg-success/10 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3 text-success" />
+                  </div>
                   3 regeneraciones
                 </li>
                 <li className="flex items-center gap-3 text-gray-600">
-                  <svg
-                    className="w-5 h-5 text-success flex-shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
+                  <div className="w-5 h-5 rounded-full bg-success/10 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3 text-success" />
+                  </div>
                   Todos los formatos
                 </li>
                 <li className="flex items-center gap-3 text-gray-600">
-                  <svg
-                    className="w-5 h-5 text-success flex-shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
+                  <div className="w-5 h-5 rounded-full bg-success/10 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3 text-success" />
+                  </div>
                   Soporte prioritario
                 </li>
               </ul>
 
-              <Link
+              <ParticleButton
                 href="/register"
-                className="block w-full py-3 text-center rounded-lg font-semibold bg-primary hover:bg-primary-dark text-white transition-colors"
+                className="w-full py-3 text-center"
               >
                 Elegir Pro
-              </Link>
+              </ParticleButton>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="py-20 sm:py-24">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="font-heading text-3xl sm:text-4xl font-bold text-navy mb-6">
+            Empieza a crear contenido que conecta
+          </h2>
+          <p className="text-xl text-gray-500 mb-8">
+            Unete a cientos de creadores que ya usan Distribuia para multiplicar su alcance.
+          </p>
+          <ParticleButton
+            href="/register"
+            className="px-8 py-4 text-lg"
+          >
+            Empieza gratis ahora
+            <ArrowRight className="w-5 h-5" />
+          </ParticleButton>
         </div>
       </section>
 

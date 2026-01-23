@@ -138,7 +138,7 @@ export default function PrivacidadPage() {
           puedes contactarnos en:
         </p>
         <p className="text-gray-600 mt-2">
-          <strong>Email:</strong> privacidad@distribuia.com
+          <strong>Email:</strong> legal@distribuia.com
         </p>
       </section>
 
