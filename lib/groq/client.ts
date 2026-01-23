@@ -54,8 +54,8 @@ export async function groqChatCompletion(
     );
   }
 
-  // Trim whitespace/newlines that may have been added during copy/paste
-  const apiKey = rawApiKey.trim();
+  // Remove ALL whitespace/newlines that may have been added during copy/paste
+  const apiKey = rawApiKey.replace(/[\s\r\n]+/g, "");
 
   console.log("[Groq] Making direct API call to Groq...", "key length:", apiKey.length);
 
