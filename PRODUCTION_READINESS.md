@@ -1,8 +1,26 @@
 # Production Readiness Assessment: Distribuia
 
 **Assessment Date:** January 2026
-**Overall Score:** 6/10
-**Recommendation:** NOT READY FOR PRODUCTION - Suitable for beta/closed testing only
+**Overall Score:** 8/10 (Updated after fixes)
+**Recommendation:** READY FOR BETA LAUNCH - Minor improvements recommended
+
+## Recent Fixes Applied
+
+### Security (Fixed)
+- [x] Site access token moved to environment variable
+- [x] Rate limiting implemented with Upstash Redis
+- [x] Structured logging with Sentry integration
+
+### Testing & CI (Added)
+- [x] Jest test framework configured
+- [x] 34 unit tests for validations, errors, and plans
+- [x] GitHub Actions CI pipeline (lint, test, build, security audit)
+
+### Remaining for Production
+- [ ] Configure Sentry DSN in production
+- [ ] Configure Upstash Redis credentials
+- [ ] Generate strong CRON_SECRET
+- [ ] Add more integration tests
 
 ---
 
@@ -12,32 +30,30 @@ Distribuia has a solid foundation with good architecture, type safety, and user 
 
 ---
 
-## Critical Issues (Must Fix Before Launch)
+## Critical Issues - Status
 
-### 1. Hardcoded Site Access Token
-- **Location:** `middleware.ts:5`
-- **Risk:** Token visible in source code and version history
-- **Fix:** Move to environment variable `SITE_ACCESS_TOKEN`
+### 1. ~~Hardcoded Site Access Token~~ FIXED
+- **Status:** Moved to `SITE_ACCESS_TOKEN` environment variable
+- **Location:** `middleware.ts` now reads from `process.env.SITE_ACCESS_TOKEN`
 
-### 2. No Rate Limiting
-- **Risk:** API abuse, brute force attacks, DDoS vulnerability
-- **Impact:** Any actor can hammer the API without restriction
-- **Fix:** Implement per-user/per-IP rate limiting (use Upstash Ratelimit or similar)
+### 2. ~~No Rate Limiting~~ FIXED
+- **Status:** Implemented with Upstash Ratelimit
+- **Location:** `lib/ratelimit.ts` with integration in convert and regenerate routes
+- **Configuration:** Set `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`
 
-### 3. Placeholder Cron Secret
-- **Location:** `.env.local` - `CRON_SECRET=distribuia_cron_secret_2024_change_me`
-- **Risk:** Obvious placeholder likely to be forgotten
-- **Fix:** Generate strong random secret for production
+### 3. Placeholder Cron Secret - NEEDS ATTENTION
+- **Location:** `.env.local` - needs strong random value in production
+- **Action Required:** Generate with `openssl rand -hex 32`
 
-### 4. No Error Tracking
-- **Risk:** Production errors go undetected
-- **Impact:** Silent failures, no alerting
-- **Fix:** Integrate Sentry (free tier: 100 issues/month)
+### 4. ~~No Error Tracking~~ FIXED
+- **Status:** Sentry integration added
+- **Configuration:** Set `NEXT_PUBLIC_SENTRY_DSN` in production
+- **Files:** `sentry.client.config.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts`
 
-### 5. Console.log in Production
-- **Count:** 52+ console.log statements
-- **Risk:** Sensitive data leaks, verbose logging
-- **Fix:** Use structured logging with log levels
+### 5. ~~Console.log in Production~~ FIXED
+- **Status:** Structured logger created at `lib/logger.ts`
+- **Behavior:** Debug/info logs suppressed in production, errors sent to Sentry
+- **API routes updated:** convert, regenerate
 
 ---
 
