@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 
 export async function DELETE() {
@@ -18,8 +19,11 @@ export async function DELETE() {
       );
     }
 
+    // Use admin client for operations that require service role
+    const supabaseAdmin = createAdminClient();
+
     // Cancel Stripe subscription if exists
-    const { data: userData } = await supabase
+    const { data: userData } = await supabaseAdmin
       .from("users")
       .select("stripe_subscription_id")
       .eq("id", user.id)
@@ -38,29 +42,34 @@ export async function DELETE() {
     }
 
     // Delete user's outputs first (foreign key constraint)
-    const { data: conversions } = await supabase
+    const { data: conversions } = await supabaseAdmin
       .from("conversions")
       .select("id")
       .eq("user_id", user.id);
 
     if (conversions && conversions.length > 0) {
       const conversionIds = conversions.map((c) => c.id);
-      await supabase
+      await supabaseAdmin
         .from("outputs")
         .delete()
         .in("conversion_id", conversionIds);
     }
 
     // Delete user's conversions
-    await supabase.from("conversions").delete().eq("user_id", user.id);
+    await supabaseAdmin.from("conversions").delete().eq("user_id", user.id);
 
-    // Delete user record
-    await supabase.from("users").delete().eq("id", user.id);
+    // Delete user record from users table
+    await supabaseAdmin.from("users").delete().eq("id", user.id);
 
-    // Delete auth user using admin client
-    // Note: This requires service role key for admin operations
-    // For now, we'll just sign out and the auth user will remain orphaned
-    // In production, you'd use supabase.auth.admin.deleteUser(user.id)
+    // Delete the auth user using admin privileges
+    const { error: deleteAuthError } = await supabaseAdmin.auth.admin.deleteUser(user.id);
+
+    if (deleteAuthError) {
+      console.error("Error deleting auth user:", deleteAuthError);
+      // User data is already deleted, log error but don't fail
+    }
+
+    console.log(`User ${user.id} (${user.email}) deleted successfully`);
 
     return NextResponse.json({ success: true });
   } catch (error) {
