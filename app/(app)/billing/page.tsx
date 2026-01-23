@@ -62,9 +62,20 @@ export default async function BillingPage() {
 
   return (
     <div>
-      <h1 className="font-heading text-2xl sm:text-3xl font-bold text-navy mb-8">
-        Facturacion
-      </h1>
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="font-heading text-2xl sm:text-3xl font-bold text-navy">
+          Facturacion
+        </h1>
+        <a
+          href="/dashboard"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary-dark text-white text-sm font-medium rounded-lg transition-colors"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+          </svg>
+          Volver a generar
+        </a>
+      </div>
 
       {/* Current plan */}
       <div className="card mb-8">

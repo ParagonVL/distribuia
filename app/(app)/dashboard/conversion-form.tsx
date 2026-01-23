@@ -482,8 +482,8 @@ export function ConversionForm({
           </motion.button>
         ) : (
           <div className="w-full sm:w-auto">
-            <div className="p-4 sm:p-6 bg-gradient-to-r from-primary/10 to-teal-400/10 border border-primary/20 rounded-xl text-center">
-              <p className="text-navy font-medium mb-1">Has alcanzado el limite de tu plan</p>
+            <div className="p-4 sm:p-6 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-xl text-center">
+              <p className="text-amber-600 font-semibold mb-1">Has alcanzado el limite de tu plan</p>
               <p className="text-sm text-gray-500 mb-4">Desbloquea mas conversiones para seguir creando contenido</p>
               <motion.a
                 href="/billing"

@@ -202,7 +202,7 @@ export default function PlanManagement({
                   className={`w-full text-sm py-2.5 rounded-lg font-medium transition-all ${
                     isPopular
                       ? "bg-gradient-to-r from-primary to-teal-400 text-white hover:from-primary-dark hover:to-teal-500 shadow-lg shadow-primary/30 hover:shadow-primary/50"
-                      : "btn-primary"
+                      : "bg-gray-100 text-navy hover:bg-gray-200"
                   }`}
                 >
                   {loading === plan.key ? "Cargando..." : "Cambiar a " + plan.name}
