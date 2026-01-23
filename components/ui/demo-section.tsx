@@ -27,7 +27,7 @@ const highlights = [
 
 export function DemoSection() {
   return (
-    <section className="overflow-hidden py-20 sm:py-24">
+    <section className="overflow-hidden py-16 sm:py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         {/* Header */}
         <div className="max-w-2xl">
