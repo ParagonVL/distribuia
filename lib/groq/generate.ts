@@ -3,6 +3,32 @@ import { getPromptForFormat, getUserPrompt } from "./prompts";
 import { GroqAPIError, GroqRateLimitError } from "@/lib/errors";
 import type { OutputFormat, ToneType } from "@/types/database";
 
+// Maximum content length to send to the API (roughly 5K tokens = ~20K chars)
+const MAX_CONTENT_LENGTH = 20000;
+
+/**
+ * Truncate content to avoid exceeding token limits
+ */
+function truncateContent(content: string): string {
+  if (content.length <= MAX_CONTENT_LENGTH) {
+    return content;
+  }
+
+  // Truncate at a sentence boundary if possible
+  const truncated = content.substring(0, MAX_CONTENT_LENGTH);
+  const lastPeriod = truncated.lastIndexOf(".");
+  const lastQuestion = truncated.lastIndexOf("?");
+  const lastExclamation = truncated.lastIndexOf("!");
+
+  const cutPoint = Math.max(lastPeriod, lastQuestion, lastExclamation);
+
+  if (cutPoint > MAX_CONTENT_LENGTH * 0.8) {
+    return truncated.substring(0, cutPoint + 1);
+  }
+
+  return truncated + "...";
+}
+
 export interface GenerationResult {
   content: string;
   tokensUsed: {
@@ -27,8 +53,12 @@ export async function generateContent(
   tone: ToneType,
   topics?: string[]
 ): Promise<GenerationResult> {
+  // Truncate content to avoid token limits
+  const truncatedContent = truncateContent(content);
+  console.log(`[Groq] Generating ${format}, content length: ${content.length} -> ${truncatedContent.length}`);
+
   const systemPrompt = getPromptForFormat(format, tone, topics);
-  const userPrompt = getUserPrompt(content, format);
+  const userPrompt = getUserPrompt(truncatedContent, format);
 
   try {
     const completion = await groq.chat.completions.create({
@@ -90,24 +120,26 @@ export async function generateContent(
 }
 
 /**
- * Generate content for all three formats in parallel
+ * Generate content for all three formats sequentially to avoid rate limits
  */
 export async function generateAllFormats(
   content: string,
   tone: ToneType,
   topics?: string[]
 ): Promise<GenerateAllResult> {
-  const formats: OutputFormat[] = ["x_thread", "linkedin_post", "linkedin_article"];
+  console.log("[Groq] Starting sequential generation for all formats");
 
-  // Run all generations in parallel
-  const results = await Promise.all(
-    formats.map((format) => generateContent(content, format, tone, topics))
-  );
+  // Run generations sequentially to avoid rate limits with large content
+  const x_thread = await generateContent(content, "x_thread", tone, topics);
+  const linkedin_post = await generateContent(content, "linkedin_post", tone, topics);
+  const linkedin_article = await generateContent(content, "linkedin_article", tone, topics);
+
+  console.log("[Groq] All formats generated successfully");
 
   return {
-    x_thread: results[0],
-    linkedin_post: results[1],
-    linkedin_article: results[2],
+    x_thread,
+    linkedin_post,
+    linkedin_article,
   };
 }
 

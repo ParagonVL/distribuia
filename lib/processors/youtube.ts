@@ -1,4 +1,3 @@
-import { YoutubeTranscript } from "youtube-transcript";
 import {
   YouTubeInvalidURLError,
   YouTubeNoCaptionsError,
@@ -13,19 +12,23 @@ export interface YouTubeResult {
   videoId: string;
 }
 
+interface SupadataTranscriptResponse {
+  content: Array<{
+    text: string;
+    offset: number;
+    duration: number;
+  }>;
+  lang: string;
+  availableLangs?: string[];
+}
+
 // Regex patterns for different YouTube URL formats
 const YOUTUBE_URL_PATTERNS = [
-  // Standard watch URLs
   /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/,
-  // Short URLs
   /(?:https?:\/\/)?youtu\.be\/([a-zA-Z0-9_-]{11})/,
-  // Embed URLs
   /(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,
-  // YouTube Shorts
   /(?:https?:\/\/)?(?:www\.)?youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/,
-  // Mobile URLs
   /(?:https?:\/\/)?m\.youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/,
-  // YouTube Music
   /(?:https?:\/\/)?music\.youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/,
 ];
 
@@ -42,7 +45,6 @@ export function extractVideoId(url: string): string {
     }
   }
 
-  // Check if the input is already a video ID (11 characters)
   if (/^[a-zA-Z0-9_-]{11}$/.test(trimmedUrl)) {
     return trimmedUrl;
   }
@@ -51,7 +53,7 @@ export function extractVideoId(url: string): string {
 }
 
 /**
- * Fetch video metadata using oEmbed API (no API key required)
+ * Fetch video metadata using oEmbed API
  */
 async function fetchVideoMetadata(videoId: string): Promise<{ title: string }> {
   try {
@@ -62,7 +64,7 @@ async function fetchVideoMetadata(videoId: string): Promise<{ title: string }> {
       if (response.status === 401 || response.status === 403) {
         throw new YouTubePrivateVideoError();
       }
-      throw new YouTubeTranscriptError("No se pudo obtener información del vídeo.");
+      return { title: "Sin título" };
     }
 
     const data = await response.json();
@@ -71,76 +73,105 @@ async function fetchVideoMetadata(videoId: string): Promise<{ title: string }> {
     if (error instanceof YouTubePrivateVideoError) {
       throw error;
     }
-    // Return default if metadata fetch fails
     return { title: "Sin título" };
   }
+}
+
+/**
+ * Fetch transcript using Supadata API
+ */
+async function fetchTranscriptSupadata(videoId: string): Promise<{
+  transcript: string;
+  duration: number;
+  lang: string;
+}> {
+  const apiKey = process.env.SUPADATA_API_KEY;
+
+  if (!apiKey) {
+    console.error("[YouTube] SUPADATA_API_KEY not configured");
+    throw new YouTubeTranscriptError("Servicio de transcripción no configurado");
+  }
+
+  const youtubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
+  const apiUrl = `https://api.supadata.ai/v1/transcript?url=${encodeURIComponent(youtubeUrl)}&lang=es&mode=native`;
+
+  console.log("[YouTube] Fetching transcript via Supadata for:", videoId);
+
+  const response = await fetch(apiUrl, {
+    method: "GET",
+    headers: {
+      "x-api-key": apiKey,
+      "Content-Type": "application/json",
+    },
+  });
+
+  console.log("[YouTube] Supadata response status:", response.status);
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("[YouTube] Supadata error:", errorText);
+
+    if (response.status === 404) {
+      throw new YouTubeNoCaptionsError();
+    }
+    if (response.status === 401 || response.status === 403) {
+      throw new YouTubeTranscriptError("Error de autenticación con el servicio de transcripción");
+    }
+    if (response.status === 400) {
+      // Check if it's a "no captions" error
+      if (errorText.includes("transcript") || errorText.includes("caption")) {
+        throw new YouTubeNoCaptionsError();
+      }
+      throw new YouTubePrivateVideoError();
+    }
+    throw new YouTubeTranscriptError(`Error del servicio: ${response.status}`);
+  }
+
+  const data: SupadataTranscriptResponse = await response.json();
+  console.log("[YouTube] Supadata returned", data.content?.length || 0, "segments in", data.lang);
+
+  if (!data.content || data.content.length === 0) {
+    throw new YouTubeNoCaptionsError();
+  }
+
+  // Combine all transcript segments
+  const transcript = data.content
+    .map((segment) => segment.text)
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  // Calculate duration from last segment
+  const lastSegment = data.content[data.content.length - 1];
+  const duration = Math.ceil((lastSegment.offset + lastSegment.duration) / 1000);
+
+  console.log("[YouTube] Transcript extracted:", transcript.length, "chars,", duration, "seconds");
+
+  return {
+    transcript,
+    duration,
+    lang: data.lang,
+  };
 }
 
 /**
  * Extract transcript from a YouTube video
  */
 export async function extractYouTubeTranscript(url: string): Promise<YouTubeResult> {
-  // Extract and validate video ID
   const videoId = extractVideoId(url);
+  console.log("[YouTube] Extracting transcript for video:", videoId);
 
   try {
-    // Fetch transcript - prefer Spanish, fallback to any available
-    let transcriptItems;
-
-    try {
-      // Try Spanish first
-      transcriptItems = await YoutubeTranscript.fetchTranscript(videoId, {
-        lang: "es",
-      });
-    } catch {
-      // Fallback to any available language
-      try {
-        transcriptItems = await YoutubeTranscript.fetchTranscript(videoId);
-      } catch (fallbackError) {
-        // Check error type to provide specific feedback
-        const errorMessage = fallbackError instanceof Error ? fallbackError.message : "";
-
-        if (
-          errorMessage.includes("disabled") ||
-          errorMessage.includes("Transcript is disabled")
-        ) {
-          throw new YouTubeNoCaptionsError();
-        }
-
-        if (
-          errorMessage.includes("private") ||
-          errorMessage.includes("unavailable") ||
-          errorMessage.includes("Video unavailable")
-        ) {
-          throw new YouTubePrivateVideoError();
-        }
-
-        throw new YouTubeTranscriptError();
-      }
-    }
-
-    if (!transcriptItems || transcriptItems.length === 0) {
-      throw new YouTubeNoCaptionsError();
-    }
-
-    // Combine transcript segments into full text
-    const transcript = transcriptItems
-      .map((item) => item.text)
-      .join(" ")
-      .replace(/\s+/g, " ")
-      .trim();
-
-    // Calculate total duration from transcript items
-    const lastItem = transcriptItems[transcriptItems.length - 1];
-    const duration = Math.ceil(lastItem.offset / 1000 + (lastItem.duration || 0) / 1000);
-
-    // Fetch video metadata
-    const metadata = await fetchVideoMetadata(videoId);
+    // Fetch transcript and metadata in parallel
+    const [transcriptResult, metadata] = await Promise.all([
+      fetchTranscriptSupadata(videoId),
+      fetchVideoMetadata(videoId),
+    ]);
 
     return {
       title: metadata.title,
-      transcript,
-      duration,
+      transcript: transcriptResult.transcript,
+      duration: transcriptResult.duration,
       videoId,
     };
   } catch (error) {
@@ -154,8 +185,8 @@ export async function extractYouTubeTranscript(url: string): Promise<YouTubeResu
       throw error;
     }
 
-    // Handle unexpected errors
     const errorMessage = error instanceof Error ? error.message : "Error desconocido";
+    console.error("[YouTube] Unexpected error:", errorMessage);
     throw new YouTubeTranscriptError(errorMessage);
   }
 }
