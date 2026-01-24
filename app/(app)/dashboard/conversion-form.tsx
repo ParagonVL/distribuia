@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Results } from "./results";
 import {
@@ -12,200 +11,74 @@ import {
   GenericError,
   RateLimitErrorState,
 } from "./error-states";
-import { toast } from "@/components/ui/error-toast";
 import { GenerationProgress } from "@/components/ui/generation-progress";
+import { useTopics, useConversion } from "./hooks";
 
 type InputType = "youtube" | "article" | "text";
 type ToneType = "profesional" | "cercano" | "tecnico";
-
-// Error code to component mapping
-type ErrorType =
-  | "YOUTUBE_NO_CAPTIONS"
-  | "ARTICLE_FETCH_ERROR"
-  | "ARTICLE_PARSE_ERROR"
-  | "CONVERSION_LIMIT_EXCEEDED"
-  | "GROQ_API_ERROR"
-  | "GROQ_RATE_LIMIT"
-  | "RATE_LIMIT_EXCEEDED"
-  | "GENERIC";
 
 interface ConversionFormProps {
   canConvert: boolean;
   remaining: number;
 }
 
-interface ConversionOutput {
-  id: string;
-  content: string;
-  version: number;
-}
+const TABS: { id: InputType; label: string }[] = [
+  { id: "youtube", label: "YouTube" },
+  { id: "article", label: "Articulo" },
+  { id: "text", label: "Texto" },
+];
 
-interface ConversionResult {
-  conversionId: string;
-  source: "youtube" | "article" | "text";
-  metadata?: {
-    title?: string;
-    videoId?: string;
-    duration?: number;
-    siteName?: string;
-  };
-  outputs: {
-    x_thread: ConversionOutput;
-    linkedin_post: ConversionOutput;
-    linkedin_article: ConversionOutput;
-  };
-  usage: {
-    conversionsUsed: number;
-    conversionsLimit: number;
-    regeneratesPerConversion: number;
-  };
-}
-
-interface ErrorState {
-  type: ErrorType;
-  message: string;
-  code?: string;
-  retryAfter?: number;
-}
+const TONES: { id: ToneType; label: string; description: string }[] = [
+  { id: "profesional", label: "Profesional", description: "Formal, basado en datos, terminologia del sector" },
+  { id: "cercano", label: "Cercano", description: "Personal, conversacional, conecta emocionalmente" },
+  { id: "tecnico", label: "Tecnico", description: "Jerga especializada, detallado, experto a experto" },
+];
 
 export function ConversionForm({
   canConvert: initialCanConvert,
   remaining: initialRemaining,
 }: ConversionFormProps) {
-  const router = useRouter();
   const [activeTab, setActiveTab] = useState<InputType>("youtube");
   const [inputValue, setInputValue] = useState("");
   const [tone, setTone] = useState<ToneType>("profesional");
-  const [topics, setTopics] = useState<string[]>([]);
-  const [topicInput, setTopicInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<ErrorState | null>(null);
-  const [result, setResult] = useState<ConversionResult | null>(null);
-  const [canConvert, setCanConvert] = useState(initialCanConvert);
-  const [remaining, setRemaining] = useState(initialRemaining);
 
-  const tabs: { id: InputType; label: string }[] = [
-    { id: "youtube", label: "YouTube" },
-    { id: "article", label: "Articulo" },
-    { id: "text", label: "Texto" },
-  ];
+  const {
+    topics,
+    topicInput,
+    setTopicInput,
+    addTopic,
+    removeTopic,
+    clearTopics,
+    canAddMore,
+  } = useTopics();
 
-  const tones: { id: ToneType; label: string }[] = [
-    { id: "profesional", label: "Profesional" },
-    { id: "cercano", label: "Cercano" },
-    { id: "tecnico", label: "Tecnico" },
-  ];
-
-  const handleAddTopic = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if ((e.key === "," || e.key === "Enter") && topicInput.trim()) {
-      e.preventDefault();
-      const newTopic = topicInput.trim().replace(/,/g, "");
-      if (newTopic && topics.length < 5 && !topics.includes(newTopic)) {
-        setTopics([...topics, newTopic]);
-      }
-      setTopicInput("");
-    }
-  };
-
-  const handleRemoveTopic = (topicToRemove: string) => {
-    setTopics(topics.filter((t) => t !== topicToRemove));
-  };
-
-  const getErrorType = (code: string): ErrorType => {
-    if (code === "YOUTUBE_NO_CAPTIONS" || code === "YOUTUBE_PRIVATE_VIDEO" || code === "YOUTUBE_TRANSCRIPT_ERROR") {
-      return "YOUTUBE_NO_CAPTIONS";
-    }
-    if (code === "ARTICLE_FETCH_ERROR" || code === "ARTICLE_PARSE_ERROR" || code === "ARTICLE_PAYWALL" || code === "ARTICLE_JS_HEAVY") {
-      return "ARTICLE_FETCH_ERROR";
-    }
-    if (code === "CONVERSION_LIMIT_EXCEEDED" || code === "PLAN_LIMIT_EXCEEDED") {
-      return "CONVERSION_LIMIT_EXCEEDED";
-    }
-    if (code === "GROQ_API_ERROR" || code === "GROQ_RATE_LIMIT") {
-      return "GROQ_API_ERROR";
-    }
-    if (code === "RATE_LIMIT_EXCEEDED") {
-      return "RATE_LIMIT_EXCEEDED";
-    }
-    return "GENERIC";
-  };
+  const {
+    isLoading,
+    error,
+    result,
+    canConvert,
+    remaining,
+    submit,
+    clearError,
+    reset,
+    initialRemaining: limitRemaining,
+  } = useConversion({ initialCanConvert, initialRemaining });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!canConvert || !inputValue.trim()) return;
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch("/api/convert", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          inputType: activeTab,
-          inputValue: inputValue.trim(),
-          tone,
-          topics: topics.length > 0 ? topics : null,
-        }),
-      });
-
-      const text = await response.text();
-      let data;
-      try {
-        data = text ? JSON.parse(text) : {};
-      } catch {
-        console.error("Failed to parse response:", text);
-        throw new Error("Respuesta inválida del servidor");
-      }
-
-      if (!response.ok) {
-        const errorCode = data.error?.code || "INTERNAL_ERROR";
-        const errorMessage = data.error?.message || "Error al procesar el contenido";
-        const errorType = getErrorType(errorCode);
-
-        // For minor validation errors, show toast instead of full error state
-        if (errorCode === "VALIDATION_ERROR" || errorCode === "TEXT_TOO_SHORT" || errorCode === "TEXT_TOO_LONG") {
-          toast.showError(errorMessage);
-          return;
-        }
-
-        setError({
-          type: errorType,
-          message: errorMessage,
-          code: errorCode,
-          retryAfter: data.error?.retryAfter,
-        });
-        return;
-      }
-
-      setResult(data);
-      setRemaining((prev) => Math.max(0, prev - 1));
-      if (remaining <= 1) {
-        setCanConvert(false);
-      }
-      toast.showSuccess("Contenido generado correctamente");
-      // Refresh to update header usage count
-      router.refresh();
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Error desconocido";
-      setError({
-        type: "GENERIC",
-        message,
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    await submit(activeTab, inputValue, tone, topics);
   };
 
   const handleNewConversion = () => {
-    setResult(null);
+    reset();
     setInputValue("");
-    setTopics([]);
-    setError(null);
+    clearTopics();
   };
 
-  const handleRetry = () => {
-    setError(null);
+  const handleTabChange = (tabId: InputType) => {
+    setActiveTab(tabId);
+    setInputValue("");
+    clearError();
   };
 
   // Show progress animation while generating
@@ -217,27 +90,27 @@ export function ConversionForm({
   if (error) {
     switch (error.type) {
       case "YOUTUBE_NO_CAPTIONS":
-        return <NoCaptionsError onRetry={handleRetry} />;
+        return <NoCaptionsError onRetry={clearError} />;
       case "ARTICLE_FETCH_ERROR":
-        return <ArticleScrapingError onRetry={handleRetry} />;
+        return <ArticleScrapingError onRetry={clearError} />;
       case "CONVERSION_LIMIT_EXCEEDED":
         return (
           <PlanLimitError
-            conversionsUsed={initialRemaining === 0 ? remaining : remaining}
-            conversionsLimit={initialRemaining}
+            conversionsUsed={limitRemaining === 0 ? remaining : remaining}
+            conversionsLimit={limitRemaining}
             planName="actual"
           />
         );
       case "GROQ_API_ERROR":
-        return <GenerationError onRetry={handleRetry} />;
+        return <GenerationError onRetry={clearError} />;
       case "RATE_LIMIT_EXCEEDED":
-        return <RateLimitErrorState retryAfter={error.retryAfter} onRetry={handleRetry} />;
+        return <RateLimitErrorState retryAfter={error.retryAfter} onRetry={clearError} />;
       default:
         return (
           <GenericError
             message={error.message}
             code={error.code}
-            onRetry={handleRetry}
+            onRetry={clearError}
             onReset={handleNewConversion}
           />
         );
@@ -245,13 +118,10 @@ export function ConversionForm({
   }
 
   if (result) {
-    return (
-      <Results
-        result={result}
-        onNewConversion={handleNewConversion}
-      />
-    );
+    return <Results result={result} onNewConversion={handleNewConversion} />;
   }
+
+  const selectedTone = TONES.find((t) => t.id === tone);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -261,18 +131,14 @@ export function ConversionForm({
         role="tablist"
         aria-label="Tipo de contenido"
       >
-        {tabs.map((tab) => (
+        {TABS.map((tab) => (
           <motion.button
             key={tab.id}
             type="button"
             role="tab"
             aria-selected={activeTab === tab.id}
             aria-controls={`panel-${tab.id}`}
-            onClick={() => {
-              setActiveTab(tab.id);
-              setInputValue("");
-              setError(null);
-            }}
+            onClick={() => handleTabChange(tab.id)}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
               activeTab === tab.id
                 ? "bg-primary text-white"
@@ -289,67 +155,12 @@ export function ConversionForm({
 
       {/* Input area */}
       <div className="card">
-        {activeTab === "youtube" && (
-          <div>
-            <label
-              htmlFor="youtube-url"
-              className="block text-sm font-medium text-navy mb-2"
-            >
-              URL del video de YouTube
-            </label>
-            <input
-              id="youtube-url"
-              type="url"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder="https://youtube.com/watch?v=..."
-              className="input"
-              disabled={isLoading}
-            />
-          </div>
-        )}
-
-        {activeTab === "article" && (
-          <div>
-            <label
-              htmlFor="article-url"
-              className="block text-sm font-medium text-navy mb-2"
-            >
-              URL del articulo
-            </label>
-            <input
-              id="article-url"
-              type="url"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder="https://ejemplo.com/articulo"
-              className="input"
-              disabled={isLoading}
-            />
-          </div>
-        )}
-
-        {activeTab === "text" && (
-          <div>
-            <label
-              htmlFor="text-content"
-              className="block text-sm font-medium text-navy mb-2"
-            >
-              Contenido
-            </label>
-            <textarea
-              id="text-content"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Pega aqui el contenido que quieres transformar..."
-              className="input min-h-[200px] resize-y"
-              disabled={isLoading}
-            />
-            <p className="mt-1 text-xs text-gray-500">
-              Minimo 100 palabras, maximo 50.000 caracteres
-            </p>
-          </div>
-        )}
+        <InputPanel
+          activeTab={activeTab}
+          inputValue={inputValue}
+          setInputValue={setInputValue}
+          isLoading={isLoading}
+        />
       </div>
 
       {/* Tone selector */}
@@ -359,7 +170,7 @@ export function ConversionForm({
             Tono del contenido
           </legend>
           <div className="flex flex-wrap gap-2" role="group" aria-label="Seleccionar tono">
-            {tones.map((t) => (
+            {TONES.map((t) => (
               <motion.button
                 key={t.id}
                 type="button"
@@ -381,69 +192,26 @@ export function ConversionForm({
             ))}
           </div>
         </fieldset>
-        <p className="mt-2 text-xs text-gray-500">
-          {tone === "profesional" &&
-            "Formal, basado en datos, terminologia del sector"}
-          {tone === "cercano" &&
-            "Personal, conversacional, conecta emocionalmente"}
-          {tone === "tecnico" &&
-            "Jerga especializada, detallado, experto a experto"}
-        </p>
+        {selectedTone && (
+          <p className="mt-2 text-xs text-gray-500">{selectedTone.description}</p>
+        )}
       </div>
 
       {/* Topics input */}
       <div className="card">
-        <label
-          htmlFor="topics"
-          className="block text-sm font-medium text-navy mb-2"
-        >
+        <label htmlFor="topics" className="block text-sm font-medium text-navy mb-2">
           Temas clave (opcional)
         </label>
-        <div className="flex flex-wrap gap-2 mb-2">
-          {topics.map((topic) => (
-            <span
-              key={topic}
-              className="inline-flex items-center gap-1 px-3 py-1 bg-primary/10 text-navy rounded-full text-sm"
-            >
-              {topic}
-              <button
-                type="button"
-                onClick={() => handleRemoveTopic(topic)}
-                className="hover:text-error focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 rounded"
-                disabled={isLoading}
-                aria-label={`Eliminar tema: ${topic}`}
-              >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </span>
-          ))}
-        </div>
+        <TopicsList topics={topics} onRemove={removeTopic} isLoading={isLoading} />
         <input
           id="topics"
           type="text"
           value={topicInput}
           onChange={(e) => setTopicInput(e.target.value)}
-          onKeyDown={handleAddTopic}
-          placeholder={
-            topics.length >= 5
-              ? "Maximo 5 temas"
-              : "Escribe y pulsa coma para anadir..."
-          }
+          onKeyDown={addTopic}
+          placeholder={canAddMore ? "Escribe y pulsa coma para anadir..." : "Maximo 5 temas"}
           className="input"
-          disabled={isLoading || topics.length >= 5}
+          disabled={isLoading || !canAddMore}
         />
         <p className="mt-1 text-xs text-gray-500">
           Los temas se integraran naturalmente en el contenido generado
@@ -451,74 +219,216 @@ export function ConversionForm({
       </div>
 
       {/* Submit button */}
-      <div className="flex flex-col sm:flex-row gap-4 items-center">
-        {canConvert ? (
-          <motion.button
-            type="submit"
-            disabled={isLoading || !inputValue.trim()}
-            className={`w-full sm:w-auto px-8 py-3 rounded-lg font-semibold transition-colors ${
-              isLoading || !inputValue.trim()
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-primary hover:bg-primary-dark text-white"
-            }`}
-            whileHover={!isLoading && inputValue.trim() ? { scale: 1.02, y: -1 } : {}}
-            whileTap={!isLoading && inputValue.trim() ? { scale: 0.98 } : {}}
-            transition={{ type: "spring", stiffness: 400, damping: 25 }}
-          >
-            {isLoading ? (
-              <span className="inline-flex items-center gap-2">
-                <svg
-                  className="animate-spin w-5 h-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
-                Convirtiendo...
-              </span>
-            ) : (
-              "Convertir"
-            )}
-          </motion.button>
-        ) : (
-          <div className="w-full sm:w-auto">
-            <div className="p-4 sm:p-6 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-xl text-center">
-              <p className="text-amber-600 font-semibold mb-1">Has alcanzado el limite de tu plan</p>
-              <p className="text-sm text-gray-500 mb-4">Desbloquea mas conversiones para seguir creando contenido</p>
-              <motion.a
-                href="/billing"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-teal-400 hover:from-primary-dark hover:to-teal-500 text-white font-semibold rounded-lg shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all"
-                whileHover={{ scale: 1.02, y: -1 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                Mejora tu plan
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </motion.a>
-            </div>
-          </div>
-        )}
-
-        {canConvert && (
-          <p className="text-sm text-gray-500">
-            {remaining} {remaining === 1 ? "conversion restante" : "conversiones restantes"}
-          </p>
-        )}
-      </div>
+      <SubmitSection
+        canConvert={canConvert}
+        isLoading={isLoading}
+        inputValue={inputValue}
+        remaining={remaining}
+      />
     </form>
+  );
+}
+
+// Sub-components for better organization
+
+function InputPanel({
+  activeTab,
+  inputValue,
+  setInputValue,
+  isLoading,
+}: {
+  activeTab: InputType;
+  inputValue: string;
+  setInputValue: (value: string) => void;
+  isLoading: boolean;
+}) {
+  if (activeTab === "youtube") {
+    return (
+      <div>
+        <label htmlFor="youtube-url" className="block text-sm font-medium text-navy mb-2">
+          URL del video de YouTube
+        </label>
+        <input
+          id="youtube-url"
+          type="url"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          placeholder="https://youtube.com/watch?v=..."
+          className="input"
+          disabled={isLoading}
+        />
+      </div>
+    );
+  }
+
+  if (activeTab === "article") {
+    return (
+      <div>
+        <label htmlFor="article-url" className="block text-sm font-medium text-navy mb-2">
+          URL del articulo
+        </label>
+        <input
+          id="article-url"
+          type="url"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          placeholder="https://ejemplo.com/articulo"
+          className="input"
+          disabled={isLoading}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <label htmlFor="text-content" className="block text-sm font-medium text-navy mb-2">
+        Contenido
+      </label>
+      <textarea
+        id="text-content"
+        value={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
+        placeholder="Pega aqui el contenido que quieres transformar..."
+        className="input min-h-[200px] resize-y"
+        disabled={isLoading}
+      />
+      <p className="mt-1 text-xs text-gray-500">
+        Minimo 100 palabras, maximo 50.000 caracteres
+      </p>
+    </div>
+  );
+}
+
+function TopicsList({
+  topics,
+  onRemove,
+  isLoading,
+}: {
+  topics: string[];
+  onRemove: (topic: string) => void;
+  isLoading: boolean;
+}) {
+  if (topics.length === 0) return null;
+
+  return (
+    <div className="flex flex-wrap gap-2 mb-2">
+      {topics.map((topic) => (
+        <span
+          key={topic}
+          className="inline-flex items-center gap-1 px-3 py-1 bg-primary/10 text-navy rounded-full text-sm"
+        >
+          {topic}
+          <button
+            type="button"
+            onClick={() => onRemove(topic)}
+            className="hover:text-error focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 rounded"
+            disabled={isLoading}
+            aria-label={`Eliminar tema: ${topic}`}
+          >
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function SubmitSection({
+  canConvert,
+  isLoading,
+  inputValue,
+  remaining,
+}: {
+  canConvert: boolean;
+  isLoading: boolean;
+  inputValue: string;
+  remaining: number;
+}) {
+  if (!canConvert) {
+    return (
+      <div className="flex flex-col sm:flex-row gap-4 items-center">
+        <div className="w-full sm:w-auto">
+          <div className="p-4 sm:p-6 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-xl text-center">
+            <p className="text-amber-600 font-semibold mb-1">Has alcanzado el limite de tu plan</p>
+            <p className="text-sm text-gray-500 mb-4">Desbloquea mas conversiones para seguir creando contenido</p>
+            <motion.a
+              href="/billing"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-teal-400 hover:from-primary-dark hover:to-teal-500 text-white font-semibold rounded-lg shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all"
+              whileHover={{ scale: 1.02, y: -1 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              Mejora tu plan
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </motion.a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const isDisabled = isLoading || !inputValue.trim();
+
+  return (
+    <div className="flex flex-col sm:flex-row gap-4 items-center">
+      <motion.button
+        type="submit"
+        disabled={isDisabled}
+        className={`w-full sm:w-auto px-8 py-3 rounded-lg font-semibold transition-colors ${
+          isDisabled
+            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+            : "bg-primary hover:bg-primary-dark text-white"
+        }`}
+        whileHover={!isDisabled ? { scale: 1.02, y: -1 } : {}}
+        whileTap={!isDisabled ? { scale: 0.98 } : {}}
+        transition={{ type: "spring", stiffness: 400, damping: 25 }}
+      >
+        {isLoading ? (
+          <span className="inline-flex items-center gap-2">
+            <svg
+              className="animate-spin w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              />
+            </svg>
+            Convirtiendo...
+          </span>
+        ) : (
+          "Convertir"
+        )}
+      </motion.button>
+      <p className="text-sm text-gray-500">
+        {remaining} {remaining === 1 ? "conversion restante" : "conversiones restantes"}
+      </p>
+    </div>
   );
 }

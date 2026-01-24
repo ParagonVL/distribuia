@@ -5,6 +5,8 @@ import { getStripeClient, getPlanFromPriceId } from "@/lib/stripe";
 import { createClient } from "@supabase/supabase-js";
 import logger from "@/lib/logger";
 
+type SupabaseAdmin = ReturnType<typeof getSupabaseAdmin>;
+
 // Use service role key for webhook to bypass RLS
 function getSupabaseAdmin() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -23,12 +25,32 @@ function getSupabaseAdmin() {
 }
 
 /**
+ * Find user ID from metadata or by subscription ID lookup
+ */
+async function findUserIdBySubscription(
+  supabase: SupabaseAdmin,
+  subscriptionId: string,
+  metadataUserId?: string
+): Promise<string | null> {
+  // First try metadata
+  if (metadataUserId) {
+    return metadataUserId;
+  }
+
+  // Fall back to database lookup
+  const { data: user } = await supabase
+    .from("users")
+    .select("id")
+    .eq("stripe_subscription_id", subscriptionId)
+    .single();
+
+  return user?.id ?? null;
+}
+
+/**
  * Check if webhook event has already been processed (idempotency)
  */
-async function isEventProcessed(
-  supabase: ReturnType<typeof getSupabaseAdmin>,
-  eventId: string
-): Promise<boolean> {
+async function isEventProcessed(supabase: SupabaseAdmin, eventId: string): Promise<boolean> {
   const { data } = await supabase
     .from("webhook_events")
     .select("id")
@@ -42,7 +64,7 @@ async function isEventProcessed(
  * Mark webhook event as processed
  */
 async function markEventProcessed(
-  supabase: ReturnType<typeof getSupabaseAdmin>,
+  supabase: SupabaseAdmin,
   eventId: string,
   eventType: string,
   status: "processed" | "failed" = "processed",
@@ -64,19 +86,13 @@ export async function POST(request: NextRequest) {
 
   if (!signature) {
     logger.error("Missing Stripe signature");
-    return NextResponse.json(
-      { error: "Missing signature" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Missing signature" }, { status: 400 });
   }
 
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!webhookSecret) {
     logger.error("Missing STRIPE_WEBHOOK_SECRET");
-    return NextResponse.json(
-      { error: "Webhook not configured" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Webhook not configured" }, { status: 500 });
   }
 
   let event: Stripe.Event;
@@ -87,10 +103,7 @@ export async function POST(request: NextRequest) {
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
     logger.error("Webhook signature verification failed", err instanceof Error ? err : new Error(message));
-    return NextResponse.json(
-      { error: `Webhook Error: ${message}` },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: `Webhook Error: ${message}` }, { status: 400 });
   }
 
   const supabase = getSupabaseAdmin();
@@ -147,15 +160,12 @@ export async function POST(request: NextRequest) {
       error instanceof Error ? error.message : "Unknown error"
     );
     logger.error("Webhook handler error", error);
-    return NextResponse.json(
-      { error: "Webhook handler failed" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Webhook handler failed" }, { status: 500 });
   }
 }
 
 async function handleCheckoutCompleted(
-  supabase: ReturnType<typeof getSupabaseAdmin>,
+  supabase: SupabaseAdmin,
   stripe: Stripe,
   session: Stripe.Checkout.Session
 ) {
@@ -165,16 +175,12 @@ async function handleCheckoutCompleted(
     return;
   }
 
-  // Get subscription details
   if (!session.subscription) {
     logger.error("No subscription in checkout session");
     return;
   }
 
-  const subscription = await stripe.subscriptions.retrieve(
-    session.subscription as string
-  );
-
+  const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
   const priceId = subscription.items.data[0]?.price.id;
   const plan = getPlanFromPriceId(priceId);
 
@@ -183,7 +189,6 @@ async function handleCheckoutCompleted(
     return;
   }
 
-  // Update user plan
   const { error } = await supabase
     .from("users")
     .update({
@@ -203,31 +208,18 @@ async function handleCheckoutCompleted(
   logger.info(`User ${userId} upgraded to ${plan}`);
 }
 
-async function handleSubscriptionDeleted(
-  supabase: ReturnType<typeof getSupabaseAdmin>,
-  subscription: Stripe.Subscription
-) {
-  const userId = subscription.metadata?.supabase_user_id;
-
-  // If no user ID in metadata, try to find by subscription ID
-  let targetUserId = userId;
-
-  if (!targetUserId) {
-    const { data: user } = await supabase
-      .from("users")
-      .select("id")
-      .eq("stripe_subscription_id", subscription.id)
-      .single();
-
-    targetUserId = user?.id;
-  }
+async function handleSubscriptionDeleted(supabase: SupabaseAdmin, subscription: Stripe.Subscription) {
+  const targetUserId = await findUserIdBySubscription(
+    supabase,
+    subscription.id,
+    subscription.metadata?.supabase_user_id
+  );
 
   if (!targetUserId) {
     logger.error("Could not find user for subscription:", subscription.id);
     return;
   }
 
-  // Downgrade to free plan
   const { error } = await supabase
     .from("users")
     .update({
@@ -244,28 +236,16 @@ async function handleSubscriptionDeleted(
   logger.info(`User ${targetUserId} downgraded to free`);
 }
 
-async function handleSubscriptionUpdated(
-  supabase: ReturnType<typeof getSupabaseAdmin>,
-  subscription: Stripe.Subscription
-) {
-  // Handle plan changes (upgrades/downgrades)
+async function handleSubscriptionUpdated(supabase: SupabaseAdmin, subscription: Stripe.Subscription) {
   if (subscription.status !== "active") {
     return;
   }
 
-  const userId = subscription.metadata?.supabase_user_id;
-
-  let targetUserId = userId;
-
-  if (!targetUserId) {
-    const { data: user } = await supabase
-      .from("users")
-      .select("id")
-      .eq("stripe_subscription_id", subscription.id)
-      .single();
-
-    targetUserId = user?.id;
-  }
+  const targetUserId = await findUserIdBySubscription(
+    supabase,
+    subscription.id,
+    subscription.metadata?.supabase_user_id
+  );
 
   if (!targetUserId) {
     logger.error("Could not find user for subscription:", subscription.id);
@@ -280,10 +260,7 @@ async function handleSubscriptionUpdated(
     return;
   }
 
-  const { error } = await supabase
-    .from("users")
-    .update({ plan })
-    .eq("id", targetUserId);
+  const { error } = await supabase.from("users").update({ plan }).eq("id", targetUserId);
 
   if (error) {
     logger.error("Error updating user plan:", error);
@@ -293,45 +270,26 @@ async function handleSubscriptionUpdated(
   logger.info(`User ${targetUserId} plan updated to ${plan}`);
 }
 
-async function handleInvoicePaid(
-  supabase: ReturnType<typeof getSupabaseAdmin>,
-  stripe: Stripe,
-  invoice: Stripe.Invoice
-) {
-  // Only handle subscription invoices (not one-time payments)
+async function handleInvoicePaid(supabase: SupabaseAdmin, stripe: Stripe, invoice: Stripe.Invoice) {
   const subscriptionRef = invoice.parent?.subscription_details?.subscription;
   if (!subscriptionRef) {
     return;
   }
 
-  // Get subscription ID (can be string or Subscription object)
-  const subscriptionId = typeof subscriptionRef === "string"
-    ? subscriptionRef
-    : subscriptionRef.id;
-
-  // Get subscription to find user
+  const subscriptionId = typeof subscriptionRef === "string" ? subscriptionRef : subscriptionRef.id;
   const subscription = await stripe.subscriptions.retrieve(subscriptionId);
 
-  const userId = subscription.metadata?.supabase_user_id;
-
-  let targetUserId = userId;
-
-  if (!targetUserId) {
-    const { data: user } = await supabase
-      .from("users")
-      .select("id")
-      .eq("stripe_subscription_id", subscription.id)
-      .single();
-
-    targetUserId = user?.id;
-  }
+  const targetUserId = await findUserIdBySubscription(
+    supabase,
+    subscription.id,
+    subscription.metadata?.supabase_user_id
+  );
 
   if (!targetUserId) {
     logger.error("Could not find user for invoice:", invoice.id);
     return;
   }
 
-  // Reset monthly usage on successful payment
   const { error } = await supabase
     .from("users")
     .update({
