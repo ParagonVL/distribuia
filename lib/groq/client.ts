@@ -1,5 +1,5 @@
-// Model configuration
-export const GROQ_MODEL = "llama-3.1-70b-versatile";
+// Model configuration - using 8B for better rate limits and speed
+export const GROQ_MODEL = "llama-3.1-8b-instant";
 
 // Default parameters
 export const DEFAULT_TEMPERATURE = 0.7;
