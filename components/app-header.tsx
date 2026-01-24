@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
@@ -110,10 +111,15 @@ export function AppHeader({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/dashboard" className="flex items-center">
-            <span className="font-heading text-xl font-bold text-navy">
-              distribuia
-            </span>
+          <Link href="/dashboard" className="flex items-center h-full overflow-hidden">
+            <Image
+              src="/logo.png"
+              alt="Distribuia"
+              width={180}
+              height={120}
+              className="w-[180px] h-auto -mt-5 -mb-7 object-contain object-left"
+              priority
+            />
           </Link>
 
           <div className="flex items-center gap-4">

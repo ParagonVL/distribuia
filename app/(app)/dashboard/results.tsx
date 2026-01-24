@@ -289,7 +289,7 @@ function OutputCard({
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => handleCopy(false)}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-all ${
               copied
                 ? "bg-success/10 border-success text-success"
                 : "border-gray-300 text-navy hover:bg-gray-50"
@@ -303,25 +303,35 @@ function OutputCard({
                 Copiado!
               </span>
             ) : (
-              "Copiar"
+              <span className="inline-flex items-center gap-1.5">
+                <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-gray-200 text-xs font-bold text-navy">1</span>
+                Copiar
+              </span>
             )}
           </button>
 
           {format !== "x_thread" && (
             <button
               onClick={handleOpenLinkedIn}
-              className="px-3 py-1.5 rounded-lg text-sm font-medium bg-primary text-white hover:bg-primary-dark transition-colors"
-              title="Copia el contenido y abre LinkedIn"
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                copied
+                  ? "bg-primary text-white hover:bg-primary-dark ring-2 ring-primary/50 ring-offset-1 animate-pulse"
+                  : "bg-primary/80 text-white hover:bg-primary"
+              }`}
+              title="Abre LinkedIn para pegar tu contenido"
             >
               {linkedInCopied ? (
                 <span className="inline-flex items-center gap-1">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  Copiado - Pega en LinkedIn
+                  Pega en LinkedIn
                 </span>
               ) : (
-                "Abrir en LinkedIn"
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-white/20 text-xs font-bold">2</span>
+                  Abrir LinkedIn
+                </span>
               )}
             </button>
           )}
