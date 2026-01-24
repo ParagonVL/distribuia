@@ -23,6 +23,9 @@ import { invalidateUserCache } from "@/lib/cache";
 import logger from "@/lib/logger";
 import type { OutputFormat, ToneType, User, Conversion, Output } from "@/types/database";
 
+// Extend timeout for this route (Vercel Pro: up to 300s, Hobby: 10s max)
+export const maxDuration = 60;
+
 export async function POST(request: NextRequest) {
   // CSRF protection
   const csrfError = validateCSRF(request);

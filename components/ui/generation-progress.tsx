@@ -10,21 +10,21 @@ const BASE_STEPS = [
     id: 1,
     label: "Generando hilo de X",
     shortLabel: "Hilo de X",
-    duration: 15000, // 15 seconds (includes API call + delay)
+    duration: 5000, // ~5 seconds per API call
     targetPercent: 40,
   },
   {
     id: 2,
     label: "Creando post de LinkedIn",
     shortLabel: "Post",
-    duration: 15000,
+    duration: 5000,
     targetPercent: 70,
   },
   {
     id: 3,
     label: "Escribiendo articulo",
     shortLabel: "Articulo",
-    duration: 15000, // Increased to account for actual API time
+    duration: 5000,
     targetPercent: 100,
   },
 ];
@@ -231,7 +231,7 @@ export function GenerationProgress({ inputType = "youtube" }: GenerationProgress
         transition={{ delay: 0.5 }}
         className="mt-8 text-sm text-gray-600"
       >
-        Esto suele tardar 35-40 segundos
+        Esto suele tardar 15-25 segundos
       </motion.p>
 
       {/* Don't reload warning */}
