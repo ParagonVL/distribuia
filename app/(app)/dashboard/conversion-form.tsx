@@ -129,23 +129,10 @@ export function ConversionForm({
 
   return (
     <div className="space-y-6">
-      {/* Header with Nueva conversion button */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h1 className="font-heading text-2xl sm:text-3xl font-bold text-navy">
-          Nueva conversion
-        </h1>
-        <motion.a
-          href="/dashboard"
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary to-teal-400 hover:from-primary-dark hover:to-teal-500 text-white font-semibold rounded-lg shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all"
-          whileHover={{ scale: 1.02, y: -1 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Nueva conversion
-        </motion.a>
-      </div>
+      {/* Header */}
+      <h1 className="font-heading text-2xl sm:text-3xl font-bold text-navy">
+        Nueva conversion
+      </h1>
 
       {/* Limit reached warning - shown at top when no conversions left */}
       {!canConvert && (
