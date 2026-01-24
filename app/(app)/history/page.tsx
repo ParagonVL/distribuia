@@ -5,6 +5,9 @@ import { CopyButton } from "./copy-button";
 import type { Conversion, Output, User } from "@/types/database";
 import type { PlanType } from "@/lib/config/plans";
 
+// Disable caching - always fetch fresh user data
+export const dynamic = "force-dynamic";
+
 interface ConversionWithOutputs extends Conversion {
   outputs: Output[];
 }

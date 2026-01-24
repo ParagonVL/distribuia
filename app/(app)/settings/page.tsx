@@ -5,6 +5,9 @@ import { ChangePasswordButton, DeleteAccountButton } from "./account-actions";
 import { EmailPreferences } from "./email-preferences";
 import type { PlanType } from "@/lib/config/plans";
 
+// Disable caching - always fetch fresh user data
+export const dynamic = "force-dynamic";
+
 export default async function SettingsPage() {
   const supabase = await createClient();
   const {

@@ -39,10 +39,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = getSupabaseAdmin();
+    const supabaseAdmin = getSupabaseAdmin();
 
-    // Check if user exists
-    const { data: users, error: listError } = await supabase.auth.admin.listUsers();
+    // Check if user exists and get their status
+    const { data: users, error: listError } = await supabaseAdmin.auth.admin.listUsers();
 
     if (listError) {
       logger.error("Error listing users", { error: listError.message });
@@ -55,35 +55,43 @@ export async function POST(request: NextRequest) {
     const user = users.users.find(u => u.email?.toLowerCase() === email.toLowerCase());
 
     if (!user) {
-      // Don't reveal if user exists or not
+      // Don't reveal if user exists or not - always return success
       logger.info("Resend confirmation requested for non-existent email", { email });
       return NextResponse.json({ success: true });
     }
 
     if (user.email_confirmed_at) {
-      // Email already confirmed
+      // Email already confirmed - still return success to not leak info
       logger.info("Resend confirmation requested for already confirmed email", { email });
       return NextResponse.json({ success: true });
     }
 
-    // Generate new confirmation link
-    const { error: linkError } = await supabase.auth.admin.generateLink({
-      type: "signup",
-      email: user.email!,
-      options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
-      },
+    // Use inviteUserByEmail to send a new confirmation-like email
+    // This works for existing unconfirmed users
+    const { error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
+      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
     });
 
-    if (linkError) {
-      logger.error("Error generating confirmation link", { error: linkError.message });
-      return NextResponse.json(
-        { error: "Failed to send email" },
-        { status: 500 }
-      );
+    if (inviteError) {
+      // If invite fails (user already exists), try generating a magic link instead
+      logger.warn("Invite failed, trying magic link", { error: inviteError.message });
+
+      const { error: magicError } = await supabaseAdmin.auth.admin.generateLink({
+        type: "magiclink",
+        email: user.email!,
+        options: {
+          redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+        },
+      });
+
+      if (magicError) {
+        logger.error("Error generating magic link", { error: magicError.message });
+        // Still return success to not leak information
+        return NextResponse.json({ success: true });
+      }
     }
 
-    logger.info("Confirmation email resent", { email });
+    logger.info("Confirmation/magic link email sent", { email });
     return NextResponse.json({ success: true });
 
   } catch (error) {

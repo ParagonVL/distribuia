@@ -4,6 +4,9 @@ import { BillingClient } from "./billing-client";
 import type { PlanType } from "@/lib/config/plans";
 import { getStripeClient } from "@/lib/stripe";
 
+// Disable caching for this page - always fetch fresh user data
+export const dynamic = "force-dynamic";
+
 interface BillingPageProps {
   searchParams: Promise<{ success?: string; canceled?: string }>;
 }

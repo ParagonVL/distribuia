@@ -3,6 +3,9 @@ import { getPlanLimits, shouldAddWatermark } from "@/lib/config/plans";
 import { ConversionForm } from "./conversion-form";
 import type { User } from "@/types/database";
 
+// Disable caching - always fetch fresh user data
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage() {
   const supabase = await createClient();
   const {
