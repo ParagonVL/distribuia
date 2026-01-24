@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { processInput } from "@/lib/processors";
-import { getPlanLimits, canCreateConversion, shouldAddWatermark } from "@/lib/config/plans";
+import { generateAllFormats } from "@/lib/groq";
+import { getPlanLimits, canCreateConversion, addWatermarkIfNeeded, shouldAddWatermark } from "@/lib/config/plans";
 import {
   convertRequestSchema,
   formatZodErrors,
@@ -20,32 +21,7 @@ import { conversionRatelimit, checkRateLimit, getRateLimitIdentifier } from "@/l
 import { validateCSRF } from "@/lib/csrf";
 import { invalidateUserCache } from "@/lib/cache";
 import logger from "@/lib/logger";
-import type { ToneType, User, Conversion } from "@/types/database";
-
-// Internal secret for triggering background processing
-const INTERNAL_SECRET = process.env.CRON_SECRET;
-
-/**
- * Trigger background processing for a conversion.
- * Uses fire-and-forget pattern - doesn't wait for response.
- */
-async function triggerBackgroundProcessing(conversionId: string, baseUrl: string) {
-  try {
-    // Fire-and-forget request to process endpoint
-    fetch(`${baseUrl}/api/conversion/${conversionId}/process`, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${INTERNAL_SECRET}`,
-        "Content-Type": "application/json",
-      },
-    }).catch((err) => {
-      // Log but don't throw - this is fire-and-forget
-      logger.error("Failed to trigger background processing", err, { conversionId });
-    });
-  } catch (error) {
-    logger.error("Error triggering background processing", error, { conversionId });
-  }
-}
+import type { OutputFormat, ToneType, User, Conversion, Output } from "@/types/database";
 
 export async function POST(request: NextRequest) {
   // CSRF protection
@@ -123,12 +99,18 @@ export async function POST(request: NextRequest) {
     }
 
     // Process input (extract content from YouTube, article, or text)
-    // This happens synchronously as it's usually fast and needed before we can create the conversion
     logger.debug("Processing input", { inputType, inputValueLength: inputValue.length });
     const processedInput = await processInput(inputType, inputValue);
     logger.debug("Processed input", { source: processedInput.source, contentLength: processedInput.content.length });
 
-    // Create conversion with 'pending' status
+    // Generate all three formats in parallel
+    const generatedContent = await generateAllFormats(
+      processedInput.content,
+      tone as ToneType,
+      topics || undefined
+    );
+
+    // Save conversion to database
     const { data: conversion, error: conversionError } = await supabase
       .from("conversions")
       .insert({
@@ -138,7 +120,6 @@ export async function POST(request: NextRequest) {
         input_text: processedInput.content,
         tone: tone as ToneType,
         topics: topics || null,
-        status: "pending",
       })
       .select()
       .single<Conversion>();
@@ -148,8 +129,33 @@ export async function POST(request: NextRequest) {
       throw new Error("Error al guardar la conversión");
     }
 
-    // Increment user's conversion count immediately
-    // (We count it now because the slot is reserved)
+    // Save all outputs
+    const outputFormats: OutputFormat[] = [
+      "x_thread",
+      "linkedin_post",
+      "linkedin_article",
+    ];
+
+    const outputInserts = outputFormats.map((format) => ({
+      conversion_id: conversion.id,
+      format,
+      content: generatedContent[format].content,
+      version: 1,
+    }));
+
+    const { data: outputs, error: outputsError } = await supabase
+      .from("outputs")
+      .insert(outputInserts)
+      .select<"*", Output>();
+
+    if (outputsError || !outputs) {
+      logger.error("Error saving outputs", outputsError);
+      // Try to clean up the conversion
+      await supabase.from("conversions").delete().eq("id", conversion.id);
+      throw new Error("Error al guardar los outputs");
+    }
+
+    // Increment user's conversion count
     const newUsageCount = userData.conversions_used_this_month + 1;
     const { error: updateError } = await supabase
       .from("users")
@@ -160,9 +166,10 @@ export async function POST(request: NextRequest) {
 
     if (updateError) {
       logger.error("Error updating user conversion count", updateError);
+      // Don't throw here, the conversion was successful
     }
 
-    // Invalidate user cache
+    // Invalidate user cache (usage and history)
     invalidateUserCache(user.id).catch((err) => {
       logger.error("Failed to invalidate cache", err);
     });
@@ -171,17 +178,20 @@ export async function POST(request: NextRequest) {
     const usagePercent = (newUsageCount / planLimits.conversionsPerMonth) * 100;
 
     if (usagePercent >= 80 && !userData.low_usage_email_sent_this_cycle && user.email) {
+      // Check email preferences before sending
       const canSendEmail = await shouldSendEmail(supabase, user.id);
 
       if (canSendEmail) {
+        // Send email in background (don't await to avoid slowing down response)
         sendLowUsageEmail(
           user.email,
           newUsageCount,
           planLimits.conversionsPerMonth,
           userData.plan,
-          user.id
+          user.id // Include userId for unsubscribe link
         ).then(async (result) => {
           if (result.success) {
+            // Mark as sent
             await supabase
               .from("users")
               .update({ low_usage_email_sent_this_cycle: true })
@@ -191,26 +201,36 @@ export async function POST(request: NextRequest) {
             logger.error("Failed to send low usage email", new Error(result.error || "Unknown error"));
           }
         });
+      } else {
+        logger.info("Skipping low usage email - user has opted out", { userId: user.id });
       }
     }
 
-    // Get base URL for internal API calls
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ||
-      `https://${request.headers.get("host")}`;
+    // Format response (add watermark for free tier)
+    const outputsByFormat = outputs.reduce(
+      (acc, output) => {
+        const format = output.format as "x_thread" | "linkedin_post" | "linkedin_article";
+        acc[output.format] = {
+          id: output.id,
+          content: addWatermarkIfNeeded(output.content, format, userData.plan),
+          version: output.version,
+        };
+        return acc;
+      },
+      {} as Record<string, { id: string; content: string; version: number }>
+    );
 
-    // Trigger background processing (fire-and-forget)
-    triggerBackgroundProcessing(conversion.id, baseUrl);
-
-    // Return immediately with conversion ID
-    // Client will poll /api/conversion/[id]/status for updates
     return NextResponse.json({
       conversionId: conversion.id,
-      status: "pending",
       source: processedInput.source,
       metadata: processedInput.metadata,
-      mode: "background", // Indicates client should poll for results
+      outputs: {
+        x_thread: outputsByFormat.x_thread,
+        linkedin_post: outputsByFormat.linkedin_post,
+        linkedin_article: outputsByFormat.linkedin_article,
+      },
       usage: {
-        conversionsUsed: newUsageCount,
+        conversionsUsed: userData.conversions_used_this_month + 1,
         conversionsLimit: planLimits.conversionsPerMonth,
         regeneratesPerConversion: planLimits.regeneratesPerConversion,
       },
@@ -223,7 +243,7 @@ export async function POST(request: NextRequest) {
       isDistribuiaError: error instanceof DistribuiaError,
     });
 
-    // Handle our custom errors
+    // Handle our custom errors (try multiple checks due to potential module boundary issues)
     if (
       error instanceof DistribuiaError ||
       error instanceof YouTubeError ||
@@ -233,12 +253,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json((error as DistribuiaError).toJSON(), { status: (error as DistribuiaError).statusCode });
     }
 
-    // Check by duck typing
+    // Check if it's one of our errors by duck typing (in case instanceof fails)
     if (error && typeof error === "object" && "code" in error && "toJSON" in error && typeof (error as DistribuiaError).toJSON === "function") {
       return NextResponse.json((error as DistribuiaError).toJSON(), { status: (error as DistribuiaError).statusCode || 400 });
     }
 
-    // Handle unexpected errors
+    // Handle unexpected errors with more detail
     const errorMessage = error instanceof Error ? error.message : "Error desconocido";
     return NextResponse.json(
       {

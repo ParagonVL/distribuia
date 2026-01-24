@@ -1,3 +1,17 @@
+# Background Processing for Vercel Pro
+
+This document contains the code for background processing that requires Vercel Pro (60s+ timeout).
+
+## When to Use
+
+- After upgrading to Vercel Pro ($20/mo)
+- Or when implementing Upstash QStash
+
+## Files to Restore
+
+### 1. app/api/conversion/[id]/process/route.ts
+
+```typescript
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { generateContent } from "@/lib/groq/generate";
@@ -11,7 +25,7 @@ const INTERNAL_SECRET = process.env.CRON_SECRET;
 const INITIAL_DELAY_MS = 5000; // 5 seconds
 
 // Delay between format generations
-const DELAY_BETWEEN_FORMATS_MS = 20000; // 20 seconds (increased from 15)
+const DELAY_BETWEEN_FORMATS_MS = 20000; // 20 seconds
 
 // Max retries for rate limit errors
 const MAX_FORMAT_RETRIES = 2;
@@ -176,5 +190,61 @@ export async function POST(
   }
 }
 
-// Increase timeout for this endpoint (Vercel Pro: 60s, Hobby: 10s)
-export const maxDuration = 120; // Request up to 2 minutes
+// Increase timeout for this endpoint (Vercel Pro: 60s)
+export const maxDuration = 120;
+```
+
+### 2. app/api/conversion/[id]/status/route.ts
+
+Already exists - used for polling status during background processing.
+
+### 3. Convert API Changes (app/api/convert/route.ts)
+
+Replace synchronous generation with:
+
+```typescript
+// Trigger background processing (fire-and-forget)
+async function triggerBackgroundProcessing(conversionId: string, baseUrl: string) {
+  try {
+    fetch(`${baseUrl}/api/conversion/${conversionId}/process`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.CRON_SECRET}`,
+        "Content-Type": "application/json",
+      },
+    }).catch((err) => {
+      logger.error("Failed to trigger background processing", err, { conversionId });
+    });
+  } catch (error) {
+    logger.error("Error triggering background processing", error, { conversionId });
+  }
+}
+
+// In POST handler, after creating conversion:
+triggerBackgroundProcessing(conversion.id, baseUrl);
+
+// Return immediately with mode: "background"
+return NextResponse.json({
+  conversionId: conversion.id,
+  status: "pending",
+  mode: "background",
+  // ...
+});
+```
+
+### 4. Client Hook Changes (app/(app)/dashboard/hooks/use-conversion.ts)
+
+Add polling logic - see the full file in git history at commit 922026e.
+
+### 5. Generation Progress Component
+
+Update to accept `completedFormats` prop for real-time progress.
+
+## Database Migration
+
+Already applied - adds `status`, `error_message`, `started_at`, `completed_at` columns to conversions table.
+
+## Requirements
+
+- Vercel Pro plan (60s+ timeout) OR
+- Upstash QStash for true background jobs

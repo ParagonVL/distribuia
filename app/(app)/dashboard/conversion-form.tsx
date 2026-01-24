@@ -62,7 +62,6 @@ export function ConversionForm({
     result,
     canConvert,
     remaining,
-    completedFormats,
     submit,
     clearError,
     reset,
@@ -88,7 +87,7 @@ export function ConversionForm({
 
   // Show progress animation while generating
   if (isLoading) {
-    return <GenerationProgress inputType={activeTab} completedFormats={completedFormats} />;
+    return <GenerationProgress inputType={activeTab} />;
   }
 
   // Show error states for critical errors
