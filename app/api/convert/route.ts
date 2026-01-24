@@ -16,7 +16,7 @@ import {
   ArticleError,
   GroqAPIError,
 } from "@/lib/errors";
-import { sendLowUsageEmail } from "@/lib/email/send";
+import { sendLowUsageEmail, shouldSendEmail } from "@/lib/email/send";
 import { conversionRatelimit, checkRateLimit, getRateLimitIdentifier } from "@/lib/ratelimit";
 import logger from "@/lib/logger";
 import type { OutputFormat, ToneType, User, Conversion, Output } from "@/types/database";
@@ -167,24 +167,32 @@ export async function POST(request: NextRequest) {
     const usagePercent = (newUsageCount / planLimits.conversionsPerMonth) * 100;
 
     if (usagePercent >= 80 && !userData.low_usage_email_sent_this_cycle && user.email) {
-      // Send email in background (don't await to avoid slowing down response)
-      sendLowUsageEmail(
-        user.email,
-        newUsageCount,
-        planLimits.conversionsPerMonth,
-        userData.plan
-      ).then(async (result) => {
-        if (result.success) {
-          // Mark as sent
-          await supabase
-            .from("users")
-            .update({ low_usage_email_sent_this_cycle: true })
-            .eq("id", user.id);
-          logger.info("Low usage email sent", { email: user.email });
-        } else {
-          logger.error("Failed to send low usage email", new Error(result.error || "Unknown error"));
-        }
-      });
+      // Check email preferences before sending
+      const canSendEmail = await shouldSendEmail(supabase, user.id);
+
+      if (canSendEmail) {
+        // Send email in background (don't await to avoid slowing down response)
+        sendLowUsageEmail(
+          user.email,
+          newUsageCount,
+          planLimits.conversionsPerMonth,
+          userData.plan,
+          user.id // Include userId for unsubscribe link
+        ).then(async (result) => {
+          if (result.success) {
+            // Mark as sent
+            await supabase
+              .from("users")
+              .update({ low_usage_email_sent_this_cycle: true })
+              .eq("id", user.id);
+            logger.info("Low usage email sent", { email: user.email });
+          } else {
+            logger.error("Failed to send low usage email", new Error(result.error || "Unknown error"));
+          }
+        });
+      } else {
+        logger.info("Skipping low usage email - user has opted out", { userId: user.id });
+      }
     }
 
     // Format response

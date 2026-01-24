@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import Stripe from "stripe";
 import { getStripeClient, getPlanFromPriceId } from "@/lib/stripe";
 import { createClient } from "@supabase/supabase-js";
+import logger from "@/lib/logger";
 
 // Use service role key for webhook to bypass RLS
 function getSupabaseAdmin() {
@@ -21,13 +22,48 @@ function getSupabaseAdmin() {
   });
 }
 
+/**
+ * Check if webhook event has already been processed (idempotency)
+ */
+async function isEventProcessed(
+  supabase: ReturnType<typeof getSupabaseAdmin>,
+  eventId: string
+): Promise<boolean> {
+  const { data } = await supabase
+    .from("webhook_events")
+    .select("id")
+    .eq("id", eventId)
+    .single();
+
+  return !!data;
+}
+
+/**
+ * Mark webhook event as processed
+ */
+async function markEventProcessed(
+  supabase: ReturnType<typeof getSupabaseAdmin>,
+  eventId: string,
+  eventType: string,
+  status: "processed" | "failed" = "processed",
+  errorMessage?: string
+): Promise<void> {
+  await supabase.from("webhook_events").upsert({
+    id: eventId,
+    event_type: eventType,
+    status,
+    error_message: errorMessage,
+    processed_at: new Date().toISOString(),
+  });
+}
+
 export async function POST(request: NextRequest) {
   const body = await request.text();
   const headersList = await headers();
   const signature = headersList.get("stripe-signature");
 
   if (!signature) {
-    console.error("Missing Stripe signature");
+    logger.error("Missing Stripe signature");
     return NextResponse.json(
       { error: "Missing signature" },
       { status: 400 }
@@ -36,7 +72,7 @@ export async function POST(request: NextRequest) {
 
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!webhookSecret) {
-    console.error("Missing STRIPE_WEBHOOK_SECRET");
+    logger.error("Missing STRIPE_WEBHOOK_SECRET");
     return NextResponse.json(
       { error: "Webhook not configured" },
       { status: 500 }
@@ -50,7 +86,7 @@ export async function POST(request: NextRequest) {
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
-    console.error(`Webhook signature verification failed: ${message}`);
+    logger.error("Webhook signature verification failed", err instanceof Error ? err : new Error(message));
     return NextResponse.json(
       { error: `Webhook Error: ${message}` },
       { status: 400 }
@@ -58,6 +94,13 @@ export async function POST(request: NextRequest) {
   }
 
   const supabase = getSupabaseAdmin();
+
+  // Idempotency check: skip if already processed
+  const alreadyProcessed = await isEventProcessed(supabase, event.id);
+  if (alreadyProcessed) {
+    logger.info("Webhook event already processed, skipping", { eventId: event.id, eventType: event.type });
+    return NextResponse.json({ received: true, skipped: true });
+  }
 
   try {
     switch (event.type) {
@@ -86,12 +129,24 @@ export async function POST(request: NextRequest) {
       }
 
       default:
-        console.log(`Unhandled event type: ${event.type}`);
+        logger.debug("Unhandled event type", { eventType: event.type });
     }
+
+    // Mark event as successfully processed
+    await markEventProcessed(supabase, event.id, event.type, "processed");
+    logger.info("Webhook event processed", { eventId: event.id, eventType: event.type });
 
     return NextResponse.json({ received: true });
   } catch (error) {
-    console.error("Webhook handler error:", error);
+    // Mark event as failed (but still prevent reprocessing)
+    await markEventProcessed(
+      supabase,
+      event.id,
+      event.type,
+      "failed",
+      error instanceof Error ? error.message : "Unknown error"
+    );
+    logger.error("Webhook handler error", error);
     return NextResponse.json(
       { error: "Webhook handler failed" },
       { status: 500 }
@@ -106,13 +161,13 @@ async function handleCheckoutCompleted(
 ) {
   const userId = session.metadata?.supabase_user_id;
   if (!userId) {
-    console.error("No user ID in checkout session metadata");
+    logger.error("No user ID in checkout session metadata");
     return;
   }
 
   // Get subscription details
   if (!session.subscription) {
-    console.error("No subscription in checkout session");
+    logger.error("No subscription in checkout session");
     return;
   }
 
@@ -124,7 +179,7 @@ async function handleCheckoutCompleted(
   const plan = getPlanFromPriceId(priceId);
 
   if (!plan) {
-    console.error(`Unknown price ID: ${priceId}`);
+    logger.error(`Unknown price ID: ${priceId}`);
     return;
   }
 
@@ -141,11 +196,11 @@ async function handleCheckoutCompleted(
     .eq("id", userId);
 
   if (error) {
-    console.error("Error updating user plan:", error);
+    logger.error("Error updating user plan:", error);
     throw error;
   }
 
-  console.log(`User ${userId} upgraded to ${plan}`);
+  logger.info(`User ${userId} upgraded to ${plan}`);
 }
 
 async function handleSubscriptionDeleted(
@@ -168,7 +223,7 @@ async function handleSubscriptionDeleted(
   }
 
   if (!targetUserId) {
-    console.error("Could not find user for subscription:", subscription.id);
+    logger.error("Could not find user for subscription:", subscription.id);
     return;
   }
 
@@ -182,11 +237,11 @@ async function handleSubscriptionDeleted(
     .eq("id", targetUserId);
 
   if (error) {
-    console.error("Error downgrading user:", error);
+    logger.error("Error downgrading user:", error);
     throw error;
   }
 
-  console.log(`User ${targetUserId} downgraded to free`);
+  logger.info(`User ${targetUserId} downgraded to free`);
 }
 
 async function handleSubscriptionUpdated(
@@ -213,7 +268,7 @@ async function handleSubscriptionUpdated(
   }
 
   if (!targetUserId) {
-    console.error("Could not find user for subscription:", subscription.id);
+    logger.error("Could not find user for subscription:", subscription.id);
     return;
   }
 
@@ -221,7 +276,7 @@ async function handleSubscriptionUpdated(
   const plan = getPlanFromPriceId(priceId);
 
   if (!plan) {
-    console.error(`Unknown price ID: ${priceId}`);
+    logger.error(`Unknown price ID: ${priceId}`);
     return;
   }
 
@@ -231,11 +286,11 @@ async function handleSubscriptionUpdated(
     .eq("id", targetUserId);
 
   if (error) {
-    console.error("Error updating user plan:", error);
+    logger.error("Error updating user plan:", error);
     throw error;
   }
 
-  console.log(`User ${targetUserId} plan updated to ${plan}`);
+  logger.info(`User ${targetUserId} plan updated to ${plan}`);
 }
 
 async function handleInvoicePaid(
@@ -272,7 +327,7 @@ async function handleInvoicePaid(
   }
 
   if (!targetUserId) {
-    console.error("Could not find user for invoice:", invoice.id);
+    logger.error("Could not find user for invoice:", invoice.id);
     return;
   }
 
@@ -286,9 +341,9 @@ async function handleInvoicePaid(
     .eq("id", targetUserId);
 
   if (error) {
-    console.error("Error resetting user usage:", error);
+    logger.error("Error resetting user usage:", error);
     throw error;
   }
 
-  console.log(`User ${targetUserId} usage reset after invoice payment`);
+  logger.info(`User ${targetUserId} usage reset after invoice payment`);
 }

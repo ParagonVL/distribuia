@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import PlanManagement from "./plan-management";
 import { ChangePasswordButton, DeleteAccountButton } from "./account-actions";
+import { EmailPreferences } from "./email-preferences";
 import type { PlanType } from "@/lib/config/plans";
 
 export default async function SettingsPage() {
@@ -71,7 +72,33 @@ export default async function SettingsPage() {
               </label>
               <p className="text-navy font-mono text-sm">{user?.id}</p>
             </div>
+            <div className="pt-4 border-t border-gray-100">
+              <label className="block text-sm font-medium text-gray-500 mb-2">
+                Exportar datos (GDPR)
+              </label>
+              <a
+                href="/api/user/export"
+                download
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-navy border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Descargar mis datos
+              </a>
+              <p className="text-xs text-gray-400 mt-2">
+                Descarga una copia de todos tus datos en formato JSON
+              </p>
+            </div>
           </div>
+        </div>
+
+        {/* Email preferences */}
+        <div className="card">
+          <h2 className="font-heading text-lg font-semibold text-navy mb-4">
+            Preferencias de email
+          </h2>
+          <EmailPreferences />
         </div>
 
         {/* Change password */}
