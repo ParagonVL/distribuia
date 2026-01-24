@@ -190,29 +190,19 @@ export async function generateContent(
 }
 
 // Delay between API calls to avoid rate limits (Groq free tier: 12K TPM)
-const DELAY_BETWEEN_CALLS = 15000; // 15 seconds
-
 /**
- * Generate content for all three formats sequentially with delays to avoid rate limits
+ * Generate content for all three formats sequentially
  */
 export async function generateAllFormats(
   content: string,
   tone: ToneType,
   topics?: string[]
 ): Promise<GenerateAllResult> {
-  console.log("[Groq] Starting sequential generation for all formats (with delays)");
+  console.log("[Groq] Starting sequential generation for all formats");
 
-  // Run generations sequentially with delays to avoid rate limits
+  // Run generations sequentially (no delays - original working approach)
   const x_thread = await generateContent(content, "x_thread", tone, topics);
-
-  console.log(`[Groq] Waiting ${DELAY_BETWEEN_CALLS/1000}s before next call to avoid rate limit...`);
-  await sleep(DELAY_BETWEEN_CALLS);
-
   const linkedin_post = await generateContent(content, "linkedin_post", tone, topics);
-
-  console.log(`[Groq] Waiting ${DELAY_BETWEEN_CALLS/1000}s before next call to avoid rate limit...`);
-  await sleep(DELAY_BETWEEN_CALLS);
-
   const linkedin_article = await generateContent(content, "linkedin_article", tone, topics);
 
   console.log("[Groq] All formats generated successfully");
