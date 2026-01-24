@@ -1,14 +1,19 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import logger from "@/lib/logger";
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
   const token_hash = searchParams.get("token_hash");
   const type = searchParams.get("type");
   const next = searchParams.get("next") ?? "/dashboard";
 
+  // Use configured app URL for consistency
+  const origin = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin;
+
   const supabase = await createClient();
+  let errorCode = "unknown";
 
   // Handle PKCE flow (code exchange)
   if (code) {
@@ -20,7 +25,8 @@ export async function GET(request: Request) {
       }
       return NextResponse.redirect(`${origin}${next}`);
     }
-    console.error("Code exchange error:", error);
+    logger.error("Code exchange error", { error: error.message, code: error.code });
+    errorCode = error.code || "code_exchange_failed";
   }
 
   // Handle token hash flow (email links like password reset)
@@ -37,18 +43,36 @@ export async function GET(request: Request) {
       }
       return NextResponse.redirect(`${origin}${next}`);
     }
-    console.error("OTP verification error:", error);
+
+    logger.error("OTP verification error", {
+      error: error.message,
+      code: error.code,
+      type
+    });
+
+    // Map Supabase error codes to user-friendly codes
+    if (error.message?.includes("expired") || error.code === "otp_expired") {
+      errorCode = "expired";
+    } else if (error.message?.includes("already") || error.code === "otp_disabled") {
+      errorCode = "already_used";
+    } else {
+      errorCode = error.code || "verification_failed";
+    }
   }
 
-  // Before showing error, check if user is already authenticated
-  // This handles cases where the link was already used but user is logged in
+  // Check if user is already authenticated AND email is confirmed
   const { data: { user } } = await supabase.auth.getUser();
   if (user) {
-    // User is already authenticated, redirect to dashboard
-    // The confirmation link might have been used already or session exists
-    return NextResponse.redirect(`${origin}/dashboard`);
+    // Check if email is confirmed
+    if (user.email_confirmed_at) {
+      // User is authenticated and email confirmed - redirect to dashboard
+      logger.info("User already confirmed, redirecting to dashboard", { userId: user.id });
+      return NextResponse.redirect(`${origin}/dashboard`);
+    }
+    // User exists but email not confirmed - show specific error
+    errorCode = "not_confirmed";
   }
 
-  // Return the user to an error page with instructions
-  return NextResponse.redirect(`${origin}/auth/auth-code-error`);
+  // Return the user to an error page with error code for specific messaging
+  return NextResponse.redirect(`${origin}/auth/auth-code-error?error=${errorCode}`);
 }
