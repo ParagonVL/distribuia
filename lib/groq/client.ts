@@ -1,5 +1,5 @@
-// Model configuration - using 8B for better rate limits and speed
-export const GROQ_MODEL = "llama-3.1-8b-instant";
+// Model configuration - llama-3.3-70b-versatile is the current production model
+export const GROQ_MODEL = "llama-3.3-70b-versatile";
 
 // Default parameters
 export const DEFAULT_TEMPERATURE = 0.7;
