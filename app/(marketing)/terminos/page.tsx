@@ -2,7 +2,7 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Terminos de Servicio - Distribuia",
-  description: "Terminos y condiciones de uso del servicio Distribuia.",
+  description: "Terminos y condiciones de uso de Distribuia.",
 };
 
 export default function TerminosPage() {
@@ -12,7 +12,7 @@ export default function TerminosPage() {
         Terminos de Servicio
       </h1>
       <p className="text-gray-500 mb-8">
-        Ultima actualizacion: Enero 2025
+        Ultima actualizacion: Enero 2026
       </p>
 
       <section className="mb-8">
@@ -20,7 +20,7 @@ export default function TerminosPage() {
           Identificacion del prestador
         </h2>
         <p className="text-gray-600">
-          Distribuia es un servicio prestado por Paragonum S.L.U., con CIF [PENDIENTE DE REGISTRO],
+          Distribuia es un servicio prestado por <strong>Paragonum S.L.U.</strong>, con CIF [PENDIENTE DE REGISTRO],
           domicilio en Carrer de Sant Vicent Martir 85, 8º dcha, 46007 Valencia,
           correo electronico: legal@distribuia.com.
         </p>
@@ -48,11 +48,11 @@ export default function TerminosPage() {
           Distribuia es una herramienta de repurposing de contenido que transforma videos,
           articulos y textos en publicaciones para redes sociales.
         </p>
-        <p className="text-gray-600 mb-4">
-          <strong>Uso de inteligencia artificial:</strong> Distribuia utiliza tecnologia de
-          inteligencia artificial para transformar tu contenido. Los resultados generados son
-          sugerencias automaticas que debes revisar antes de publicar. No garantizamos que el
-          contenido generado sea preciso, original, o libre de errores.
+        <p className="text-gray-600 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+          <strong>Uso de inteligencia artificial:</strong> Distribuia utiliza tecnologia de inteligencia
+          artificial para transformar tu contenido. Los resultados generados son sugerencias automaticas
+          que debes revisar antes de publicar. No garantizamos que el contenido generado sea preciso,
+          original, o libre de errores.
         </p>
       </section>
 
@@ -63,12 +63,12 @@ export default function TerminosPage() {
         <p className="text-gray-600 mb-4">
           Para utilizar el Servicio debes:
         </p>
-        <ul className="list-disc pl-6 space-y-2 text-gray-600">
+        <ul className="list-disc pl-6 space-y-2 text-gray-600 mb-4">
           <li>Proporcionar una direccion de correo electronico valida</li>
           <li>Ser mayor de 18 anos o tener capacidad legal para contratar</li>
           <li>Proporcionar informacion veraz y actualizada</li>
         </ul>
-        <p className="text-gray-600 mt-4">
+        <p className="text-gray-600">
           Eres responsable de mantener la confidencialidad de tu cuenta y contrasena,
           y de todas las actividades que ocurran bajo ella.
         </p>
@@ -81,28 +81,12 @@ export default function TerminosPage() {
         <p className="text-gray-600 mb-4">
           Eres responsable del contenido que introduces en Distribuia. Al usar el Servicio:
         </p>
-        <ul className="list-disc pl-6 space-y-2 text-gray-600">
-          <li>
-            <strong>Tu contenido:</strong> Garantizas que tienes los derechos necesarios sobre
-            el contenido original o permiso para transformarlo.
-          </li>
-          <li>
-            <strong>Propiedad:</strong> Mantienes todos los derechos sobre tu contenido original
-            y el contenido generado.
-          </li>
-          <li>
-            <strong>Licencia limitada:</strong> Nos concedes una licencia limitada para procesar
-            tu contenido unicamente para proporcionarte el Servicio.
-          </li>
-          <li>
-            <strong>Verificacion:</strong> Eres responsable de verificar que el contenido generado
-            no infringe derechos de terceros antes de publicarlo.
-          </li>
-          <li>
-            <strong>Contenido generado por IA:</strong> Los textos y materiales generados por
-            Distribuia son sugerencias que debes revisar, verificar y adaptar antes de utilizarlos.
-            No garantizamos su exactitud ni originalidad.
-          </li>
+        <ul className="list-disc pl-6 space-y-2 text-gray-600 mb-4">
+          <li><strong>Tu contenido:</strong> Garantizas que tienes los derechos necesarios sobre el contenido original o permiso para transformarlo.</li>
+          <li><strong>Propiedad:</strong> Mantienes todos los derechos sobre tu contenido original y el contenido generado.</li>
+          <li><strong>Licencia limitada:</strong> Nos concedes una licencia limitada para procesar tu contenido unicamente para proporcionarte el Servicio.</li>
+          <li><strong>Verificacion:</strong> Eres responsable de verificar que el contenido generado no infringe derechos de terceros antes de publicarlo.</li>
+          <li><strong>Contenido generado por IA:</strong> Los textos y materiales generados por Distribuia son sugerencias que debes revisar, verificar y adaptar antes de utilizarlos. No garantizamos su exactitud ni originalidad.</li>
         </ul>
       </section>
 
@@ -113,21 +97,14 @@ export default function TerminosPage() {
         <p className="text-gray-600 mb-4">
           Distribuia ofrece diferentes planes de suscripcion:
         </p>
-        <ul className="list-disc pl-6 space-y-2 text-gray-600">
-          <li>
-            <strong>Plan Free:</strong> Limitado a 2 conversiones por mes. Sin coste.
-          </li>
-          <li>
-            <strong>Plan Starter:</strong> 10 conversiones por mes. Facturacion mensual.
-          </li>
-          <li>
-            <strong>Plan Pro:</strong> 30 conversiones por mes. Facturacion mensual.
-          </li>
+        <ul className="list-disc pl-6 space-y-2 text-gray-600 mb-4">
+          <li><strong>Plan Free:</strong> Limitado a 2 conversiones por mes. Sin coste.</li>
+          <li><strong>Plan Starter:</strong> 10 conversiones por mes. Facturacion mensual.</li>
+          <li><strong>Plan Pro:</strong> 30 conversiones por mes. Facturacion mensual.</li>
         </ul>
-        <p className="text-gray-600 mt-4">
+        <p className="text-gray-600">
           Todos los precios se muestran en euros (EUR) e incluyen IVA (21%).
-          Los pagos se procesan de forma segura a traves de Stripe.
-          Los precios pueden cambiar con previo aviso de 30 dias.
+          Los pagos se procesan de forma segura a traves de Stripe. Los precios pueden cambiar con previo aviso de 30 dias.
         </p>
       </section>
 
@@ -136,19 +113,19 @@ export default function TerminosPage() {
           6. Derecho de desistimiento y politica de reembolsos
         </h2>
         <p className="text-gray-600 mb-4">
-          <strong>Derecho de desistimiento:</strong> Conforme a la normativa europea de proteccion
-          al consumidor, dispones de 14 dias desde la contratacion de tu primera suscripcion de
-          pago para ejercer el derecho de desistimiento y obtener el reembolso del primer pago.
+          <strong>Derecho de desistimiento:</strong> Conforme a la normativa europea de proteccion al consumidor,
+          dispones de 14 dias desde la contratacion de tu primera suscripcion de pago para ejercer el derecho
+          de desistimiento y obtener el reembolso del primer pago.
         </p>
         <p className="text-gray-600 mb-4">
-          <strong>Renuncia al derecho de desistimiento:</strong> Si solicitas acceso inmediato al
-          Servicio antes de que transcurra el plazo de 14 dias, al aceptar estos terminos y marcar
-          la casilla correspondiente durante el proceso de pago, renuncias expresamente al derecho
-          de desistimiento conforme al articulo 103.m) del Real Decreto Legislativo 1/2007.
+          <strong>Renuncia al derecho de desistimiento:</strong> Si solicitas acceso inmediato al Servicio antes de
+          que transcurra el plazo de 14 dias, al aceptar estos terminos y marcar la casilla correspondiente durante
+          el proceso de pago, renuncias expresamente al derecho de desistimiento conforme al articulo 103.m) del
+          Real Decreto Legislativo 1/2007.
         </p>
         <p className="text-gray-600">
-          <strong>Suscripciones en curso:</strong> Para el segundo mes en adelante, no se realizan
-          reembolsos por periodos parciales no utilizados.
+          <strong>Suscripciones en curso:</strong> Para el segundo mes en adelante, no se realizan reembolsos
+          por periodos parciales no utilizados.
         </p>
       </section>
 
@@ -157,13 +134,15 @@ export default function TerminosPage() {
           7. Renovacion y cancelacion
         </h2>
         <p className="text-gray-600 mb-4">
-          Las suscripciones se renuevan automaticamente cada mes. Puedes cancelar en cualquier
-          momento desde tu panel de configuracion o el portal de Stripe.
+          Las suscripciones se renuevan automaticamente cada mes. Puedes cancelar en cualquier momento
+          desde tu panel de configuracion o el portal de Stripe.
         </p>
-        <ul className="list-disc pl-6 space-y-2 text-gray-600">
-          <li>Al cancelar, mantendras acceso hasta el final del periodo facturado.</li>
-          <li>Si bajas de plan, el cambio sera efectivo en el siguiente ciclo de facturacion.</li>
-        </ul>
+        <p className="text-gray-600 mb-4">
+          Al cancelar, mantendras acceso hasta el final del periodo facturado.
+        </p>
+        <p className="text-gray-600">
+          Si bajas de plan, el cambio sera efectivo en el siguiente ciclo de facturacion.
+        </p>
       </section>
 
       <section className="mb-8">
@@ -173,7 +152,7 @@ export default function TerminosPage() {
         <p className="text-gray-600 mb-4">
           Te comprometes a no utilizar el Servicio para:
         </p>
-        <ul className="list-disc pl-6 space-y-2 text-gray-600">
+        <ul className="list-disc pl-6 space-y-2 text-gray-600 mb-4">
           <li>Actividades ilegales o fraudulentas</li>
           <li>Procesar contenido ilegal, difamatorio o fraudulento</li>
           <li>Infringir derechos de propiedad intelectual de terceros</li>
@@ -183,7 +162,7 @@ export default function TerminosPage() {
           <li>Sobrecargar ni interferir con el funcionamiento del Servicio</li>
           <li>Intentar acceder a cuentas de otros usuarios</li>
         </ul>
-        <p className="text-gray-600 mt-4">
+        <p className="text-gray-600">
           Nos reservamos el derecho de suspender o cancelar cuentas que violen estas normas,
           notificandote por email con 7 dias de antelacion salvo en casos de violaciones graves
           que requieran accion inmediata.
@@ -197,15 +176,15 @@ export default function TerminosPage() {
         <p className="text-gray-600 mb-4">
           Distribuia se proporciona &quot;tal cual&quot;. No garantizamos:
         </p>
-        <ul className="list-disc pl-6 space-y-2 text-gray-600">
+        <ul className="list-disc pl-6 space-y-2 text-gray-600 mb-4">
           <li>Que el Servicio este disponible de forma ininterrumpida</li>
           <li>La exactitud o calidad del contenido generado</li>
           <li>Que el contenido generado sea adecuado para cualquier proposito especifico</li>
           <li>Resultados especificos del uso del Servicio</li>
         </ul>
-        <p className="text-gray-600 mt-4">
-          En la maxima medida permitida por la ley, nuestra responsabilidad total se limita
-          al importe que hayas pagado por el Servicio en los ultimos 12 meses.
+        <p className="text-gray-600">
+          En la maxima medida permitida por la ley, nuestra responsabilidad total se limita al
+          importe que hayas pagado por el Servicio en los ultimos 12 meses.
         </p>
       </section>
 
@@ -237,12 +216,12 @@ export default function TerminosPage() {
         </h2>
         <p className="text-gray-600 mb-4">
           Estos terminos se rigen por la legislacion espanola. Para cualquier controversia,
-          las partes se someten a los juzgados y tribunales de Valencia, con renuncia a
-          cualquier otro fuero que pudiera corresponderles.
+          las partes se someten a los juzgados y tribunales de Valencia, con renuncia a cualquier
+          otro fuero que pudiera corresponderles.
         </p>
         <p className="text-gray-600">
-          Como consumidor en la Union Europea, tambien puedes acudir a la plataforma de
-          resolucion de litigios en linea de la Comision Europea:{" "}
+          Como consumidor en la Union Europea, tambien puedes acudir a la plataforma de resolucion
+          de litigios en linea de la Comision Europea:{" "}
           <a
             href="https://ec.europa.eu/consumers/odr"
             target="_blank"
@@ -254,19 +233,19 @@ export default function TerminosPage() {
         </p>
       </section>
 
-      <section>
+      <section className="mb-8">
         <h2 className="font-heading text-xl font-semibold text-navy mb-4">
           13. Contacto
         </h2>
         <p className="text-gray-600 mb-4">
-          Para cualquier consulta sobre estos terminos, contacta con nosotros en:
-        </p>
-        <p className="text-gray-600">
-          <strong>Email:</strong> legal@distribuia.com
+          Para cualquier consulta sobre estos terminos, contacta con nosotros en:{" "}
+          <a href="mailto:legal@distribuia.com" className="text-primary hover:text-primary-dark">
+            legal@distribuia.com
+          </a>
         </p>
         <p className="text-gray-600 mt-4 p-4 bg-gray-50 rounded-lg border">
-          Al utilizar Distribuia, confirmas que has leido, entendido y aceptado estos
-          Terminos de Servicio y nuestra{" "}
+          Al utilizar Distribuia, confirmas que has leido, entendido y aceptado estos Terminos de
+          Servicio y nuestra{" "}
           <a href="/privacidad" className="text-primary hover:text-primary-dark">
             Politica de Privacidad
           </a>.
