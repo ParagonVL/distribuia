@@ -125,14 +125,17 @@ export async function POST(request: NextRequest) {
       || "unknown";
     const userAgent = request.headers.get("user-agent") || "unknown";
 
-    await (supabaseAdmin as ReturnType<typeof createClient>).from("withdrawal_waivers").insert({
-      user_id: user.id,
-      product: productName,
-      ip_address: ipAddress,
-      user_agent: userAgent,
-      waiver_version: "v1",
-      checkout_session_id: session.id,
-    });
+    // Use type assertion since withdrawal_waivers isn't in generated types yet
+    await (supabaseAdmin as unknown as { from: (table: string) => { insert: (data: Record<string, unknown>) => Promise<unknown> } })
+      .from("withdrawal_waivers")
+      .insert({
+        user_id: user.id,
+        product: productName,
+        ip_address: ipAddress,
+        user_agent: userAgent,
+        waiver_version: "v1",
+        checkout_session_id: session.id,
+      });
 
     logger.info("Waiver acceptance stored", { userId: user.id, product: productName, sessionId: session.id });
 
