@@ -113,7 +113,14 @@ export function useConversion({ initialCanConvert, initialRemaining }: UseConver
       try {
         data = text ? JSON.parse(text) : {};
       } catch {
-        console.error("Failed to parse response:", text);
+        console.error("Failed to parse response:", text?.substring(0, 500));
+        // Check if it's a Vercel timeout (returns HTML)
+        if (text?.includes("FUNCTION_INVOCATION_TIMEOUT") || text?.includes("Task timed out")) {
+          throw new Error("La generación tardó demasiado. Por favor, intenta con un contenido más corto.");
+        }
+        if (response.status === 504) {
+          throw new Error("Tiempo de espera agotado. Por favor, intenta de nuevo.");
+        }
         throw new Error("Respuesta inválida del servidor");
       }
 

@@ -4,27 +4,27 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ProgressRing } from "./progress-ring";
 
-// Base steps configuration
+// Base steps configuration (all run in parallel, animation is for UX)
 const BASE_STEPS = [
   {
     id: 1,
     label: "Generando hilo de X",
     shortLabel: "Hilo de X",
-    duration: 5000, // ~5 seconds per API call
+    duration: 3000,
     targetPercent: 40,
   },
   {
     id: 2,
     label: "Creando post de LinkedIn",
     shortLabel: "Post",
-    duration: 5000,
+    duration: 3000,
     targetPercent: 70,
   },
   {
     id: 3,
     label: "Escribiendo articulo",
     shortLabel: "Articulo",
-    duration: 5000,
+    duration: 4000,
     targetPercent: 100,
   },
 ];
@@ -231,7 +231,7 @@ export function GenerationProgress({ inputType = "youtube" }: GenerationProgress
         transition={{ delay: 0.5 }}
         className="mt-8 text-sm text-gray-600"
       >
-        Esto suele tardar 15-25 segundos
+        Esto suele tardar 10-15 segundos
       </motion.p>
 
       {/* Don't reload warning */}

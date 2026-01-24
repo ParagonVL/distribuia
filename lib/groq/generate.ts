@@ -190,20 +190,22 @@ export async function generateContent(
 }
 
 /**
- * Generate content for all three formats sequentially
- * No delays - Groq handles rate limiting internally with retries
+ * Generate content for all three formats in parallel
+ * Much faster than sequential - all 3 calls run simultaneously
  */
 export async function generateAllFormats(
   content: string,
   tone: ToneType,
   topics?: string[]
 ): Promise<GenerateAllResult> {
-  console.log("[Groq] Starting sequential generation for all formats");
+  console.log("[Groq] Starting parallel generation for all formats");
 
-  // Run generations sequentially (no delays - rate limits handled by retry logic)
-  const x_thread = await generateContent(content, "x_thread", tone, topics);
-  const linkedin_post = await generateContent(content, "linkedin_post", tone, topics);
-  const linkedin_article = await generateContent(content, "linkedin_article", tone, topics);
+  // Run all generations in parallel for speed
+  const [x_thread, linkedin_post, linkedin_article] = await Promise.all([
+    generateContent(content, "x_thread", tone, topics),
+    generateContent(content, "linkedin_post", tone, topics),
+    generateContent(content, "linkedin_article", tone, topics),
+  ]);
 
   console.log("[Groq] All formats generated successfully");
 
