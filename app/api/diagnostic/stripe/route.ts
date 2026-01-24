@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getStripeClient, STRIPE_PRICES } from "@/lib/stripe";
+import Stripe from "stripe";
 
 /**
  * Diagnostic endpoint to verify Stripe configuration
@@ -218,7 +219,7 @@ export async function GET(request: NextRequest) {
     // Verify subscription if ID is set
     if (userData?.stripe_subscription_id) {
       try {
-        const subscription = await stripe.subscriptions.retrieve(userData.stripe_subscription_id);
+        const subscription = await stripe.subscriptions.retrieve(userData.stripe_subscription_id) as Stripe.Subscription;
         const priceId = subscription.items.data[0]?.price.id;
         const priceAmount = subscription.items.data[0]?.price.unit_amount;
 
@@ -319,7 +320,7 @@ export async function POST(request: NextRequest) {
 
     // Fetch subscription from Stripe
     const stripe = getStripeClient();
-    const subscription = await stripe.subscriptions.retrieve(userData.stripe_subscription_id);
+    const subscription = await stripe.subscriptions.retrieve(userData.stripe_subscription_id) as Stripe.Subscription;
 
     if (subscription.status !== "active") {
       return NextResponse.json(
