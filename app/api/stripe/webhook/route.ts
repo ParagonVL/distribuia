@@ -309,7 +309,15 @@ async function handleSubscriptionDeleted(supabase: SupabaseAdmin, subscription: 
 }
 
 async function handleSubscriptionUpdated(supabase: SupabaseAdmin, subscription: Stripe.Subscription) {
+  logger.info("handleSubscriptionUpdated started", {
+    subscriptionId: subscription.id,
+    status: subscription.status,
+    cancelAt: subscription.cancel_at,
+  });
+
+  // Only process active subscriptions
   if (subscription.status !== "active") {
+    logger.info("Subscription not active, skipping", { status: subscription.status });
     return;
   }
 
@@ -324,12 +332,24 @@ async function handleSubscriptionUpdated(supabase: SupabaseAdmin, subscription: 
     return;
   }
 
-  const priceId = subscription.items.data[0]?.price.id;
-  let plan = getPlanFromPriceId(priceId);
+  // Access items safely - subscription.items is an object with data array
+  const items = subscription.items as unknown as { data: Array<{ price: { id: string; unit_amount: number | null } }> };
+  const firstItem = items?.data?.[0];
+
+  if (!firstItem) {
+    logger.error("No items in subscription", { subscriptionId: subscription.id });
+    return;
+  }
+
+  const priceId = firstItem.price?.id;
+  const priceAmount = firstItem.price?.unit_amount;
+
+  logger.info("Subscription item details", { priceId, priceAmount });
+
+  let plan = getPlanFromPriceId(priceId || "");
 
   // Fallback: Check by price amount if price ID lookup fails
   if (!plan) {
-    const priceAmount = subscription.items.data[0]?.price.unit_amount;
     if (priceAmount === 1900) plan = "starter";
     else if (priceAmount === 4900) plan = "pro";
 

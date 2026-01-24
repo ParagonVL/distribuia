@@ -334,7 +334,13 @@ export function BillingClient({
                         d="M5 13l4 4L19 7"
                       />
                     </svg>
-                    {feature}
+                    {/* Bold the number at the start of feature text */}
+                    {feature.match(/^\d+/) ? (
+                      <>
+                        <span className="font-bold text-navy">{feature.match(/^\d+/)?.[0]}</span>
+                        {feature.replace(/^\d+/, '')}
+                      </>
+                    ) : feature}
                   </li>
                 ))}
                 {p.limitations?.map((limitation) => (
@@ -398,9 +404,13 @@ export function BillingClient({
                 <button
                   onClick={handleManageSubscription}
                   disabled={loading === "portal"}
-                  className="w-full mt-6 py-2.5 rounded-lg font-medium bg-gray-100 text-navy hover:bg-gray-200 transition-all"
+                  className={`w-full mt-6 py-2.5 rounded-lg font-medium transition-all ${
+                    p.id === "free"
+                      ? "bg-error/10 text-error hover:bg-error/20 border border-error/30"
+                      : "bg-gray-100 text-navy hover:bg-gray-200"
+                  }`}
                 >
-                  {loading === "portal" ? "Cargando..." : "Cambiar plan"}
+                  {loading === "portal" ? "Cargando..." : p.id === "free" ? "Cancelar suscripcion" : "Cambiar plan"}
                 </button>
               ) : (
                 <button
