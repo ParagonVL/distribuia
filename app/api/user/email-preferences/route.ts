@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { validateUnsubscribeToken } from "@/lib/email/token";
+import { validateCSRF } from "@/lib/csrf";
 import logger from "@/lib/logger";
 
 /**
@@ -54,6 +56,10 @@ export async function GET() {
  * Update email preferences
  */
 export async function POST(request: NextRequest) {
+  // CSRF protection
+  const csrfError = validateCSRF(request);
+  if (csrfError) return csrfError;
+
   try {
     const supabase = await createClient();
 
@@ -127,9 +133,8 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Validate token (simple HMAC-based token)
-    const expectedToken = generateUnsubscribeToken(userId);
-    if (token !== expectedToken) {
+    // Validate token using HMAC-SHA256 with constant-time comparison
+    if (!validateUnsubscribeToken(userId, token)) {
       return NextResponse.json(
         { error: { code: "INVALID_TOKEN", message: "Token invalido" } },
         { status: 400 }
@@ -165,21 +170,4 @@ export async function PUT(request: NextRequest) {
       { status: 500 }
     );
   }
-}
-
-/**
- * Generate a simple unsubscribe token for a user
- * In production, use a proper HMAC with a secret key
- */
-function generateUnsubscribeToken(userId: string): string {
-  const secret = process.env.SUPABASE_WEBHOOK_SECRET || "default-secret";
-  // Simple hash - in production use crypto.createHmac
-  let hash = 0;
-  const str = `${userId}:${secret}`;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash;
-  }
-  return Math.abs(hash).toString(36);
 }

@@ -82,6 +82,7 @@ export function DeleteAccountButton() {
     try {
       const response = await fetch("/api/account/delete", {
         method: "DELETE",
+        headers: { "X-Requested-With": "XMLHttpRequest" },
       });
 
       if (!response.ok) {

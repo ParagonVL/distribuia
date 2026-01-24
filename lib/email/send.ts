@@ -4,32 +4,17 @@ import {
   getLowUsageEmailHtml,
   lowUsageEmailSubject,
 } from "./templates/low-usage";
+import { getUnsubscribeUrl } from "./token";
 import logger from "@/lib/logger";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database";
 
 /**
  * Generate unsubscribe link for email footer
+ * @deprecated Use getUnsubscribeUrl from ./token instead
  */
 export function getUnsubscribeLink(userId: string): string {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://distribuia.com";
-  const token = generateUnsubscribeToken(userId);
-  return `${baseUrl}/api/user/email-preferences?token=${token}&user=${userId}`;
-}
-
-/**
- * Generate a simple unsubscribe token
- */
-function generateUnsubscribeToken(userId: string): string {
-  const secret = process.env.SUPABASE_WEBHOOK_SECRET || "default-secret";
-  let hash = 0;
-  const str = `${userId}:${secret}`;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash;
-  }
-  return Math.abs(hash).toString(36);
+  return getUnsubscribeUrl(userId);
 }
 
 /**

@@ -18,10 +18,15 @@ import {
 } from "@/lib/errors";
 import { sendLowUsageEmail, shouldSendEmail } from "@/lib/email/send";
 import { conversionRatelimit, checkRateLimit, getRateLimitIdentifier } from "@/lib/ratelimit";
+import { validateCSRF } from "@/lib/csrf";
 import logger from "@/lib/logger";
 import type { OutputFormat, ToneType, User, Conversion, Output } from "@/types/database";
 
 export async function POST(request: NextRequest) {
+  // CSRF protection
+  const csrfError = validateCSRF(request);
+  if (csrfError) return csrfError;
+
   try {
     // Rate limiting check (before auth to prevent abuse)
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0] || request.headers.get("x-real-ip");

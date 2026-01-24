@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
+import { validateCSRF } from "@/lib/csrf";
 
 // Must match the token in middleware.ts
 const SITE_ACCESS_TOKEN = process.env.SITE_ACCESS_TOKEN || null;
 
 export async function POST(request: NextRequest) {
+  // CSRF protection
+  const csrfError = validateCSRF(request);
+  if (csrfError) return csrfError;
+
   try {
     const { token } = await request.json();
 

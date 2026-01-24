@@ -121,7 +121,10 @@ function OutputCard({
     try {
       const response = await fetch("/api/regenerate", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+        },
         body: JSON.stringify({
           outputId,
           format,

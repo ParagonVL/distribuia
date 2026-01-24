@@ -30,7 +30,10 @@ export function EmailPreferences() {
     try {
       const response = await fetch("/api/user/email-preferences", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+        },
         body: JSON.stringify({ emailNotificationsEnabled: !enabled }),
       });
 

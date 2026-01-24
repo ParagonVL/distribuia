@@ -2,8 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getStripeClient, STRIPE_PRICES } from "@/lib/stripe";
 import { getOrCreateCustomer } from "@/lib/stripe/portal";
+import { validateCSRF } from "@/lib/csrf";
 
 export async function POST(request: NextRequest) {
+  // CSRF protection
+  const csrfError = validateCSRF(request);
+  if (csrfError) return csrfError;
+
   try {
     // Get authenticated user
     const supabase = await createClient();

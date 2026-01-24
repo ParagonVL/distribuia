@@ -95,7 +95,10 @@ export function useConversion({ initialCanConvert, initialRemaining }: UseConver
     try {
       const response = await fetch("/api/convert", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+        },
         body: JSON.stringify({
           inputType,
           inputValue: inputValue.trim(),

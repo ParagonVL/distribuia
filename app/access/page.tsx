@@ -17,7 +17,10 @@ export default function AccessPage() {
     try {
       const response = await fetch("/api/access", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+        },
         body: JSON.stringify({ token }),
       });
 

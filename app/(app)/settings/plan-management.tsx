@@ -33,7 +33,10 @@ export default function PlanManagement({
     try {
       const response = await fetch("/api/stripe/create-checkout", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+        },
         body: JSON.stringify({ priceId: PLAN_PRICES[plan].priceId }),
       });
 
@@ -60,6 +63,7 @@ export default function PlanManagement({
     try {
       const response = await fetch("/api/stripe/create-portal", {
         method: "POST",
+        headers: { "X-Requested-With": "XMLHttpRequest" },
       });
 
       const data = await response.json();
