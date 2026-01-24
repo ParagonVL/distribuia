@@ -1,6 +1,5 @@
-// Model configuration - using 8B for better rate limits on free tier
-// 70B models have stricter limits: 6K tokens/min vs 30K for 8B
-export const GROQ_MODEL = "llama-3.1-8b-instant";
+// Model configuration
+export const GROQ_MODEL = "llama-3.3-70b-versatile";
 
 // Default parameters
 export const DEFAULT_TEMPERATURE = 0.7;

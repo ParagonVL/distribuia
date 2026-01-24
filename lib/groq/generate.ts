@@ -128,12 +128,12 @@ export async function generateContent(
     } catch (error) {
       lastError = error;
 
-      // Check if this is a retryable error (but NOT rate limits - fail fast for those)
-      const isRateLimit = error instanceof Error && error.message.toLowerCase().includes("rate limit");
-      if (!isRateLimit && isRetryableError(error) && attempt < MAX_RETRIES) {
-        // Quick retry for connection errors only
-        const delay = INITIAL_RETRY_DELAY * Math.pow(2, attempt - 1);
-        console.log(`[Groq] Connection error on attempt ${attempt}, retrying in ${delay}ms...`);
+      // Check if this is a retryable error
+      if (isRetryableError(error) && attempt < MAX_RETRIES) {
+        // Use longer delay for rate limits, exponential backoff for connection errors
+        const isRateLimit = error instanceof Error && error.message.toLowerCase().includes("rate limit");
+        const delay = isRateLimit ? 30000 : INITIAL_RETRY_DELAY * Math.pow(2, attempt - 1);
+        console.log(`[Groq] ${isRateLimit ? "Rate limit" : "Connection error"} on attempt ${attempt}, retrying in ${delay}ms...`);
         await sleep(delay);
         continue;
       }
@@ -189,19 +189,30 @@ export async function generateContent(
   }
 }
 
+// Delay between API calls to avoid rate limits (Groq free tier: 12K TPM)
+const DELAY_BETWEEN_CALLS = 15000; // 15 seconds
+
 /**
- * Generate content for all three formats sequentially
+ * Generate content for all three formats sequentially with delays to avoid rate limits
  */
 export async function generateAllFormats(
   content: string,
   tone: ToneType,
   topics?: string[]
 ): Promise<GenerateAllResult> {
-  console.log("[Groq] Starting sequential generation for all formats");
+  console.log("[Groq] Starting sequential generation for all formats (with delays)");
 
-  // Sequential calls - more reliable than parallel for rate limits
+  // Run generations sequentially with delays to avoid rate limits
   const x_thread = await generateContent(content, "x_thread", tone, topics);
+
+  console.log(`[Groq] Waiting ${DELAY_BETWEEN_CALLS/1000}s before next call to avoid rate limit...`);
+  await sleep(DELAY_BETWEEN_CALLS);
+
   const linkedin_post = await generateContent(content, "linkedin_post", tone, topics);
+
+  console.log(`[Groq] Waiting ${DELAY_BETWEEN_CALLS/1000}s before next call to avoid rate limit...`);
+  await sleep(DELAY_BETWEEN_CALLS);
+
   const linkedin_article = await generateContent(content, "linkedin_article", tone, topics);
 
   console.log("[Groq] All formats generated successfully");
