@@ -5,6 +5,8 @@ import {
   lowUsageEmailSubject,
 } from "./templates/low-usage";
 import logger from "@/lib/logger";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/types/database";
 
 /**
  * Generate unsubscribe link for email footer
@@ -128,8 +130,7 @@ export async function sendLowUsageEmail(
  * Check if user has email notifications enabled
  */
 export async function shouldSendEmail(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  supabase: any,
+  supabase: SupabaseClient<Database>,
   userId: string
 ): Promise<boolean> {
   try {

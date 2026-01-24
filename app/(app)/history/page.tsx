@@ -26,7 +26,17 @@ const toneLabels = {
   tecnico: "Tecnico",
 };
 
-export default async function HistoryPage() {
+const PAGE_SIZE = 10;
+
+interface HistoryPageProps {
+  searchParams: Promise<{ page?: string }>;
+}
+
+export default async function HistoryPage({ searchParams }: HistoryPageProps) {
+  const params = await searchParams;
+  const currentPage = Math.max(1, parseInt(params.page || "1", 10));
+  const offset = (currentPage - 1) * PAGE_SIZE;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -36,7 +46,13 @@ export default async function HistoryPage() {
     redirect("/login");
   }
 
-  // Get user's conversions with outputs
+  // Get total count for pagination
+  const { count: totalCount } = await supabase
+    .from("conversions")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", user.id);
+
+  // Get user's conversions with outputs (paginated)
   const { data: conversions, error } = await supabase
     .from("conversions")
     .select(`
@@ -45,13 +61,16 @@ export default async function HistoryPage() {
     `)
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
-    .limit(50);
+    .range(offset, offset + PAGE_SIZE - 1);
 
   if (error) {
     console.error("Error fetching conversions:", error);
   }
 
   const conversionList = (conversions as ConversionWithOutputs[]) || [];
+  const totalPages = Math.ceil((totalCount || 0) / PAGE_SIZE);
+  const hasNextPage = currentPage < totalPages;
+  const hasPrevPage = currentPage > 1;
 
   return (
     <div>
@@ -67,13 +86,14 @@ export default async function HistoryPage() {
         </Link>
       </div>
 
-      {conversionList.length === 0 ? (
+      {conversionList.length === 0 && currentPage === 1 ? (
         <div className="card text-center py-12">
           <svg
             className="w-16 h-16 mx-auto text-gray-300 mb-4"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -96,11 +116,63 @@ export default async function HistoryPage() {
           </Link>
         </div>
       ) : (
-        <div className="space-y-4">
-          {conversionList.map((conversion) => (
-            <ConversionCard key={conversion.id} conversion={conversion} />
-          ))}
-        </div>
+        <>
+          <div className="space-y-4">
+            {conversionList.map((conversion) => (
+              <ConversionCard key={conversion.id} conversion={conversion} />
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <nav
+              className="flex items-center justify-between mt-8 pt-6 border-t border-gray-100"
+              aria-label="Paginacion del historial"
+            >
+              <p className="text-sm text-gray-500">
+                Pagina {currentPage} de {totalPages} ({totalCount} conversiones)
+              </p>
+              <div className="flex gap-2">
+                {hasPrevPage ? (
+                  <Link
+                    href={`/history?page=${currentPage - 1}`}
+                    className="inline-flex items-center gap-1 px-4 py-2 text-sm font-medium text-navy bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Anterior
+                  </Link>
+                ) : (
+                  <span className="inline-flex items-center gap-1 px-4 py-2 text-sm font-medium text-gray-400 bg-gray-50 border border-gray-100 rounded-lg cursor-not-allowed">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Anterior
+                  </span>
+                )}
+                {hasNextPage ? (
+                  <Link
+                    href={`/history?page=${currentPage + 1}`}
+                    className="inline-flex items-center gap-1 px-4 py-2 text-sm font-medium text-navy bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                  >
+                    Siguiente
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </Link>
+                ) : (
+                  <span className="inline-flex items-center gap-1 px-4 py-2 text-sm font-medium text-gray-400 bg-gray-50 border border-gray-100 rounded-lg cursor-not-allowed">
+                    Siguiente
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </span>
+                )}
+              </div>
+            </nav>
+          )}
+        </>
       )}
     </div>
   );
@@ -135,7 +207,7 @@ function ConversionCard({ conversion }: { conversion: ConversionWithOutputs }) {
     : conversion.input_text;
 
   return (
-    <div className="card hover:shadow-md transition-shadow">
+    <article className="card hover:shadow-md transition-shadow">
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div className="flex-1 min-w-0">
           {/* Header with type and date */}
@@ -160,6 +232,7 @@ function ConversionCard({ conversion }: { conversion: ConversionWithOutputs }) {
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm text-primary hover:text-primary-dark truncate block mb-2"
+              aria-label={`Abrir ${conversion.input_url} en nueva ventana`}
             >
               {conversion.input_url}
             </a>
@@ -183,11 +256,13 @@ function ConversionCard({ conversion }: { conversion: ConversionWithOutputs }) {
 
         {/* Date */}
         <div className="text-right sm:text-right text-sm text-gray-500 flex-shrink-0">
-          <p>{formattedDate}</p>
-          <p>{formattedTime}</p>
+          <time dateTime={conversion.created_at}>
+            <p>{formattedDate}</p>
+            <p>{formattedTime}</p>
+          </time>
         </div>
       </div>
-    </div>
+    </article>
   );
 }
 
@@ -198,12 +273,13 @@ function OutputPreview({ format, output }: { format: Output["format"]; output: O
 
   return (
     <details className="group w-full">
-      <summary className="cursor-pointer flex items-center gap-2 text-sm text-navy hover:text-primary transition-colors">
+      <summary className="cursor-pointer flex items-center gap-2 text-sm text-navy hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded">
         <svg
           className="w-4 h-4 text-gray-400 group-open:rotate-90 transition-transform"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
+          aria-hidden="true"
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
         </svg>
@@ -219,4 +295,3 @@ function OutputPreview({ format, output }: { format: Output["format"]; output: O
     </details>
   );
 }
-

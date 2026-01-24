@@ -256,17 +256,24 @@ export function ConversionForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Tab buttons */}
-      <div className="flex gap-2 p-1 bg-gray-100 rounded-lg w-fit">
+      <div
+        className="flex gap-2 p-1 bg-gray-100 rounded-lg w-fit"
+        role="tablist"
+        aria-label="Tipo de contenido"
+      >
         {tabs.map((tab) => (
           <motion.button
             key={tab.id}
             type="button"
+            role="tab"
+            aria-selected={activeTab === tab.id}
+            aria-controls={`panel-${tab.id}`}
             onClick={() => {
               setActiveTab(tab.id);
               setInputValue("");
               setError(null);
             }}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
               activeTab === tab.id
                 ? "bg-primary text-white"
                 : "text-navy hover:bg-gray-200"
@@ -347,30 +354,33 @@ export function ConversionForm({
 
       {/* Tone selector */}
       <div className="card">
-        <label className="block text-sm font-medium text-navy mb-3">
-          Tono del contenido
-        </label>
-        <div className="flex flex-wrap gap-2">
-          {tones.map((t) => (
-            <motion.button
-              key={t.id}
-              type="button"
-              onClick={() => setTone(t.id)}
-              disabled={isLoading}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                tone === t.id
-                  ? "bg-primary text-white"
-                  : "bg-gray-100 text-navy hover:bg-gray-200"
-              }`}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              animate={tone === t.id ? { scale: [1, 1.05, 1] } : {}}
-              transition={{ type: "spring", stiffness: 400, damping: 25 }}
-            >
-              {t.label}
-            </motion.button>
-          ))}
-        </div>
+        <fieldset>
+          <legend className="block text-sm font-medium text-navy mb-3">
+            Tono del contenido
+          </legend>
+          <div className="flex flex-wrap gap-2" role="group" aria-label="Seleccionar tono">
+            {tones.map((t) => (
+              <motion.button
+                key={t.id}
+                type="button"
+                onClick={() => setTone(t.id)}
+                disabled={isLoading}
+                aria-pressed={tone === t.id}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
+                  tone === t.id
+                    ? "bg-primary text-white"
+                    : "bg-gray-100 text-navy hover:bg-gray-200"
+                }`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                animate={tone === t.id ? { scale: [1, 1.05, 1] } : {}}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+              >
+                {t.label}
+              </motion.button>
+            ))}
+          </div>
+        </fieldset>
         <p className="mt-2 text-xs text-gray-500">
           {tone === "profesional" &&
             "Formal, basado en datos, terminologia del sector"}
@@ -399,14 +409,16 @@ export function ConversionForm({
               <button
                 type="button"
                 onClick={() => handleRemoveTopic(topic)}
-                className="hover:text-error"
+                className="hover:text-error focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 rounded"
                 disabled={isLoading}
+                aria-label={`Eliminar tema: ${topic}`}
               >
                 <svg
                   className="w-4 h-4"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
+                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -459,6 +471,7 @@ export function ConversionForm({
                   className="animate-spin w-5 h-5"
                   fill="none"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <circle
                     className="opacity-25"
@@ -492,7 +505,7 @@ export function ConversionForm({
                 whileTap={{ scale: 0.98 }}
               >
                 Mejora tu plan
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </motion.a>
