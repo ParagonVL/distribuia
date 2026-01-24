@@ -132,23 +132,6 @@ export default function PlanManagement({
         </div>
       )}
 
-      {/* Right of withdrawal waiver - required for upgrades */}
-      {canUpgrade && !hasStripeSubscription && (
-        <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
-          <label className="flex items-start gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={waiverAccepted}
-              onChange={(e) => setWaiverAccepted(e.target.checked)}
-              className="mt-1 w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary focus:ring-2"
-            />
-            <span className="text-sm text-gray-700">
-              Solicito acceso inmediato al servicio. Entiendo que, al hacerlo, renuncio a mi derecho de desistimiento de 14 dias para esta primera suscripcion, conforme al articulo 103.m) del Real Decreto Legislativo 1/2007.
-            </span>
-          </label>
-        </div>
-      )}
-
       {/* Plan Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {plans.map((plan) => {
@@ -242,20 +225,35 @@ export default function PlanManagement({
                   </button>
                 ) : null
               ) : isUpgrade ? (
-                <button
-                  onClick={() => handleUpgrade(plan.key as "starter" | "pro")}
-                  disabled={loading === plan.key || (!hasStripeSubscription && !waiverAccepted)}
-                  className={`w-full text-sm py-2.5 rounded-lg font-medium transition-all ${
-                    (!hasStripeSubscription && !waiverAccepted)
-                      ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                      : isPopular
-                        ? "bg-gradient-to-r from-primary to-teal-400 text-white hover:from-primary-dark hover:to-teal-500 shadow-lg shadow-primary/30 hover:shadow-primary/50"
-                        : "bg-gray-100 text-navy hover:bg-gray-200"
-                  }`}
-                  title={!hasStripeSubscription && !waiverAccepted ? "Debes aceptar las condiciones" : ""}
-                >
-                  {loading === plan.key ? "Cargando..." : "Cambiar a " + plan.name}
-                </button>
+                <div className="space-y-3">
+                  {/* Waiver checkbox inside each upgrade card */}
+                  {!hasStripeSubscription && (
+                    <label className="flex items-start gap-2 cursor-pointer text-xs text-gray-600">
+                      <input
+                        type="checkbox"
+                        checked={waiverAccepted}
+                        onChange={(e) => setWaiverAccepted(e.target.checked)}
+                        className="mt-0.5 w-3.5 h-3.5 text-primary border-gray-300 rounded focus:ring-primary focus:ring-1"
+                      />
+                      <span>
+                        Solicito acceso inmediato y renuncio al derecho de desistimiento de 14 dias (art. 103.m RDL 1/2007).
+                      </span>
+                    </label>
+                  )}
+                  <button
+                    onClick={() => handleUpgrade(plan.key as "starter" | "pro")}
+                    disabled={loading === plan.key || (!hasStripeSubscription && !waiverAccepted)}
+                    className={`w-full text-sm py-2.5 rounded-lg font-medium transition-all ${
+                      (!hasStripeSubscription && !waiverAccepted)
+                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                        : isPopular
+                          ? "bg-gradient-to-r from-primary to-teal-400 text-white hover:from-primary-dark hover:to-teal-500 shadow-lg shadow-primary/30 hover:shadow-primary/50"
+                          : "bg-gray-100 text-navy hover:bg-gray-200"
+                    }`}
+                  >
+                    {loading === plan.key ? "Cargando..." : "Cambiar a " + plan.name}
+                  </button>
+                </div>
               ) : isDowngrade && hasStripeSubscription ? (
                 <button
                   onClick={handleManageSubscription}
