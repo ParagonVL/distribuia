@@ -3,6 +3,7 @@ import {
   getPlanLimits,
   canCreateConversion,
   canRegenerate,
+  getRemainingConversions,
 } from "@/lib/config/plans";
 
 describe("PLAN_LIMITS", () => {
@@ -66,5 +67,27 @@ describe("canRegenerate", () => {
     // Starter/Pro: 3 regenerates means max version is 4
     expect(canRegenerate("starter", 4)).toBe(false);
     expect(canRegenerate("pro", 4)).toBe(false);
+  });
+});
+
+describe("getRemainingConversions", () => {
+  it("should return full allowance when no conversions used", () => {
+    expect(getRemainingConversions("free", 0)).toBe(2);
+    expect(getRemainingConversions("starter", 0)).toBe(10);
+    expect(getRemainingConversions("pro", 0)).toBe(30);
+  });
+
+  it("should return correct remaining count", () => {
+    expect(getRemainingConversions("free", 1)).toBe(1);
+    expect(getRemainingConversions("starter", 5)).toBe(5);
+    expect(getRemainingConversions("pro", 25)).toBe(5);
+  });
+
+  it("should return 0 when at or over limit", () => {
+    expect(getRemainingConversions("free", 2)).toBe(0);
+    expect(getRemainingConversions("free", 5)).toBe(0);
+    expect(getRemainingConversions("starter", 10)).toBe(0);
+    expect(getRemainingConversions("starter", 15)).toBe(0);
+    expect(getRemainingConversions("pro", 30)).toBe(0);
   });
 });

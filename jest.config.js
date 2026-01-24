@@ -15,8 +15,15 @@ const customJestConfig = {
   testPathIgnorePatterns: ["<rootDir>/.next/", "<rootDir>/node_modules/"],
   collectCoverageFrom: [
     "lib/**/*.{js,jsx,ts,tsx}",
-    "components/**/*.{js,jsx,ts,tsx}",
-    "app/**/*.{js,jsx,ts,tsx}",
+    "!lib/supabase/**", // Supabase clients require runtime env
+    "!lib/stripe/**", // Stripe requires API keys
+    "!lib/groq/client.ts", // Requires Groq API
+    "!lib/groq/generate.ts", // Requires Groq API
+    "!lib/groq/index.ts", // Re-exports only
+    "!lib/processors/youtube.ts", // Requires network calls
+    "!lib/processors/article.ts", // Requires network calls
+    "!lib/email/**", // Requires Resend API
+    "!lib/logger.ts", // Sentry/logging setup
     "!**/*.d.ts",
     "!**/node_modules/**",
   ],

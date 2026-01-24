@@ -19,8 +19,8 @@ const youtubeUrlSchema = z.string().refine(
   (url) => {
     const sanitized = sanitizeUrl(url);
     if (!sanitized) return false;
-    // Match youtube.com/watch, youtu.be, youtube.com/shorts
-    const ytRegex = /^https?:\/\/(www\.)?(youtube\.com\/(watch|shorts)|youtu\.be)\//;
+    // Match youtube.com/watch?v=, youtu.be/, youtube.com/shorts/
+    const ytRegex = /^https?:\/\/(www\.)?(youtube\.com\/(watch\?|shorts\/)|youtu\.be\/)/;
     return ytRegex.test(sanitized);
   },
   { message: "URL de YouTube no válida" }
