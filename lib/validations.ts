@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { sanitizeUrl, sanitizeText } from "./security";
 
 // Input types enum
 export const inputTypeSchema = z.enum(["youtube", "article", "text"]);
@@ -13,17 +14,86 @@ export const outputFormatSchema = z.enum([
   "linkedin_article",
 ]);
 
-// Convert request schema
-export const convertRequestSchema = z.object({
-  inputType: inputTypeSchema,
-  inputValue: z.string().min(1, "El contenido no puede estar vacío"),
-  tone: toneSchema,
-  topics: z
-    .array(z.string().min(1).max(50))
-    .max(5, "Máximo 5 temas permitidos")
-    .optional()
-    .nullable(),
-});
+// YouTube URL validation
+const youtubeUrlSchema = z.string().refine(
+  (url) => {
+    const sanitized = sanitizeUrl(url);
+    if (!sanitized) return false;
+    // Match youtube.com/watch, youtu.be, youtube.com/shorts
+    const ytRegex = /^https?:\/\/(www\.)?(youtube\.com\/(watch|shorts)|youtu\.be)\//;
+    return ytRegex.test(sanitized);
+  },
+  { message: "URL de YouTube no válida" }
+);
+
+// Article URL validation
+const articleUrlSchema = z.string().refine(
+  (url) => {
+    const sanitized = sanitizeUrl(url);
+    return sanitized !== null;
+  },
+  { message: "URL no válida" }
+);
+
+// Text content validation with sanitization
+const textContentSchema = z
+  .string()
+  .min(100, "El contenido debe tener al menos 100 caracteres")
+  .max(50000, "El contenido no puede exceder 50.000 caracteres")
+  .transform((text) => sanitizeText(text));
+
+// Topic with sanitization
+const topicSchema = z
+  .string()
+  .min(1)
+  .max(50)
+  .transform((topic) => sanitizeText(topic));
+
+// Convert request schema with conditional validation
+export const convertRequestSchema = z
+  .object({
+    inputType: inputTypeSchema,
+    inputValue: z.string().min(1, "El contenido no puede estar vacío"),
+    tone: toneSchema,
+    topics: z
+      .array(topicSchema)
+      .max(5, "Máximo 5 temas permitidos")
+      .optional()
+      .nullable(),
+  })
+  .superRefine((data, ctx) => {
+    // Validate inputValue based on inputType
+    if (data.inputType === "youtube") {
+      const result = youtubeUrlSchema.safeParse(data.inputValue);
+      if (!result.success) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "URL de YouTube no válida",
+          path: ["inputValue"],
+        });
+      }
+    } else if (data.inputType === "article") {
+      const result = articleUrlSchema.safeParse(data.inputValue);
+      if (!result.success) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "URL de artículo no válida",
+          path: ["inputValue"],
+        });
+      }
+    } else if (data.inputType === "text") {
+      const result = textContentSchema.safeParse(data.inputValue);
+      if (!result.success) {
+        result.error.issues.forEach((issue) => {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: issue.message,
+            path: ["inputValue"],
+          });
+        });
+      }
+    }
+  });
 
 export type ConvertRequest = z.infer<typeof convertRequestSchema>;
 
