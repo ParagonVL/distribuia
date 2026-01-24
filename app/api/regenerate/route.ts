@@ -15,6 +15,7 @@ import {
 } from "@/lib/errors";
 import { conversionRatelimit, checkRateLimit, getRateLimitIdentifier } from "@/lib/ratelimit";
 import { validateCSRF } from "@/lib/csrf";
+import { invalidateUserCache } from "@/lib/cache";
 import logger from "@/lib/logger";
 import type { OutputFormat, ToneType, Output, User } from "@/types/database";
 
@@ -175,6 +176,11 @@ export async function POST(request: NextRequest) {
       logger.error("Error saving new output", insertError);
       throw new Error("Error al guardar el nuevo contenido");
     }
+
+    // Invalidate user cache (history pages may show new version)
+    invalidateUserCache(user.id).catch((err) => {
+      logger.error("Failed to invalidate cache", err);
+    });
 
     return NextResponse.json({
       outputId: newOutput.id,

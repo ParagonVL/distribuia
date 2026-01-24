@@ -19,6 +19,7 @@ import {
 import { sendLowUsageEmail, shouldSendEmail } from "@/lib/email/send";
 import { conversionRatelimit, checkRateLimit, getRateLimitIdentifier } from "@/lib/ratelimit";
 import { validateCSRF } from "@/lib/csrf";
+import { invalidateUserCache } from "@/lib/cache";
 import logger from "@/lib/logger";
 import type { OutputFormat, ToneType, User, Conversion, Output } from "@/types/database";
 
@@ -167,6 +168,11 @@ export async function POST(request: NextRequest) {
       logger.error("Error updating user conversion count", updateError);
       // Don't throw here, the conversion was successful
     }
+
+    // Invalidate user cache (usage and history)
+    invalidateUserCache(user.id).catch((err) => {
+      logger.error("Failed to invalidate cache", err);
+    });
 
     // Send low usage email at 80% if not already sent this cycle
     const usagePercent = (newUsageCount / planLimits.conversionsPerMonth) * 100;
