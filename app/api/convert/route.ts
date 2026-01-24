@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { processInput } from "@/lib/processors";
 import { generateAllFormats } from "@/lib/groq";
-import { getPlanLimits, canCreateConversion, addWatermarkIfNeeded } from "@/lib/config/plans";
+import { getPlanLimits, canCreateConversion, addWatermarkIfNeeded, shouldAddWatermark } from "@/lib/config/plans";
 import {
   convertRequestSchema,
   formatZodErrors,
@@ -234,6 +234,7 @@ export async function POST(request: NextRequest) {
         conversionsLimit: planLimits.conversionsPerMonth,
         regeneratesPerConversion: planLimits.regeneratesPerConversion,
       },
+      hasWatermark: shouldAddWatermark(userData.plan),
     });
   } catch (error) {
     logger.apiError("POST", "/api/convert", error, {

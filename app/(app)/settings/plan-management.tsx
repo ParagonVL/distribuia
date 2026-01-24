@@ -82,7 +82,7 @@ export default function PlanManagement({
     }
   };
 
-  const plans: { key: PlanType; name: string; price: string; features: string[] }[] = [
+  const plans: { key: PlanType; name: string; price: string; features: string[]; limitations?: string[] }[] = [
     {
       key: "free",
       name: "Free",
@@ -92,6 +92,7 @@ export default function PlanManagement({
         `${PLAN_LIMITS.free.regeneratesPerConversion} regeneracion por contenido`,
         "Todos los formatos de salida",
       ],
+      limitations: ["Incluye marca de agua"],
     },
     {
       key: "starter",
@@ -101,6 +102,7 @@ export default function PlanManagement({
         `${PLAN_LIMITS.starter.conversionsPerMonth} conversiones/mes`,
         `${PLAN_LIMITS.starter.regeneratesPerConversion} regeneraciones por contenido`,
         "Todos los formatos de salida",
+        "Sin marca de agua",
         "Soporte por email",
       ],
     },
@@ -112,6 +114,7 @@ export default function PlanManagement({
         `${PLAN_LIMITS.pro.conversionsPerMonth} conversiones/mes`,
         `${PLAN_LIMITS.pro.regeneratesPerConversion} regeneraciones por contenido`,
         "Todos los formatos de salida",
+        "Sin marca de agua",
         "Soporte prioritario",
       ],
     },
@@ -143,7 +146,7 @@ export default function PlanManagement({
               key={plan.key}
               className={`p-6 rounded-xl border-2 transition-all relative ${
                 isCurrent
-                  ? "border-primary bg-primary/5"
+                  ? "ring-2 ring-primary/50"
                   : isPopular
                     ? "border-primary shadow-xl shadow-primary/20"
                     : "border-gray-200 hover:border-gray-300"
@@ -159,8 +162,8 @@ export default function PlanManagement({
                 </span>
               )}
               {isCurrent && (
-                <span className="inline-block px-2 py-1 text-xs font-medium bg-primary text-white rounded-full mb-3">
-                  Plan actual
+                <span className="absolute -top-3 right-4 bg-navy text-white text-xs font-semibold px-3 py-1 rounded-full">
+                  Actual
                 </span>
               )}
               <h3 className="font-heading text-xl font-bold text-navy">{plan.name}</h3>
@@ -185,6 +188,24 @@ export default function PlanManagement({
                       />
                     </svg>
                     {feature}
+                  </li>
+                ))}
+                {plan.limitations?.map((limitation, idx) => (
+                  <li key={`lim-${idx}`} className="flex items-start gap-2 text-sm text-amber-600">
+                    <svg
+                      className="w-5 h-5 text-amber-500 flex-shrink-0"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                      />
+                    </svg>
+                    {limitation}
                   </li>
                 ))}
               </ul>

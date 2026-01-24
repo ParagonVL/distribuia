@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
         supabase_user_id: user.id,
       },
       allow_promotion_codes: true,
-      billing_address_collection: "required",
+      billing_address_collection: "auto",
       locale: "es",
     });
 

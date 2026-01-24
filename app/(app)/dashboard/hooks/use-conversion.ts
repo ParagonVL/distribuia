@@ -40,6 +40,7 @@ export interface ConversionResult {
     conversionsLimit: number;
     regeneratesPerConversion: number;
   };
+  hasWatermark?: boolean;
 }
 
 export interface ErrorState {

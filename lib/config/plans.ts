@@ -65,10 +65,11 @@ export function shouldAddWatermark(plan: PlanType): boolean {
 
 /**
  * Watermark text for different formats
+ * For X threads: embedded in the last tweet (no --- separator to avoid appearing as separate tweet)
  */
 export const WATERMARK = {
-  // For X threads: appears as final tweet
-  x_thread: "\n\n---\n🔗 Creado con Distribuia.com",
+  // For X threads: embedded in the last tweet
+  x_thread: "\n\n🔗 Creado con Distribuia.com",
   // For LinkedIn posts: appears at the end
   linkedin_post: "\n\n🔗 Creado con Distribuia.com",
   // For LinkedIn articles: appears at the end with link
