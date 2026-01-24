@@ -38,7 +38,11 @@
   }
 
   .card {
-    @apply bg-white rounded-xl shadow-sm border border-gray-100 p-6;
+    @apply bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200;
+  }
+
+  .card-accent {
+    @apply bg-gradient-to-br from-white via-white to-primary/5 rounded-xl shadow-sm border border-primary/10 p-6 hover:shadow-md hover:border-primary/20 transition-all duration-200;
   }
 
   .input {

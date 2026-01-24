@@ -38,10 +38,34 @@ interface ResultsProps {
 
 type OutputFormat = "x_thread" | "linkedin_post" | "linkedin_article";
 
-const formatLabels: Record<OutputFormat, string> = {
-  x_thread: "Hilo de X",
-  linkedin_post: "Post de LinkedIn",
-  linkedin_article: "Articulo",
+const formatLabels: Record<OutputFormat, { label: string; icon: JSX.Element; color: string }> = {
+  x_thread: {
+    label: "Hilo de X",
+    icon: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+      </svg>
+    ),
+    color: "bg-black",
+  },
+  linkedin_post: {
+    label: "Post de LinkedIn",
+    icon: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+      </svg>
+    ),
+    color: "bg-[#0A66C2]",
+  },
+  linkedin_article: {
+    label: "Artículo",
+    icon: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+      </svg>
+    ),
+    color: "bg-gradient-to-r from-primary to-teal-400",
+  },
 };
 
 // Animation variants for staggered card entrance
@@ -196,9 +220,9 @@ function OutputCard({
           {tweets.map((tweet, i) => (
             <div
               key={i}
-              className="p-3 bg-gray-50 rounded-lg border-l-2 border-primary"
+              className="p-3 bg-gradient-to-r from-primary/5 to-teal-50 rounded-lg border-l-3 border-primary shadow-sm"
             >
-              <p className="text-sm text-gray-600 mb-1">Tweet {i + 1}</p>
+              <p className="text-sm font-medium text-primary mb-1">Tweet {i + 1}</p>
               <p className="whitespace-pre-wrap">{tweet}</p>
               <p className="text-xs text-gray-400 mt-1">
                 {tweet.length}/280 caracteres
@@ -215,7 +239,7 @@ function OutputCard({
 
   return (
     <motion.div
-      className="card flex flex-col h-full hover:shadow-lg hover:border-primary/20 transition-shadow duration-300"
+      className="card flex flex-col h-full hover:shadow-lg hover:border-primary/30 transition-all duration-300 bg-gradient-to-b from-white to-gray-50/50"
       variants={cardVariants}
       initial="hidden"
       animate="visible"
@@ -223,9 +247,14 @@ function OutputCard({
       whileHover={{ y: -2 }}
       transition={{ duration: 0.2 }}
     >
-      <h3 className="font-heading text-lg font-semibold text-navy mb-4">
-        {formatLabels[format]}
-      </h3>
+      <div className="flex items-center gap-3 mb-4">
+        <div className={`p-2 rounded-lg text-white ${formatLabels[format].color}`}>
+          {formatLabels[format].icon}
+        </div>
+        <h3 className="font-heading text-lg font-bold text-navy">
+          {formatLabels[format].label}
+        </h3>
+      </div>
 
       {error && (
         <div className="mb-4 p-3 bg-error/10 border border-error/20 rounded-lg">
@@ -343,7 +372,7 @@ export function Results({ result, onNewConversion }: ResultsProps) {
   const handleDownloadAll = () => {
     const content = formats
       .map((format) => {
-        return `=== ${formatLabels[format].toUpperCase()} ===\n\n${result.outputs[format].content}`;
+        return `=== ${formatLabels[format].label.toUpperCase()} ===\n\n${result.outputs[format].content}`;
       })
       .join("\n\n" + "=".repeat(50) + "\n\n");
 
@@ -427,7 +456,7 @@ export function Results({ result, onNewConversion }: ResultsProps) {
                   : "text-navy hover:bg-gray-200"
               }`}
             >
-              {formatLabels[format].replace(" de ", "\n")}
+              {formatLabels[format].label.replace(" de ", "\n")}
             </button>
           ))}
         </div>

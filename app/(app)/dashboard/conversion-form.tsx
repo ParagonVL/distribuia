@@ -130,9 +130,16 @@ export function ConversionForm({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <h1 className="font-heading text-2xl sm:text-3xl font-bold text-navy">
-        Nueva conversion
-      </h1>
+      <div className="flex items-center gap-3">
+        <div className="p-2 rounded-xl bg-gradient-to-br from-primary to-teal-400 shadow-lg shadow-primary/30">
+          <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <h1 className="font-heading text-2xl sm:text-3xl font-bold text-navy">
+          Nueva conversion
+        </h1>
+      </div>
 
       {/* Limit reached warning - shown at top when no conversions left */}
       {!canConvert && (
@@ -201,7 +208,7 @@ export function ConversionForm({
       <form onSubmit={handleSubmit} className="space-y-6">
       {/* Tab buttons */}
       <div
-        className="flex gap-2 p-1 bg-gray-100 rounded-lg w-fit"
+        className="flex gap-2 p-1.5 bg-gradient-to-r from-gray-100 to-primary/10 rounded-xl w-fit shadow-inner"
         role="tablist"
         aria-label="Tipo de contenido"
       >
@@ -228,7 +235,7 @@ export function ConversionForm({
       </div>
 
       {/* Input area */}
-      <div className="card">
+      <div className="card-accent">
         <InputPanel
           activeTab={activeTab}
           inputValue={inputValue}

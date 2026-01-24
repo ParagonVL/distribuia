@@ -34,7 +34,7 @@ export default async function AppLayout({
   const used = userData?.conversions_used_this_month || 0;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-primary/5">
       {/* Skip to main content link for keyboard users */}
       <a
         href="#main-content"
