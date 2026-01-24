@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getStripeClient, STRIPE_PRICES } from "@/lib/stripe";
 import { getOrCreateCustomer } from "@/lib/stripe/portal";
 import { validateCSRF } from "@/lib/csrf";
+import logger from "@/lib/logger";
 
 export async function POST(request: NextRequest) {
   // CSRF protection
@@ -90,7 +91,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ url: session.url });
   } catch (error) {
-    console.error("Checkout session error:", error);
+    logger.error("Checkout session error", error);
     return NextResponse.json(
       {
         error: {

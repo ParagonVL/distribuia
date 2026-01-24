@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getPlanLimits, getRemainingConversions } from "@/lib/config/plans";
 import { DistribuiaError, UnauthenticatedError } from "@/lib/errors";
 import { cacheGetOrSet, cacheKey, CACHE_TTL } from "@/lib/cache";
+import logger from "@/lib/logger";
 import type { User } from "@/types/database";
 
 interface UsageResponse {
@@ -84,7 +85,7 @@ export async function GET() {
 
     return NextResponse.json(usageData);
   } catch (error) {
-    console.error("Usage API error:", error);
+    logger.error("Usage API error", error);
 
     // Handle our custom errors
     if (error instanceof DistribuiaError) {

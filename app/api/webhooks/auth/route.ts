@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createHmac } from "crypto";
 import { sendWelcomeEmail } from "@/lib/email/send";
+import logger from "@/lib/logger";
 
 // Supabase Auth webhook payload types
 interface AuthWebhookPayload {
@@ -46,7 +47,7 @@ export async function POST(request: NextRequest) {
     if (webhookSecret) {
       const isValid = verifyWebhookSignature(payload, signature, webhookSecret);
       if (!isValid) {
-        console.error("Invalid webhook signature");
+        logger.error("Invalid webhook signature");
         return NextResponse.json(
           { error: "Invalid signature" },
           { status: 401 }
@@ -64,20 +65,20 @@ export async function POST(request: NextRequest) {
         data.record.raw_user_meta_data?.full_name;
 
       if (userEmail) {
-        console.log(`Sending welcome email to ${userEmail}`);
+        logger.info("Sending welcome email", { email: userEmail });
         const result = await sendWelcomeEmail(userEmail, userName);
 
         if (!result.success) {
-          console.error(`Failed to send welcome email: ${result.error}`);
+          logger.error("Failed to send welcome email", new Error(result.error || "Unknown error"));
         } else {
-          console.log(`Welcome email sent successfully to ${userEmail}`);
+          logger.info("Welcome email sent successfully", { email: userEmail });
         }
       }
     }
 
     return NextResponse.json({ received: true });
   } catch (error) {
-    console.error("Webhook error:", error);
+    logger.error("Webhook error", error);
     return NextResponse.json(
       { error: "Webhook processing failed" },
       { status: 500 }

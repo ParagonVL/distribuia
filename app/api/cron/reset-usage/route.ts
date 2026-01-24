@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import logger from "@/lib/logger";
 
 // Use service role key to bypass RLS
 function getSupabaseAdmin() {
@@ -25,7 +26,7 @@ export async function GET(request: NextRequest) {
     const cronSecret = process.env.CRON_SECRET;
 
     if (!cronSecret) {
-      console.error("CRON_SECRET not configured");
+      logger.error("CRON_SECRET not configured");
       return NextResponse.json(
         { error: "Cron not configured" },
         { status: 500 }
@@ -33,7 +34,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (authHeader !== `Bearer ${cronSecret}`) {
-      console.error("Invalid cron authorization");
+      logger.error("Invalid cron authorization");
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
@@ -53,7 +54,7 @@ export async function GET(request: NextRequest) {
       .lte("billing_cycle_start", oneMonthAgo.toISOString());
 
     if (selectError) {
-      console.error("Error finding users to reset:", selectError);
+      logger.error("Error finding users to reset", selectError);
       return NextResponse.json(
         { error: "Database error", details: selectError.message },
         { status: 500 }
@@ -61,7 +62,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (!usersToReset || usersToReset.length === 0) {
-      console.log("No users to reset");
+      logger.info("No users to reset");
       return NextResponse.json({ reset: 0 });
     }
 
@@ -79,21 +80,21 @@ export async function GET(request: NextRequest) {
       .in("id", userIds);
 
     if (updateError) {
-      console.error("Error resetting user usage:", updateError);
+      logger.error("Error resetting user usage", updateError);
       return NextResponse.json(
         { error: "Update error", details: updateError.message },
         { status: 500 }
       );
     }
 
-    console.log(`Reset usage for ${usersToReset.length} users`);
+    logger.info("Reset usage for users", { count: usersToReset.length });
 
     return NextResponse.json({
       reset: usersToReset.length,
       timestamp: now,
     });
   } catch (error) {
-    console.error("Cron job error:", error);
+    logger.error("Cron job error", error);
     return NextResponse.json(
       { error: "Internal error" },
       { status: 500 }

@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextRequest, NextResponse } from "next/server";
 import { validateCSRF } from "@/lib/csrf";
+import logger from "@/lib/logger";
 
 export async function DELETE(request: NextRequest) {
   // CSRF protection
@@ -41,7 +42,7 @@ export async function DELETE(request: NextRequest) {
         );
         await stripe.subscriptions.cancel(userData.stripe_subscription_id);
       } catch (stripeError) {
-        console.error("Error canceling Stripe subscription:", stripeError);
+        logger.error("Error canceling Stripe subscription", stripeError);
         // Continue with deletion even if Stripe fails
       }
     }
@@ -70,15 +71,15 @@ export async function DELETE(request: NextRequest) {
     const { error: deleteAuthError } = await supabaseAdmin.auth.admin.deleteUser(user.id);
 
     if (deleteAuthError) {
-      console.error("Error deleting auth user:", deleteAuthError);
+      logger.error("Error deleting auth user", deleteAuthError);
       // User data is already deleted, log error but don't fail
     }
 
-    console.log(`User ${user.id} (${user.email}) deleted successfully`);
+    logger.info("User deleted successfully", { userId: user.id, email: user.email });
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error deleting account:", error);
+    logger.error("Error deleting account", error);
     return NextResponse.json(
       {
         error: {

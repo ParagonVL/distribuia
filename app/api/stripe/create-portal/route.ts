@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createPortalSession } from "@/lib/stripe/portal";
 import { validateCSRF } from "@/lib/csrf";
+import logger from "@/lib/logger";
 
 export async function POST(request: NextRequest) {
   // CSRF protection
@@ -53,7 +54,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ url: portalUrl });
   } catch (error) {
-    console.error("Portal session error:", error);
+    logger.error("Portal session error", error);
     return NextResponse.json(
       {
         error: {
