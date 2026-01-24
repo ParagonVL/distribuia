@@ -64,10 +64,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get user data to check for existing Stripe customer
+    // Get user data to check for existing Stripe customer and subscription
     const { data: userData } = await supabase
       .from("users")
-      .select("stripe_customer_id")
+      .select("stripe_customer_id, stripe_subscription_id")
       .eq("id", user.id)
       .single();
 
@@ -86,13 +86,78 @@ export async function POST(request: NextRequest) {
         .eq("id", user.id);
     }
 
-    // Create checkout session
     const stripe = getStripeClient();
     const origin = request.headers.get("origin") || process.env.NEXT_PUBLIC_APP_URL;
 
     // Determine product name from price ID
     const productName = priceId === STRIPE_PRICES.starter_monthly ? "starter" : "pro";
 
+    // Check if user has an existing active subscription - use Stripe as source of truth
+    let existingSubscription = null;
+    if (userData?.stripe_customer_id) {
+      const subscriptions = await stripe.subscriptions.list({
+        customer: userData.stripe_customer_id,
+        status: "active",
+        limit: 1,
+      });
+      if (subscriptions.data.length > 0) {
+        existingSubscription = subscriptions.data[0];
+      }
+    }
+
+    // If user has an existing subscription, update it (proration)
+    if (existingSubscription) {
+      logger.info("Upgrading existing subscription", {
+        userId: user.id,
+        subscriptionId: existingSubscription.id,
+        newPriceId: priceId,
+      });
+
+      // Get the subscription item ID to update
+      const subscriptionItemId = existingSubscription.items.data[0]?.id;
+      if (!subscriptionItemId) {
+        throw new Error("No subscription item found");
+      }
+
+      // Update subscription with proration (Stripe handles the prorated charge automatically)
+      await stripe.subscriptions.update(existingSubscription.id, {
+        items: [
+          {
+            id: subscriptionItemId,
+            price: priceId,
+          },
+        ],
+        proration_behavior: "create_prorations", // Charge/credit the difference
+        metadata: {
+          supabase_user_id: user.id,
+        },
+      });
+
+      // Store waiver for upgrade
+      const supabaseAdmin = getSupabaseAdmin();
+      const ipAddress = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+        || request.headers.get("x-real-ip")
+        || "unknown";
+      const userAgent = request.headers.get("user-agent") || "unknown";
+
+      await (supabaseAdmin as unknown as { from: (table: string) => { insert: (data: Record<string, unknown>) => Promise<unknown> } })
+        .from("withdrawal_waivers")
+        .insert({
+          user_id: user.id,
+          product: productName,
+          ip_address: ipAddress,
+          user_agent: userAgent,
+          waiver_version: "v1",
+          checkout_session_id: `upgrade_${existingSubscription.id}`,
+        });
+
+      logger.info("Subscription upgraded successfully", { userId: user.id, newPlan: productName });
+
+      // Redirect back to billing with success - no checkout needed
+      return NextResponse.json({ url: `${origin}/billing?success=true` });
+    }
+
+    // No existing subscription - create new checkout session
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: "subscription",

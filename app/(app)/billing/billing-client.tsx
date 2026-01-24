@@ -373,7 +373,7 @@ export function BillingClient({
                     {/* Bold only the number 30 in Pro plan features */}
                     {p.id === "pro" && feature.startsWith("30") ? (
                       <>
-                        <span className="font-bold text-lg text-navy">30</span>
+                        <span className="font-bold text-navy">30</span>
                         {feature.replace(/^30/, '')}
                       </>
                     ) : feature}
