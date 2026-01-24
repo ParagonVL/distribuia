@@ -1,9 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient as createServerClient } from "@/lib/supabase/server";
+import { createClient } from "@supabase/supabase-js";
 import { getStripeClient, STRIPE_PRICES } from "@/lib/stripe";
 import { getOrCreateCustomer } from "@/lib/stripe/portal";
 import { validateCSRF } from "@/lib/csrf";
 import logger from "@/lib/logger";
+
+// Admin client for storing waiver (bypasses RLS)
+function getSupabaseAdmin() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    throw new Error("Missing Supabase environment variables");
+  }
+
+  return createClient(supabaseUrl, serviceRoleKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
+}
 
 export async function POST(request: NextRequest) {
   // CSRF protection
@@ -12,7 +30,7 @@ export async function POST(request: NextRequest) {
 
   try {
     // Get authenticated user
-    const supabase = await createClient();
+    const supabase = await createServerClient();
     const {
       data: { user },
       error: authError,
@@ -27,7 +45,15 @@ export async function POST(request: NextRequest) {
 
     // Parse request body
     const body = await request.json();
-    const { priceId } = body;
+    const { priceId, waiverAccepted } = body;
+
+    // Waiver is required for new subscriptions
+    if (!waiverAccepted) {
+      return NextResponse.json(
+        { error: { code: "WAIVER_REQUIRED", message: "Debes aceptar la renuncia al derecho de desistimiento" } },
+        { status: 400 }
+      );
+    }
 
     // Validate price ID
     const validPriceIds = [STRIPE_PRICES.starter_monthly, STRIPE_PRICES.pro_monthly];
@@ -64,6 +90,9 @@ export async function POST(request: NextRequest) {
     const stripe = getStripeClient();
     const origin = request.headers.get("origin") || process.env.NEXT_PUBLIC_APP_URL;
 
+    // Determine product name from price ID
+    const productName = priceId === STRIPE_PRICES.starter_monthly ? "starter" : "pro";
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: "subscription",
@@ -88,6 +117,24 @@ export async function POST(request: NextRequest) {
       billing_address_collection: "auto",
       locale: "es",
     });
+
+    // Store waiver acceptance for legal compliance
+    const supabaseAdmin = getSupabaseAdmin();
+    const ipAddress = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+      || request.headers.get("x-real-ip")
+      || "unknown";
+    const userAgent = request.headers.get("user-agent") || "unknown";
+
+    await (supabaseAdmin as ReturnType<typeof createClient>).from("withdrawal_waivers").insert({
+      user_id: user.id,
+      product: productName,
+      ip_address: ipAddress,
+      user_agent: userAgent,
+      waiver_version: "v1",
+      checkout_session_id: session.id,
+    });
+
+    logger.info("Waiver acceptance stored", { userId: user.id, product: productName, sessionId: session.id });
 
     return NextResponse.json({ url: session.url });
   } catch (error) {

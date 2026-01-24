@@ -41,7 +41,7 @@ export default function PlanManagement({
           "Content-Type": "application/json",
           "X-Requested-With": "XMLHttpRequest",
         },
-        body: JSON.stringify({ priceId: PLAN_PRICES[plan].priceId }),
+        body: JSON.stringify({ priceId: PLAN_PRICES[plan].priceId, waiverAccepted: true }),
       });
 
       const data = await response.json();
