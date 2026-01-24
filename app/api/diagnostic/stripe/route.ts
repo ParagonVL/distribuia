@@ -230,6 +230,9 @@ export async function GET(request: NextRequest) {
 
         const planMismatch = subscription.status === "active" && expectedPlan !== "unknown" && expectedPlan !== userData.plan;
 
+        // Get period end from subscription (handle different API versions)
+        const periodEnd = (subscription as unknown as { current_period_end?: number }).current_period_end;
+
         results.stripe_subscription = {
           status: planMismatch ? "error" : subscription.status === "active" ? "ok" : "warning",
           message: planMismatch
@@ -238,8 +241,7 @@ export async function GET(request: NextRequest) {
           details: {
             id: subscription.id,
             status: subscription.status,
-            current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-            cancel_at_period_end: subscription.cancel_at_period_end,
+            current_period_end: periodEnd ? new Date(periodEnd * 1000).toISOString() : "unknown",
             price_id: priceId,
             price_amount_cents: priceAmount,
             expected_plan: expectedPlan,
