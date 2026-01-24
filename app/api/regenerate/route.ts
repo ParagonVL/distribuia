@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { regenerateContent } from "@/lib/groq";
-import { getPlanLimits, canRegenerate } from "@/lib/config/plans";
+import { getPlanLimits, canRegenerate, addWatermarkIfNeeded } from "@/lib/config/plans";
 import {
   regenerateRequestSchema,
   formatZodErrors,
@@ -182,9 +182,13 @@ export async function POST(request: NextRequest) {
       logger.error("Failed to invalidate cache", err);
     });
 
+    // Add watermark for free tier
+    const outputFormat = newOutput.format as "x_thread" | "linkedin_post" | "linkedin_article";
+    const contentWithWatermark = addWatermarkIfNeeded(newOutput.content, outputFormat, userData.plan);
+
     return NextResponse.json({
       outputId: newOutput.id,
-      content: newOutput.content,
+      content: contentWithWatermark,
       version: newOutput.version,
       format: newOutput.format,
       conversionId: conversion.id,

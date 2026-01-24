@@ -2,7 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { CopyButton } from "./copy-button";
-import type { Conversion, Output } from "@/types/database";
+import type { Conversion, Output, User } from "@/types/database";
+import type { PlanType } from "@/lib/config/plans";
 
 interface ConversionWithOutputs extends Conversion {
   outputs: Output[];
@@ -45,6 +46,15 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
   if (!user) {
     redirect("/login");
   }
+
+  // Get user's plan
+  const { data: userData } = await supabase
+    .from("users")
+    .select("plan")
+    .eq("id", user.id)
+    .single<Pick<User, "plan">>();
+
+  const userPlan: PlanType = userData?.plan || "free";
 
   // Get total count for pagination
   const { count: totalCount } = await supabase
@@ -119,7 +129,7 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
         <>
           <div className="space-y-4">
             {conversionList.map((conversion) => (
-              <ConversionCard key={conversion.id} conversion={conversion} />
+              <ConversionCard key={conversion.id} conversion={conversion} userPlan={userPlan} />
             ))}
           </div>
 
@@ -178,7 +188,7 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
   );
 }
 
-function ConversionCard({ conversion }: { conversion: ConversionWithOutputs }) {
+function ConversionCard({ conversion, userPlan }: { conversion: ConversionWithOutputs; userPlan: PlanType }) {
   const date = new Date(conversion.created_at);
   const formattedDate = date.toLocaleDateString("es-ES", {
     day: "numeric",
@@ -249,6 +259,7 @@ function ConversionCard({ conversion }: { conversion: ConversionWithOutputs }) {
                 key={format}
                 format={format as Output["format"]}
                 output={output}
+                userPlan={userPlan}
               />
             ))}
           </div>
@@ -266,7 +277,7 @@ function ConversionCard({ conversion }: { conversion: ConversionWithOutputs }) {
   );
 }
 
-function OutputPreview({ format, output }: { format: Output["format"]; output: Output }) {
+function OutputPreview({ format, output, userPlan }: { format: Output["format"]; output: Output; userPlan: PlanType }) {
   const preview = output.content.length > 80
     ? output.content.substring(0, 80) + "..."
     : output.content;
@@ -290,7 +301,7 @@ function OutputPreview({ format, output }: { format: Output["format"]; output: O
       </summary>
       <div className="mt-2 ml-6 p-3 bg-gray-50 rounded-lg">
         <p className="text-sm text-gray-600 whitespace-pre-wrap">{preview}</p>
-        <CopyButton content={output.content} />
+        <CopyButton content={output.content} format={format} plan={userPlan} />
       </div>
     </details>
   );

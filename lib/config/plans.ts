@@ -55,3 +55,36 @@ export function getRemainingConversions(
   const limits = getPlanLimits(plan);
   return Math.max(0, limits.conversionsPerMonth - conversionsUsedThisMonth);
 }
+
+/**
+ * Check if watermark should be added (free tier only)
+ */
+export function shouldAddWatermark(plan: PlanType): boolean {
+  return plan === "free";
+}
+
+/**
+ * Watermark text for different formats
+ */
+export const WATERMARK = {
+  // For X threads: appears as final tweet
+  x_thread: "\n\n---\n🔗 Creado con Distribuia.com",
+  // For LinkedIn posts: appears at the end
+  linkedin_post: "\n\n🔗 Creado con Distribuia.com",
+  // For LinkedIn articles: appears at the end with link
+  linkedin_article: "\n\n---\n\n*Creado con [Distribuia.com](https://distribuia.com)*",
+} as const;
+
+/**
+ * Add watermark to content based on format and plan
+ */
+export function addWatermarkIfNeeded(
+  content: string,
+  format: "x_thread" | "linkedin_post" | "linkedin_article",
+  plan: PlanType
+): string {
+  if (!shouldAddWatermark(plan)) {
+    return content;
+  }
+  return content + WATERMARK[format];
+}

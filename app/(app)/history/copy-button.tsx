@@ -2,18 +2,37 @@
 
 import { useState } from "react";
 
-export function CopyButton({ content }: { content: string }) {
+// Watermark for free tier (must match server-side)
+const WATERMARK = {
+  x_thread: "\n\n---\n🔗 Creado con Distribuia.com",
+  linkedin_post: "\n\n🔗 Creado con Distribuia.com",
+  linkedin_article: "\n\n---\n\n*Creado con [Distribuia.com](https://distribuia.com)*",
+} as const;
+
+type OutputFormat = "x_thread" | "linkedin_post" | "linkedin_article";
+
+interface CopyButtonProps {
+  content: string;
+  format?: OutputFormat;
+  plan?: "free" | "starter" | "pro";
+}
+
+export function CopyButton({ content, format, plan }: CopyButtonProps) {
+  // Add watermark for free tier
+  const contentToCopy = plan === "free" && format
+    ? content + WATERMARK[format]
+    : content;
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(content);
+      await navigator.clipboard.writeText(contentToCopy);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
       // Fallback for older browsers
       const textArea = document.createElement("textarea");
-      textArea.value = content;
+      textArea.value = contentToCopy;
       textArea.style.position = "fixed";
       textArea.style.left = "-999999px";
       document.body.appendChild(textArea);

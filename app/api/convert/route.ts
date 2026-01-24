@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { processInput } from "@/lib/processors";
 import { generateAllFormats } from "@/lib/groq";
-import { getPlanLimits, canCreateConversion } from "@/lib/config/plans";
+import { getPlanLimits, canCreateConversion, addWatermarkIfNeeded } from "@/lib/config/plans";
 import {
   convertRequestSchema,
   formatZodErrors,
@@ -206,12 +206,13 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Format response
+    // Format response (add watermark for free tier)
     const outputsByFormat = outputs.reduce(
       (acc, output) => {
+        const format = output.format as "x_thread" | "linkedin_post" | "linkedin_article";
         acc[output.format] = {
           id: output.id,
-          content: output.content,
+          content: addWatermarkIfNeeded(output.content, format, userData.plan),
           version: output.version,
         };
         return acc;

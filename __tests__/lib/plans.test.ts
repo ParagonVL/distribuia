@@ -4,6 +4,9 @@ import {
   canCreateConversion,
   canRegenerate,
   getRemainingConversions,
+  shouldAddWatermark,
+  addWatermarkIfNeeded,
+  WATERMARK,
 } from "@/lib/config/plans";
 
 describe("PLAN_LIMITS", () => {
@@ -89,5 +92,62 @@ describe("getRemainingConversions", () => {
     expect(getRemainingConversions("starter", 10)).toBe(0);
     expect(getRemainingConversions("starter", 15)).toBe(0);
     expect(getRemainingConversions("pro", 30)).toBe(0);
+  });
+});
+
+describe("shouldAddWatermark", () => {
+  it("should return true for free plan", () => {
+    expect(shouldAddWatermark("free")).toBe(true);
+  });
+
+  it("should return false for paid plans", () => {
+    expect(shouldAddWatermark("starter")).toBe(false);
+    expect(shouldAddWatermark("pro")).toBe(false);
+  });
+});
+
+describe("WATERMARK", () => {
+  it("should have watermark for x_thread format", () => {
+    expect(WATERMARK.x_thread).toContain("Distribuia.com");
+  });
+
+  it("should have watermark for linkedin_post format", () => {
+    expect(WATERMARK.linkedin_post).toContain("Distribuia.com");
+  });
+
+  it("should have watermark for linkedin_article format", () => {
+    expect(WATERMARK.linkedin_article).toContain("Distribuia.com");
+  });
+});
+
+describe("addWatermarkIfNeeded", () => {
+  const testContent = "Test content here";
+
+  it("should add watermark for free plan", () => {
+    const result = addWatermarkIfNeeded(testContent, "x_thread", "free");
+    expect(result).toContain(testContent);
+    expect(result).toContain("Distribuia.com");
+  });
+
+  it("should not add watermark for starter plan", () => {
+    const result = addWatermarkIfNeeded(testContent, "x_thread", "starter");
+    expect(result).toBe(testContent);
+    expect(result).not.toContain("Distribuia.com");
+  });
+
+  it("should not add watermark for pro plan", () => {
+    const result = addWatermarkIfNeeded(testContent, "linkedin_post", "pro");
+    expect(result).toBe(testContent);
+    expect(result).not.toContain("Distribuia.com");
+  });
+
+  it("should add correct watermark for each format", () => {
+    const xResult = addWatermarkIfNeeded(testContent, "x_thread", "free");
+    const postResult = addWatermarkIfNeeded(testContent, "linkedin_post", "free");
+    const articleResult = addWatermarkIfNeeded(testContent, "linkedin_article", "free");
+
+    expect(xResult).toContain(WATERMARK.x_thread);
+    expect(postResult).toContain(WATERMARK.linkedin_post);
+    expect(articleResult).toContain(WATERMARK.linkedin_article);
   });
 });
