@@ -2,6 +2,7 @@ export type UserPlan = "free" | "starter" | "pro";
 export type InputType = "youtube" | "article" | "text";
 export type ToneType = "profesional" | "cercano" | "tecnico";
 export type OutputFormat = "x_thread" | "linkedin_post" | "linkedin_article";
+export type ConversionStatus = "pending" | "processing" | "completed" | "failed";
 
 export interface User {
   id: string;
@@ -23,6 +24,10 @@ export interface Conversion {
   input_text: string;
   tone: ToneType;
   topics: string[] | null;
+  status: ConversionStatus;
+  error_message: string | null;
+  started_at: string | null;
+  completed_at: string | null;
   created_at: string;
 }
 
@@ -84,6 +89,10 @@ export type Database = {
           input_text: string;
           tone: ToneType;
           topics: string[] | null;
+          status: ConversionStatus;
+          error_message: string | null;
+          started_at: string | null;
+          completed_at: string | null;
           created_at: string;
         };
         Insert: {
@@ -94,6 +103,10 @@ export type Database = {
           input_text: string;
           tone: ToneType;
           topics?: string[] | null;
+          status?: ConversionStatus;
+          error_message?: string | null;
+          started_at?: string | null;
+          completed_at?: string | null;
           created_at?: string;
         };
         Update: {
@@ -104,6 +117,10 @@ export type Database = {
           input_text?: string;
           tone?: ToneType;
           topics?: string[] | null;
+          status?: ConversionStatus;
+          error_message?: string | null;
+          started_at?: string | null;
+          completed_at?: string | null;
           created_at?: string;
         };
         Relationships: [
@@ -166,6 +183,7 @@ export type Database = {
       input_type: InputType;
       tone_type: ToneType;
       output_format: OutputFormat;
+      conversion_status: ConversionStatus;
     };
     CompositeTypes: {
       [_ in never]: never;

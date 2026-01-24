@@ -4,27 +4,34 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ProgressRing } from "./progress-ring";
 
+// Format to step mapping
+const FORMAT_TO_STEP: Record<string, number> = {
+  x_thread: 1,
+  linkedin_post: 2,
+  linkedin_article: 3,
+};
+
 // Base steps configuration
 const BASE_STEPS = [
   {
     id: 1,
+    format: "x_thread",
     label: "Generando hilo de X",
     shortLabel: "Hilo de X",
-    duration: 15000, // 15 seconds (includes API call + delay)
     targetPercent: 40,
   },
   {
     id: 2,
+    format: "linkedin_post",
     label: "Creando post de LinkedIn",
     shortLabel: "Post",
-    duration: 15000,
     targetPercent: 70,
   },
   {
     id: 3,
+    format: "linkedin_article",
     label: "Escribiendo articulo",
     shortLabel: "Articulo",
-    duration: 15000, // Increased to account for actual API time
     targetPercent: 100,
   },
 ];
@@ -33,9 +40,9 @@ const BASE_STEPS = [
 const getSteps = (inputType: "youtube" | "article" | "text") => [
   {
     id: 0,
+    format: "extract",
     label: inputTypeLabels[inputType],
     shortLabel: "Extraer",
-    duration: 5000, // 5 seconds
     targetPercent: 10,
   },
   ...BASE_STEPS,
@@ -69,6 +76,7 @@ const StepIcon = ({ stepId, isActive, isComplete }: { stepId: number; isActive: 
 
 interface GenerationProgressProps {
   inputType?: "youtube" | "article" | "text";
+  completedFormats?: string[]; // Real-time completed formats from polling
 }
 
 // First step label based on input type
@@ -78,41 +86,67 @@ const inputTypeLabels = {
   text: "Procesando texto",
 };
 
-export function GenerationProgress({ inputType = "youtube" }: GenerationProgressProps) {
+export function GenerationProgress({ inputType = "youtube", completedFormats = [] }: GenerationProgressProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [progress, setProgress] = useState(0);
   const [startTime] = useState(Date.now());
+  const [useRealProgress, setUseRealProgress] = useState(false);
 
   // Get steps based on input type
   const steps = getSteps(inputType);
 
+  // Determine real progress from completed formats
   useEffect(() => {
-    // Calculate total expected duration
-    const totalDuration = steps.reduce((sum, step) => sum + step.duration, 0);
+    if (completedFormats.length > 0) {
+      setUseRealProgress(true);
 
-    const interval = setInterval(() => {
-      const elapsed = Date.now() - startTime;
-      const rawProgress = Math.min((elapsed / totalDuration) * 100, 99);
-
-      // Find current step based on elapsed time
-      let accumulatedTime = 0;
-      for (let i = 0; i < steps.length; i++) {
-        accumulatedTime += steps[i].duration;
-        if (elapsed < accumulatedTime) {
-          setCurrentStep(i);
-          break;
-        }
-        if (i === steps.length - 1) {
-          setCurrentStep(steps.length - 1);
+      // Find the highest completed step
+      let maxCompletedStep = 0;
+      for (const format of completedFormats) {
+        const stepId = FORMAT_TO_STEP[format];
+        if (stepId && stepId > maxCompletedStep) {
+          maxCompletedStep = stepId;
         }
       }
 
-      // Smooth progress that eases at step boundaries
-      setProgress(rawProgress);
+      // Set current step to next one being processed
+      const nextStep = Math.min(maxCompletedStep + 1, steps.length - 1);
+      setCurrentStep(nextStep);
+
+      // Calculate real progress based on completed formats
+      // Extract (10%) + each format (30% each)
+      const baseProgress = 10; // Extract step always done if we have any outputs
+      const formatProgress = completedFormats.length * 30;
+      setProgress(Math.min(baseProgress + formatProgress, 99));
+    }
+  }, [completedFormats, steps.length]);
+
+  // Simulated progress when no real data (initial extraction phase)
+  useEffect(() => {
+    if (useRealProgress) return; // Skip simulation if we have real data
+
+    // Only simulate for first 10 seconds (extraction phase)
+    const simulationDuration = 10000;
+
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+
+      if (elapsed > simulationDuration) {
+        // After extraction, wait for real progress
+        setCurrentStep(1); // Move to first generation step
+        setProgress(10);
+        clearInterval(interval);
+        return;
+      }
+
+      // Simulate extraction progress (0-10%)
+      const extractProgress = Math.min((elapsed / simulationDuration) * 10, 10);
+      setProgress(extractProgress);
+      setCurrentStep(0);
     }, 100);
 
     return () => clearInterval(interval);
-  }, [startTime, steps]);
+  }, [startTime, useRealProgress]);
 
   return (
     <div className="relative flex flex-col items-center justify-center py-12 px-4 rounded-xl bg-gradient-to-b from-slate-100 to-slate-50 border border-slate-200 shadow-lg">
@@ -157,13 +191,21 @@ export function GenerationProgress({ inputType = "youtube" }: GenerationProgress
           className="mt-6 text-center"
         >
           <p className="text-lg font-medium text-navy">{steps[currentStep].label}...</p>
+          {completedFormats.length > 0 && (
+            <p className="text-sm text-gray-600 mt-1">
+              {completedFormats.length} de 3 formatos completados
+            </p>
+          )}
         </motion.div>
       </AnimatePresence>
 
       {/* Step indicators */}
       <div className="mt-8 flex items-center justify-center gap-3">
         {steps.map((step, index) => {
-          const isComplete = index < currentStep;
+          // Determine if step is complete based on real data or position
+          const isComplete = useRealProgress
+            ? (step.format === "extract" || completedFormats.includes(step.format))
+            : index < currentStep;
           const isActive = index === currentStep;
 
           return (
@@ -179,6 +221,19 @@ export function GenerationProgress({ inputType = "youtube" }: GenerationProgress
                 transition={isActive ? { duration: 1.5, repeat: Infinity } : {}}
               >
                 <StepIcon stepId={index} isActive={isActive} isComplete={isComplete} />
+
+                {/* Checkmark for completed */}
+                {isComplete && (
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center"
+                  >
+                    <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </motion.div>
+                )}
 
                 {/* Active spinner */}
                 {isActive && (
@@ -224,28 +279,32 @@ export function GenerationProgress({ inputType = "youtube" }: GenerationProgress
         ))}
       </div>
 
-      {/* Time estimate */}
+      {/* Time estimate - updated message */}
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
         className="mt-8 text-sm text-gray-600"
       >
-        Esto suele tardar 35-40 segundos
+        {useRealProgress
+          ? "Generando contenido en segundo plano..."
+          : "Procesando contenido..."}
       </motion.p>
 
-      {/* Don't reload warning */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1 }}
-        className="mt-4 flex items-center gap-2 text-xs text-amber-600 bg-amber-50 px-3 py-2 rounded-lg"
-      >
-        <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-        </svg>
-        <span>No recargues la pagina mientras se genera el contenido</span>
-      </motion.div>
+      {/* Safe to navigate notice */}
+      {useRealProgress && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="mt-4 flex items-center gap-2 text-xs text-green-600 bg-green-50 px-3 py-2 rounded-lg"
+        >
+          <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+          <span>Puedes navegar - tu contenido se genera en segundo plano</span>
+        </motion.div>
+      )}
 
       {/* Subtle loading bar at bottom */}
       <div className="w-full max-w-xs mt-6 h-1 bg-gray-100 rounded-full overflow-hidden">
