@@ -128,12 +128,12 @@ export async function generateContent(
     } catch (error) {
       lastError = error;
 
-      // Check if this is a retryable error
-      if (isRetryableError(error) && attempt < MAX_RETRIES) {
-        // Use longer delay for rate limits, exponential backoff for connection errors
-        const isRateLimit = error instanceof Error && error.message.toLowerCase().includes("rate limit");
-        const delay = isRateLimit ? 30000 : INITIAL_RETRY_DELAY * Math.pow(2, attempt - 1);
-        console.log(`[Groq] ${isRateLimit ? "Rate limit" : "Connection error"} on attempt ${attempt}, retrying in ${delay}ms...`);
+      // Check if this is a retryable error (but NOT rate limits - fail fast for those)
+      const isRateLimit = error instanceof Error && error.message.toLowerCase().includes("rate limit");
+      if (!isRateLimit && isRetryableError(error) && attempt < MAX_RETRIES) {
+        // Quick retry for connection errors only
+        const delay = INITIAL_RETRY_DELAY * Math.pow(2, attempt - 1);
+        console.log(`[Groq] Connection error on attempt ${attempt}, retrying in ${delay}ms...`);
         await sleep(delay);
         continue;
       }
@@ -190,22 +190,19 @@ export async function generateContent(
 }
 
 /**
- * Generate content for all three formats in parallel
- * Much faster than sequential - all 3 calls run simultaneously
+ * Generate content for all three formats sequentially
  */
 export async function generateAllFormats(
   content: string,
   tone: ToneType,
   topics?: string[]
 ): Promise<GenerateAllResult> {
-  console.log("[Groq] Starting parallel generation for all formats");
+  console.log("[Groq] Starting sequential generation for all formats");
 
-  // Run all generations in parallel for speed
-  const [x_thread, linkedin_post, linkedin_article] = await Promise.all([
-    generateContent(content, "x_thread", tone, topics),
-    generateContent(content, "linkedin_post", tone, topics),
-    generateContent(content, "linkedin_article", tone, topics),
-  ]);
+  // Sequential calls - more reliable than parallel for rate limits
+  const x_thread = await generateContent(content, "x_thread", tone, topics);
+  const linkedin_post = await generateContent(content, "linkedin_post", tone, topics);
+  const linkedin_article = await generateContent(content, "linkedin_article", tone, topics);
 
   console.log("[Groq] All formats generated successfully");
 
