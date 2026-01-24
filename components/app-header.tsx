@@ -117,17 +117,19 @@ export function AppHeader({
           </Link>
 
           <div className="flex items-center gap-4">
-            {/* Usage indicator with accessible status */}
-            <div
-              className={`px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-1.5 ${
+            {/* Usage indicator with accessible status - clickable to billing */}
+            <Link
+              href="/billing"
+              className={`px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-1.5 transition-all hover:scale-105 ${
                 isAtLimit
-                  ? "bg-error/10 text-error"
+                  ? "bg-error/10 text-error hover:bg-error/20"
                   : isNearLimit
-                    ? "bg-warning/10 text-warning"
-                    : "bg-gray-100 text-gray-500"
+                    ? "bg-warning/10 text-warning hover:bg-warning/20"
+                    : "bg-gray-100 text-gray-500 hover:bg-gray-200"
               }`}
               role="status"
-              aria-label={`${conversionsUsed} de ${conversionsLimit} conversiones usadas${status.label ? `. ${status.label}` : ""}`}
+              aria-label={`${conversionsUsed} de ${conversionsLimit} conversiones usadas${status.label ? `. ${status.label}` : ""}. Haz clic para ver planes.`}
+              title="Ver planes y facturacion"
             >
               {status.icon && (
                 <span className="font-bold" aria-hidden="true">
@@ -135,7 +137,7 @@ export function AppHeader({
                 </span>
               )}
               <span>{conversionsUsed}/{conversionsLimit} conversiones</span>
-            </div>
+            </Link>
 
             {/* User menu */}
             <div className="relative" ref={menuRef}>

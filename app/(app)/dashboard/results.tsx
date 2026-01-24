@@ -369,13 +369,50 @@ export function Results({ result, onNewConversion }: ResultsProps) {
             Tu contenido esta listo. Puedes copiarlo, editarlo o regenerarlo.
           </p>
         </div>
-        <button
+        <motion.button
           onClick={onNewConversion}
-          className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-navy hover:bg-gray-200 transition-colors"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary to-teal-400 hover:from-primary-dark hover:to-teal-500 text-white font-semibold rounded-lg shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all"
+          whileHover={{ scale: 1.02, y: -1 }}
+          whileTap={{ scale: 0.98 }}
         >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
           Nueva conversion
-        </button>
+        </motion.button>
       </div>
+
+      {/* Watermark notice for free users - at top with prominent button */}
+      {result.hasWatermark && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6 p-4 bg-primary/5 border border-primary/20 rounded-xl"
+        >
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <svg className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <p className="text-navy font-medium">Tu contenido incluye marca de agua</p>
+                <p className="text-sm text-gray-600 mt-0.5">Mejora tu plan para eliminar &quot;Creado con Distribuia.com&quot;</p>
+              </div>
+            </div>
+            <motion.a
+              href="/billing"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary to-teal-400 hover:from-primary-dark hover:to-teal-500 text-white font-semibold rounded-lg shadow-md shadow-primary/20 hover:shadow-primary/40 transition-all whitespace-nowrap"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              Ver planes
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </motion.a>
+          </div>
+        </motion.div>
+      )}
 
       {/* Mobile tabs */}
       <div className="sm:hidden mb-4">
@@ -430,28 +467,6 @@ export function Results({ result, onNewConversion }: ResultsProps) {
           Descargar todo (.txt)
         </button>
       </div>
-
-      {/* Watermark notice for free users */}
-      {result.hasWatermark && (
-        <div className="mt-8 p-4 bg-primary/5 border border-primary/20 rounded-lg">
-          <div className="flex gap-3">
-            <svg className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <div className="text-sm text-navy">
-              <p>
-                <strong>Tu contenido incluye marca de agua</strong> (&quot;Creado con Distribuia.com&quot;)
-              </p>
-              <p className="mt-1 text-gray-600">
-                Mejora a un plan de pago para eliminar la marca de agua y obtener mas conversiones.{" "}
-                <a href="/billing" className="text-primary hover:text-primary-dark font-medium">
-                  Ver planes
-                </a>
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* AI Disclaimer */}
       <div className="mt-8 p-4 bg-amber-50 border border-amber-200 rounded-lg">

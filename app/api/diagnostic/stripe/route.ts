@@ -219,16 +219,42 @@ export async function GET(request: NextRequest) {
     if (userData?.stripe_subscription_id) {
       try {
         const subscription = await stripe.subscriptions.retrieve(userData.stripe_subscription_id);
+        const priceId = subscription.items.data[0]?.price.id;
+        const priceAmount = subscription.items.data[0]?.price.unit_amount;
+
+        // Determine what plan the user SHOULD have based on subscription
+        let expectedPlan: "starter" | "pro" | "unknown" = "unknown";
+        if (priceAmount === 1900) expectedPlan = "starter";
+        else if (priceAmount === 4900) expectedPlan = "pro";
+
+        const planMismatch = subscription.status === "active" && expectedPlan !== "unknown" && expectedPlan !== userData.plan;
+
         results.stripe_subscription = {
-          status: subscription.status === "active" ? "ok" : "warning",
-          message: `Subscription status: ${subscription.status}`,
+          status: planMismatch ? "error" : subscription.status === "active" ? "ok" : "warning",
+          message: planMismatch
+            ? `PLAN MISMATCH: User has "${userData.plan}" but should have "${expectedPlan}"`
+            : `Subscription status: ${subscription.status}`,
           details: {
             id: subscription.id,
             status: subscription.status,
             current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
             cancel_at_period_end: subscription.cancel_at_period_end,
+            price_id: priceId,
+            price_amount_cents: priceAmount,
+            expected_plan: expectedPlan,
+            current_plan_in_db: userData.plan,
+            plan_mismatch: planMismatch,
           },
         };
+
+        // If there's a mismatch and subscription is active, offer fix
+        if (planMismatch) {
+          results.fix_available = {
+            status: "warning",
+            message: `Run POST /api/diagnostic/stripe to fix plan to "${expectedPlan}"`,
+            details: { action: "POST to this endpoint will update plan" },
+          };
+        }
       } catch (error) {
         results.stripe_subscription = {
           status: "error",
@@ -259,4 +285,90 @@ export async function GET(request: NextRequest) {
     user_id: user.id,
     checks: results,
   });
+}
+
+/**
+ * POST handler to fix plan mismatch
+ * Will update user's plan based on their active Stripe subscription
+ */
+export async function POST(request: NextRequest) {
+  const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return NextResponse.json(
+      { error: "Unauthorized - must be authenticated" },
+      { status: 401 }
+    );
+  }
+
+  try {
+    // Get user's subscription ID
+    const { data: userData } = await supabase
+      .from("users")
+      .select("stripe_subscription_id, plan")
+      .eq("id", user.id)
+      .single();
+
+    if (!userData?.stripe_subscription_id) {
+      return NextResponse.json(
+        { error: "No active subscription found", current_plan: userData?.plan },
+        { status: 400 }
+      );
+    }
+
+    // Fetch subscription from Stripe
+    const stripe = getStripeClient();
+    const subscription = await stripe.subscriptions.retrieve(userData.stripe_subscription_id);
+
+    if (subscription.status !== "active") {
+      return NextResponse.json(
+        { error: "Subscription is not active", status: subscription.status },
+        { status: 400 }
+      );
+    }
+
+    // Determine correct plan from price amount
+    const priceAmount = subscription.items.data[0]?.price.unit_amount;
+    let correctPlan: "starter" | "pro" | null = null;
+
+    if (priceAmount === 1900) correctPlan = "starter";
+    else if (priceAmount === 4900) correctPlan = "pro";
+
+    if (!correctPlan) {
+      return NextResponse.json(
+        { error: "Could not determine plan from price", price_amount: priceAmount },
+        { status: 400 }
+      );
+    }
+
+    // Update user's plan
+    const { error: updateError } = await supabase
+      .from("users")
+      .update({
+        plan: correctPlan,
+        conversions_used_this_month: 0,
+        billing_cycle_start: new Date().toISOString(),
+      })
+      .eq("id", user.id);
+
+    if (updateError) {
+      return NextResponse.json(
+        { error: "Failed to update plan", details: updateError.message },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: `Plan updated from "${userData.plan}" to "${correctPlan}"`,
+      previous_plan: userData.plan,
+      new_plan: correctPlan,
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Failed to fix plan", details: error instanceof Error ? error.message : String(error) },
+      { status: 500 }
+    );
+  }
 }

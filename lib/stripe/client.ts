@@ -29,9 +29,29 @@ export const STRIPE_PRICES = {
 } as const;
 
 // Map price IDs to plan types
+// Checks both environment variables and hardcoded fallbacks to handle Vercel env issues
 export function getPlanFromPriceId(priceId: string): "starter" | "pro" | null {
-  if (priceId === STRIPE_PRICES.starter_monthly) return "starter";
-  if (priceId === STRIPE_PRICES.pro_monthly) return "pro";
+  // First try the environment variables
+  if (priceId === STRIPE_PRICES.starter_monthly && STRIPE_PRICES.starter_monthly) return "starter";
+  if (priceId === STRIPE_PRICES.pro_monthly && STRIPE_PRICES.pro_monthly) return "pro";
+
+  // Fallback: Check known price ID patterns if env vars are empty
+  // These are loaded at build time, so if they're in Vercel but added after build, they might be empty
+  const starterEnv = process.env.NEXT_PUBLIC_STRIPE_PRICE_STARTER_MONTHLY;
+  const proEnv = process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY;
+
+  if (priceId === starterEnv) return "starter";
+  if (priceId === proEnv) return "pro";
+
+  // Log for debugging when no match is found
+  console.log("[getPlanFromPriceId] No match found", {
+    incomingPriceId: priceId,
+    starterFromConst: STRIPE_PRICES.starter_monthly || "(empty)",
+    proFromConst: STRIPE_PRICES.pro_monthly || "(empty)",
+    starterFromEnv: starterEnv || "(empty)",
+    proFromEnv: proEnv || "(empty)",
+  });
+
   return null;
 }
 

@@ -20,6 +20,8 @@ type ToneType = "profesional" | "cercano" | "tecnico";
 interface ConversionFormProps {
   canConvert: boolean;
   remaining: number;
+  hasWatermark: boolean;
+  plan: "free" | "starter" | "pro";
 }
 
 const TABS: { id: InputType; label: string }[] = [
@@ -37,6 +39,8 @@ const TONES: { id: ToneType; label: string; description: string }[] = [
 export function ConversionForm({
   canConvert: initialCanConvert,
   remaining: initialRemaining,
+  hasWatermark,
+  plan,
 }: ConversionFormProps) {
   const [activeTab, setActiveTab] = useState<InputType>("youtube");
   const [inputValue, setInputValue] = useState("");
@@ -124,7 +128,90 @@ export function ConversionForm({
   const selectedTone = TONES.find((t) => t.id === tone);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <div className="space-y-6">
+      {/* Header with Nueva conversion button */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 className="font-heading text-2xl sm:text-3xl font-bold text-navy">
+          Nueva conversion
+        </h1>
+        <motion.a
+          href="/dashboard"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary to-teal-400 hover:from-primary-dark hover:to-teal-500 text-white font-semibold rounded-lg shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all"
+          whileHover={{ scale: 1.02, y: -1 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          Nueva conversion
+        </motion.a>
+      </div>
+
+      {/* Limit reached warning - shown at top when no conversions left */}
+      {!canConvert && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-4 sm:p-6 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-xl"
+        >
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <svg className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <div>
+                <p className="text-amber-700 font-semibold">Has alcanzado el limite de tu plan</p>
+                <p className="text-sm text-gray-600 mt-1">Desbloquea mas conversiones para seguir creando contenido</p>
+              </div>
+            </div>
+            <motion.a
+              href="/billing"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-teal-400 hover:from-primary-dark hover:to-teal-500 text-white font-semibold rounded-lg shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all whitespace-nowrap"
+              whileHover={{ scale: 1.02, y: -1 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              Mejora tu plan
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </motion.a>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Watermark notice for free users - only show when they can still convert */}
+      {hasWatermark && canConvert && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-4 bg-primary/5 border border-primary/20 rounded-xl"
+        >
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <svg className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <p className="text-navy font-medium">Tu contenido incluye marca de agua</p>
+                <p className="text-sm text-gray-600 mt-0.5">Mejora tu plan para eliminar &quot;Creado con Distribuia.com&quot;</p>
+              </div>
+            </div>
+            <motion.a
+              href="/billing"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary to-teal-400 hover:from-primary-dark hover:to-teal-500 text-white font-semibold rounded-lg shadow-md shadow-primary/20 hover:shadow-primary/40 transition-all whitespace-nowrap"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              Ver planes
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </motion.a>
+          </div>
+        </motion.div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-6">
       {/* Tab buttons */}
       <div
         className="flex gap-2 p-1 bg-gray-100 rounded-lg w-fit"
@@ -225,7 +312,8 @@ export function ConversionForm({
         inputValue={inputValue}
         remaining={remaining}
       />
-    </form>
+      </form>
+    </div>
   );
 }
 
@@ -358,28 +446,9 @@ function SubmitSection({
   inputValue: string;
   remaining: number;
 }) {
+  // If limit reached, don't show the submit button (warning is shown at the top)
   if (!canConvert) {
-    return (
-      <div className="flex flex-col sm:flex-row gap-4 items-center">
-        <div className="w-full sm:w-auto">
-          <div className="p-4 sm:p-6 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-xl text-center">
-            <p className="text-amber-600 font-semibold mb-1">Has alcanzado el limite de tu plan</p>
-            <p className="text-sm text-gray-500 mb-4">Desbloquea mas conversiones para seguir creando contenido</p>
-            <motion.a
-              href="/billing"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-teal-400 hover:from-primary-dark hover:to-teal-500 text-white font-semibold rounded-lg shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all"
-              whileHover={{ scale: 1.02, y: -1 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              Mejora tu plan
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </motion.a>
-          </div>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   const isDisabled = isLoading || !inputValue.trim();
@@ -389,10 +458,10 @@ function SubmitSection({
       <motion.button
         type="submit"
         disabled={isDisabled}
-        className={`w-full sm:w-auto px-8 py-3 rounded-lg font-semibold transition-colors ${
+        className={`w-full sm:w-auto px-8 py-3.5 rounded-lg font-semibold transition-all ${
           isDisabled
             ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-            : "bg-primary hover:bg-primary-dark text-white"
+            : "bg-gradient-to-r from-primary to-teal-400 hover:from-primary-dark hover:to-teal-500 text-white shadow-lg shadow-primary/30 hover:shadow-primary/50"
         }`}
         whileHover={!isDisabled ? { scale: 1.02, y: -1 } : {}}
         whileTap={!isDisabled ? { scale: 0.98 } : {}}

@@ -182,10 +182,41 @@ async function handleCheckoutCompleted(
 
   const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
   const priceId = subscription.items.data[0]?.price.id;
-  const plan = getPlanFromPriceId(priceId);
+  let plan = getPlanFromPriceId(priceId);
+
+  // If plan lookup failed, try to determine from price amount as fallback
+  if (!plan) {
+    logger.warn(`Price ID lookup failed, trying amount-based detection`, {
+      priceId,
+      subscriptionId: subscription.id,
+      userId,
+      envStarter: process.env.NEXT_PUBLIC_STRIPE_PRICE_STARTER_MONTHLY || "(not set)",
+      envPro: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY || "(not set)",
+    });
+
+    // Fallback: Check by price amount (1900 = starter, 4900 = pro in cents)
+    const priceAmount = subscription.items.data[0]?.price.unit_amount;
+    if (priceAmount === 1900) {
+      plan = "starter";
+      logger.info("Detected starter plan by price amount");
+    } else if (priceAmount === 4900) {
+      plan = "pro";
+      logger.info("Detected pro plan by price amount");
+    }
+  }
 
   if (!plan) {
-    logger.error(`Unknown price ID: ${priceId}`);
+    logger.error(`Could not determine plan from price ID: ${priceId}`, {
+      priceAmount: subscription.items.data[0]?.price.unit_amount,
+    });
+    // Still update stripe IDs so we can fix manually later
+    await supabase
+      .from("users")
+      .update({
+        stripe_customer_id: session.customer as string,
+        stripe_subscription_id: subscription.id,
+      })
+      .eq("id", userId);
     return;
   }
 
@@ -253,10 +284,21 @@ async function handleSubscriptionUpdated(supabase: SupabaseAdmin, subscription: 
   }
 
   const priceId = subscription.items.data[0]?.price.id;
-  const plan = getPlanFromPriceId(priceId);
+  let plan = getPlanFromPriceId(priceId);
+
+  // Fallback: Check by price amount if price ID lookup fails
+  if (!plan) {
+    const priceAmount = subscription.items.data[0]?.price.unit_amount;
+    if (priceAmount === 1900) plan = "starter";
+    else if (priceAmount === 4900) plan = "pro";
+
+    if (plan) {
+      logger.info(`Detected ${plan} plan by price amount in subscription update`);
+    }
+  }
 
   if (!plan) {
-    logger.error(`Unknown price ID: ${priceId}`);
+    logger.error(`Unknown price ID in subscription update: ${priceId}`);
     return;
   }
 
