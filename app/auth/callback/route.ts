@@ -40,6 +40,15 @@ export async function GET(request: Request) {
     console.error("OTP verification error:", error);
   }
 
+  // Before showing error, check if user is already authenticated
+  // This handles cases where the link was already used but user is logged in
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    // User is already authenticated, redirect to dashboard
+    // The confirmation link might have been used already or session exists
+    return NextResponse.redirect(`${origin}/dashboard`);
+  }
+
   // Return the user to an error page with instructions
   return NextResponse.redirect(`${origin}/auth/auth-code-error`);
 }
