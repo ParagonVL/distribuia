@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { validateUnsubscribeToken } from "@/lib/email/token";
 import { validateCSRF } from "@/lib/csrf";
+import { checkRateLimit, unsubscribeRatelimit } from "@/lib/ratelimit";
 import logger from "@/lib/logger";
 
 /**
@@ -117,7 +118,7 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * GET /api/user/email-preferences/unsubscribe?token=xxx
+ * PUT /api/user/email-preferences?token=xxx&user=yyy
  * One-click unsubscribe from emails (for email links)
  */
 export async function PUT(request: NextRequest) {
@@ -130,6 +131,15 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json(
         { error: { code: "INVALID_TOKEN", message: "Token invalido" } },
         { status: 400 }
+      );
+    }
+
+    // Rate limit by token to prevent abuse
+    const rateLimitResult = await checkRateLimit(unsubscribeRatelimit, token);
+    if (rateLimitResult && !rateLimitResult.success) {
+      return NextResponse.json(
+        { error: { code: "RATE_LIMIT_EXCEEDED", message: "Demasiadas solicitudes" } },
+        { status: 429 }
       );
     }
 

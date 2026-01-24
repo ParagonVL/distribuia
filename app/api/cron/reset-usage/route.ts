@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { timingSafeEqual } from "@/lib/security";
 import logger from "@/lib/logger";
 
 // Use service role key to bypass RLS
@@ -33,7 +34,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    if (authHeader !== `Bearer ${cronSecret}`) {
+    // Use constant-time comparison to prevent timing attacks
+    const expectedHeader = `Bearer ${cronSecret}`;
+    if (!timingSafeEqual(authHeader, expectedHeader)) {
       logger.error("Invalid cron authorization");
       return NextResponse.json(
         { error: "Unauthorized" },

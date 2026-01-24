@@ -57,22 +57,29 @@ export function generateCsrfToken(): string {
 }
 
 /**
+ * Constant-time string comparison to prevent timing attacks
+ * Use this for comparing secrets, tokens, and other sensitive values
+ */
+export function timingSafeEqual(a: string | null, b: string | null): boolean {
+  if (!a || !b) {
+    return false;
+  }
+  if (a.length !== b.length) {
+    return false;
+  }
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return result === 0;
+}
+
+/**
  * Validate CSRF token from request
  */
 export function validateCsrfToken(
   requestToken: string | null,
   sessionToken: string | null
 ): boolean {
-  if (!requestToken || !sessionToken) {
-    return false;
-  }
-  // Constant-time comparison to prevent timing attacks
-  if (requestToken.length !== sessionToken.length) {
-    return false;
-  }
-  let result = 0;
-  for (let i = 0; i < requestToken.length; i++) {
-    result |= requestToken.charCodeAt(i) ^ sessionToken.charCodeAt(i);
-  }
-  return result === 0;
+  return timingSafeEqual(requestToken, sessionToken);
 }

@@ -54,6 +54,19 @@ export const authRatelimit = redis
   : null;
 
 /**
+ * Rate limiter for unsubscribe attempts
+ * - 5 attempts per hour per token/IP
+ */
+export const unsubscribeRatelimit = redis
+  ? new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(5, "1 h"),
+      analytics: true,
+      prefix: "ratelimit:unsubscribe",
+    })
+  : null;
+
+/**
  * Check rate limit and return result
  * Returns null if rate limiting is not configured (allows request through)
  */
