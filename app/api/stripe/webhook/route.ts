@@ -116,9 +116,17 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    logger.info("Processing webhook event", { eventType: event.type, eventId: event.id });
+
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
+        logger.info("Checkout session data", {
+          sessionId: session.id,
+          customerId: session.customer,
+          subscriptionId: session.subscription,
+          metadata: session.metadata,
+        });
         await handleCheckoutCompleted(supabase, stripe, session);
         break;
       }
@@ -151,16 +159,24 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ received: true });
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorStack = error instanceof Error ? error.stack : undefined;
+
     // Mark event as failed (but still prevent reprocessing)
     await markEventProcessed(
       supabase,
       event.id,
       event.type,
       "failed",
-      error instanceof Error ? error.message : "Unknown error"
+      errorMessage
     );
-    logger.error("Webhook handler error", error);
-    return NextResponse.json({ error: "Webhook handler failed" }, { status: 500 });
+    logger.error("Webhook handler error", { message: errorMessage, stack: errorStack, error });
+    return NextResponse.json({
+      error: "Webhook handler failed",
+      message: errorMessage,
+      eventType: event.type,
+      eventId: event.id,
+    }, { status: 500 });
   }
 }
 
@@ -169,6 +185,8 @@ async function handleCheckoutCompleted(
   stripe: Stripe,
   session: Stripe.Checkout.Session
 ) {
+  logger.info("handleCheckoutCompleted started", { sessionId: session.id });
+
   const userId = session.metadata?.supabase_user_id;
   if (!userId) {
     logger.error("No user ID in checkout session metadata");
@@ -180,14 +198,40 @@ async function handleCheckoutCompleted(
     return;
   }
 
-  const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
-  const priceId = subscription.items.data[0]?.price.id;
-  let plan = getPlanFromPriceId(priceId);
+  logger.info("Retrieving subscription from Stripe", { subscriptionId: session.subscription });
+
+  let subscription: Stripe.Subscription;
+  try {
+    subscription = await stripe.subscriptions.retrieve(session.subscription as string) as Stripe.Subscription;
+    logger.info("Subscription retrieved", {
+      id: subscription.id,
+      status: subscription.status,
+      itemsCount: subscription.items?.data?.length
+    });
+  } catch (subError) {
+    logger.error("Failed to retrieve subscription", subError);
+    throw subError;
+  }
+
+  // Access subscription items safely
+  const firstItem = subscription.items?.data?.[0];
+  if (!firstItem) {
+    logger.error("No items in subscription", { subscriptionId: subscription.id });
+    throw new Error("Subscription has no items");
+  }
+
+  const priceId = firstItem.price?.id;
+  const priceAmount = firstItem.price?.unit_amount;
+
+  logger.info("Subscription item details", { priceId, priceAmount });
+
+  let plan = getPlanFromPriceId(priceId || "");
 
   // If plan lookup failed, try to determine from price amount as fallback
   if (!plan) {
     logger.warn(`Price ID lookup failed, trying amount-based detection`, {
       priceId,
+      priceAmount,
       subscriptionId: subscription.id,
       userId,
       envStarter: process.env.NEXT_PUBLIC_STRIPE_PRICE_STARTER_MONTHLY || "(not set)",
@@ -195,7 +239,6 @@ async function handleCheckoutCompleted(
     });
 
     // Fallback: Check by price amount (1900 = starter, 4900 = pro in cents)
-    const priceAmount = subscription.items.data[0]?.price.unit_amount;
     if (priceAmount === 1900) {
       plan = "starter";
       logger.info("Detected starter plan by price amount");
@@ -206,9 +249,7 @@ async function handleCheckoutCompleted(
   }
 
   if (!plan) {
-    logger.error(`Could not determine plan from price ID: ${priceId}`, {
-      priceAmount: subscription.items.data[0]?.price.unit_amount,
-    });
+    logger.error(`Could not determine plan from price`, { priceId, priceAmount });
     // Still update stripe IDs so we can fix manually later
     await supabase
       .from("users")
