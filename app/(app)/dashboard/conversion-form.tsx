@@ -267,7 +267,7 @@ export function ConversionForm({
           </div>
         </fieldset>
         {selectedTone && (
-          <p className="mt-2 text-xs text-gray-500">{selectedTone.description}</p>
+          <p className="mt-2 text-xs text-gray-600">{selectedTone.description}</p>
         )}
       </div>
 
@@ -287,7 +287,7 @@ export function ConversionForm({
           className="input"
           disabled={isLoading || !canAddMore}
         />
-        <p className="mt-1 text-xs text-gray-500">
+        <p className="mt-1 text-xs text-gray-600">
           Los temas se integraran naturalmente en el contenido generado
         </p>
       </div>
@@ -368,7 +368,7 @@ function InputPanel({
         className="input min-h-[200px] resize-y"
         disabled={isLoading}
       />
-      <p className="mt-1 text-xs text-gray-500">
+      <p className="mt-1 text-xs text-gray-600">
         Minimo 100 palabras, maximo 50.000 caracteres
       </p>
     </div>
@@ -447,7 +447,7 @@ function SubmitSection({
         disabled={isDisabled}
         className={`w-full sm:w-auto px-8 py-3.5 rounded-lg font-semibold transition-all ${
           isDisabled
-            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+            ? "bg-gray-300 text-gray-600 cursor-not-allowed"
             : "bg-gradient-to-r from-primary to-teal-400 hover:from-primary-dark hover:to-teal-500 text-white shadow-lg shadow-primary/30 hover:shadow-primary/50"
         }`}
         whileHover={!isDisabled ? { scale: 1.02, y: -1 } : {}}
@@ -482,7 +482,7 @@ function SubmitSection({
           "Convertir"
         )}
       </motion.button>
-      <p className="text-sm text-gray-500">
+      <p className="text-sm text-gray-600">
         {remaining} {remaining === 1 ? "conversion restante" : "conversiones restantes"}
       </p>
     </div>

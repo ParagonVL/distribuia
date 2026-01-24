@@ -118,7 +118,7 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
           <h2 className="font-heading text-lg font-semibold text-navy mb-2">
             Sin conversiones todavia
           </h2>
-          <p className="text-gray-500 mb-6">
+          <p className="text-gray-600 mb-6">
             Tus conversiones apareceran aqui una vez que empieces a crear contenido.
           </p>
           <Link
@@ -142,7 +142,7 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
               className="flex items-center justify-between mt-8 pt-6 border-t border-gray-100"
               aria-label="Paginacion del historial"
             >
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-600">
                 Pagina {currentPage} de {totalPages} ({totalCount} conversiones)
               </p>
               <div className="flex gap-2">
@@ -269,7 +269,7 @@ function ConversionCard({ conversion, userPlan }: { conversion: ConversionWithOu
         </div>
 
         {/* Date */}
-        <div className="text-right sm:text-right text-sm text-gray-500 flex-shrink-0">
+        <div className="text-right sm:text-right text-sm text-gray-600 flex-shrink-0">
           <time dateTime={conversion.created_at}>
             <p>{formattedDate}</p>
             <p>{formattedTime}</p>

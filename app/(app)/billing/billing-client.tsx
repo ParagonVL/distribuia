@@ -285,10 +285,10 @@ export function BillingClient({
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <p className="text-2xl font-bold text-navy">{planName}</p>
-            <p className="text-gray-500">{planDescription}</p>
+            <p className="text-gray-600">{planDescription}</p>
           </div>
           <div className="text-left sm:text-right">
-            <p className="text-sm text-gray-500">Uso este mes</p>
+            <p className="text-sm text-gray-600">Uso este mes</p>
             <p className="text-lg font-semibold text-navy">
               {conversionsUsed}/{conversionsLimit} conversiones
             </p>
@@ -351,12 +351,12 @@ export function BillingClient({
               </h3>
               <p className="text-3xl font-bold text-navy mt-2">
                 {p.price}€
-                <span className="text-base font-normal text-gray-500">/mes</span>
+                <span className="text-base font-normal text-gray-600">/mes</span>
               </p>
 
               <ul className="mt-4 space-y-2">
                 {p.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-2 text-sm text-gray-500">
+                  <li key={feature} className="flex items-start gap-2 text-sm text-gray-600">
                     <svg
                       className="w-5 h-5 text-success flex-shrink-0"
                       fill="none"
@@ -466,11 +466,11 @@ export function BillingClient({
         <h2 className="font-heading text-lg font-semibold text-navy mb-4">
           Informacion de pago
         </h2>
-        <p className="text-gray-500 text-sm">
+        <p className="text-gray-600 text-sm">
           Los pagos se gestionan de forma segura a traves de Stripe.
           Al cambiar de plan, seras redirigido al portal de pago de Stripe donde podras gestionar tu suscripcion y metodos de pago.
         </p>
-        <p className="text-gray-500 text-sm mt-2">
+        <p className="text-gray-600 text-sm mt-2">
           <strong>Cambio de plan:</strong> Si ya tienes una suscripcion activa y quieres cambiar a un plan superior,
           Stripe calculara automaticamente la diferencia proporcional al tiempo restante de tu ciclo actual.
         </p>

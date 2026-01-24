@@ -59,7 +59,7 @@ export function ChangePasswordButton({ userEmail }: AccountActionsProps) {
       >
         {loading ? "Enviando..." : "Cambiar contrasena"}
       </button>
-      <p className="mt-2 text-xs text-gray-500">
+      <p className="mt-2 text-xs text-gray-600">
         Recibiras un email con un enlace para cambiar tu contrasena.
       </p>
     </div>

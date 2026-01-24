@@ -198,7 +198,7 @@ function OutputCard({
               key={i}
               className="p-3 bg-gray-50 rounded-lg border-l-2 border-primary"
             >
-              <p className="text-sm text-gray-500 mb-1">Tweet {i + 1}</p>
+              <p className="text-sm text-gray-600 mb-1">Tweet {i + 1}</p>
               <p className="whitespace-pre-wrap">{tweet}</p>
               <p className="text-xs text-gray-400 mt-1">
                 {tweet.length}/280 caracteres
@@ -239,7 +239,7 @@ function OutputCard({
 
       <div className="border-t border-gray-100 pt-4 mt-auto">
         <div className="flex justify-between items-center mb-3">
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-600">
             {wordCount} palabras · {charCount.toLocaleString("es-ES")} caracteres
           </p>
           {sourceUrl && (
@@ -365,7 +365,7 @@ export function Results({ result, onNewConversion }: ResultsProps) {
           <h2 className="font-heading text-xl font-bold text-navy">
             Contenido generado
           </h2>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-gray-600 mt-1">
             Tu contenido esta listo. Puedes copiarlo, editarlo o regenerarlo.
           </p>
         </div>

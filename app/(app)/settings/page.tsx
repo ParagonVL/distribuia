@@ -64,19 +64,19 @@ export default async function SettingsPage() {
           </h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-500 mb-1">
+              <label className="block text-sm font-medium text-gray-600 mb-1">
                 Email
               </label>
               <p className="text-navy">{user?.email}</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-500 mb-1">
+              <label className="block text-sm font-medium text-gray-600 mb-1">
                 ID de usuario
               </label>
               <p className="text-navy font-mono text-sm">{user?.id}</p>
             </div>
             <div className="pt-4 border-t border-gray-100">
-              <label className="block text-sm font-medium text-gray-500 mb-2">
+              <label className="block text-sm font-medium text-gray-600 mb-2">
                 Exportar datos (GDPR)
               </label>
               <a
@@ -117,7 +117,7 @@ export default async function SettingsPage() {
           <h2 className="font-heading text-lg font-semibold text-error mb-4">
             Zona peligrosa
           </h2>
-          <p className="text-sm text-gray-500 mb-4">
+          <p className="text-sm text-gray-600 mb-4">
             Al eliminar tu cuenta, se borraran todos tus datos permanentemente.
             Esta accion no se puede deshacer.
           </p>

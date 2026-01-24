@@ -229,7 +229,7 @@ export function GenerationProgress({ inputType = "youtube" }: GenerationProgress
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
-        className="mt-8 text-sm text-gray-500"
+        className="mt-8 text-sm text-gray-600"
       >
         Esto suele tardar 35-40 segundos
       </motion.p>

@@ -24,7 +24,7 @@ export function NoCaptionsError({ onRetry }: ErrorStateProps) {
       <h3 className="font-heading text-lg font-semibold text-navy mb-2">
         No se encontro transcripcion
       </h3>
-      <p className="text-gray-500 mb-6 max-w-md mx-auto">
+      <p className="text-gray-600 mb-6 max-w-md mx-auto">
         Este video no tiene subtitulos disponibles. Solo podemos procesar videos con
         subtitulos activados (automaticos o manuales).
       </p>
@@ -59,7 +59,7 @@ export function ArticleScrapingError({ onRetry }: ErrorStateProps) {
       <h3 className="font-heading text-lg font-semibold text-navy mb-2">
         No se pudo leer el articulo
       </h3>
-      <p className="text-gray-500 mb-6 max-w-md mx-auto">
+      <p className="text-gray-600 mb-6 max-w-md mx-auto">
         No pudimos extraer el contenido de este articulo. Puede estar detras de un muro
         de pago o requerir JavaScript para cargar.
       </p>
@@ -107,12 +107,12 @@ export function PlanLimitError({
       <h3 className="font-heading text-lg font-semibold text-navy mb-2">
         Has alcanzado tu limite mensual
       </h3>
-      <p className="text-gray-500 mb-2">
+      <p className="text-gray-600 mb-2">
         Has usado <span className="font-semibold text-navy">{conversionsUsed}</span> de{" "}
         <span className="font-semibold text-navy">{conversionsLimit}</span> conversiones
         de tu plan <span className="font-semibold text-primary">{planName}</span>.
       </p>
-      <p className="text-gray-500 mb-6">
+      <p className="text-gray-600 mb-6">
         Actualiza tu plan para seguir transformando contenido.
       </p>
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -147,7 +147,7 @@ export function GenerationError({ onRetry }: ErrorStateProps) {
       <h3 className="font-heading text-lg font-semibold text-navy mb-2">
         Error de generacion
       </h3>
-      <p className="text-gray-500 mb-6 max-w-md mx-auto">
+      <p className="text-gray-600 mb-6 max-w-md mx-auto">
         No pudimos generar el contenido en este momento. Esto puede deberse a alta
         demanda del servicio.
       </p>
@@ -192,7 +192,7 @@ export function GenericError({
         </svg>
       </div>
       <h3 className="font-heading text-lg font-semibold text-navy mb-2">{title}</h3>
-      <p className="text-gray-500 mb-6 max-w-md mx-auto">{message}</p>
+      <p className="text-gray-600 mb-6 max-w-md mx-auto">{message}</p>
       {code && (
         <p className="text-xs font-mono text-gray-400 mb-4">Codigo: {code}</p>
       )}
@@ -233,7 +233,7 @@ export function RateLimitErrorState({ retryAfter, onRetry }: RateLimitErrorProps
       <h3 className="font-heading text-lg font-semibold text-navy mb-2">
         Demasiadas peticiones
       </h3>
-      <p className="text-gray-500 mb-6 max-w-md mx-auto">
+      <p className="text-gray-600 mb-6 max-w-md mx-auto">
         Has realizado muchas peticiones en poco tiempo.
         {retryAfter && ` Por favor, espera ${retryAfter} segundos.`}
       </p>

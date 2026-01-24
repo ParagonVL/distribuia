@@ -71,7 +71,7 @@ export function EmailPreferences() {
           <h3 className="text-sm font-medium text-navy">
             Notificaciones por email
           </h3>
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-gray-600 mt-1">
             Recibe alertas cuando te queden pocas conversiones
           </p>
         </div>
