@@ -7,6 +7,16 @@ import type { OutputFormat, ToneType, Conversion } from "@/types/database";
 // Secret to validate internal calls
 const INTERNAL_SECRET = process.env.CRON_SECRET;
 
+// Initial delay before starting generation (helps with rate limits after recent conversions)
+const INITIAL_DELAY_MS = 5000; // 5 seconds
+
+// Delay between format generations
+const DELAY_BETWEEN_FORMATS_MS = 20000; // 20 seconds (increased from 15)
+
+// Max retries for rate limit errors
+const MAX_FORMAT_RETRIES = 2;
+const RETRY_DELAY_MS = 30000; // 30 seconds
+
 /**
  * POST /api/conversion/[id]/process
  *
@@ -61,54 +71,87 @@ export async function POST(
 
     logger.info("Starting background generation", { conversionId: id, formats: formats.length });
 
+    // Initial delay to help avoid rate limits from recent conversions
+    logger.info(`Waiting ${INITIAL_DELAY_MS/1000}s before starting generation...`, { conversionId: id });
+    await new Promise((resolve) => setTimeout(resolve, INITIAL_DELAY_MS));
+
     // Process each format sequentially (with delays to avoid rate limits)
     for (let i = 0; i < formats.length; i++) {
       const format = formats[i];
+      let lastError: Error | null = null;
 
-      try {
-        logger.info(`Generating ${format}`, { conversionId: id, formatIndex: i + 1 });
+      // Retry loop for each format
+      for (let attempt = 1; attempt <= MAX_FORMAT_RETRIES + 1; attempt++) {
+        try {
+          logger.info(`Generating ${format} (attempt ${attempt})`, { conversionId: id, formatIndex: i + 1 });
 
-        const result = await generateContent(content, format, tone, topics);
+          const result = await generateContent(content, format, tone, topics);
 
-        // Save output immediately so client can see progress
-        const { error: outputError } = await supabase
-          .from("outputs")
-          .insert({
-            conversion_id: id,
-            format,
-            content: result.content,
-            version: 1,
+          // Save output immediately so client can see progress
+          const { error: outputError } = await supabase
+            .from("outputs")
+            .insert({
+              conversion_id: id,
+              format,
+              content: result.content,
+              version: 1,
+            });
+
+          if (outputError) {
+            logger.error(`Failed to save ${format} output`, outputError, { conversionId: id });
+          } else {
+            logger.info(`Saved ${format} output`, { conversionId: id });
+          }
+
+          // Success - break retry loop
+          lastError = null;
+          break;
+        } catch (formatError) {
+          lastError = formatError instanceof Error ? formatError : new Error(String(formatError));
+          const isRateLimit = lastError.message.toLowerCase().includes("rate") ||
+                             lastError.message.toLowerCase().includes("sobrecargado");
+
+          logger.warn(`Error generating ${format} (attempt ${attempt}): ${lastError.message}`, {
+            conversionId: id,
+            isRateLimit,
+            willRetry: attempt <= MAX_FORMAT_RETRIES && isRateLimit
           });
 
-        if (outputError) {
-          logger.error(`Failed to save ${format} output`, outputError, { conversionId: id });
-        } else {
-          logger.info(`Saved ${format} output`, { conversionId: id });
-        }
+          // Only retry rate limit errors
+          if (isRateLimit && attempt <= MAX_FORMAT_RETRIES) {
+            logger.info(`Waiting ${RETRY_DELAY_MS/1000}s before retry...`, { conversionId: id });
+            await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+            continue;
+          }
 
-        // Wait between API calls to avoid rate limits (except after last one)
-        if (i < formats.length - 1) {
-          const delay = 15000; // 15 seconds
-          logger.info(`Waiting ${delay/1000}s before next format...`, { conversionId: id });
-          await new Promise((resolve) => setTimeout(resolve, delay));
+          // Non-retryable error or out of retries
+          break;
         }
-      } catch (formatError) {
-        logger.error(`Error generating ${format}`, formatError, { conversionId: id });
+      }
 
-        // Update conversion with error
+      // If we exhausted retries, fail the conversion
+      if (lastError) {
+        logger.error(`Failed to generate ${format} after retries`, lastError, { conversionId: id });
+
         await supabase
           .from("conversions")
           .update({
             status: "failed",
-            error_message: formatError instanceof Error ? formatError.message : "Error de generación",
+            error_message: lastError.message,
             completed_at: new Date().toISOString(),
           })
           .eq("id", id);
 
         return NextResponse.json({
           status: "failed",
-          error: formatError instanceof Error ? formatError.message : "Error de generación",
+          error: lastError.message,
         });
+      }
+
+      // Wait between API calls to avoid rate limits (except after last one)
+      if (i < formats.length - 1) {
+        logger.info(`Waiting ${DELAY_BETWEEN_FORMATS_MS/1000}s before next format...`, { conversionId: id });
+        await new Promise((resolve) => setTimeout(resolve, DELAY_BETWEEN_FORMATS_MS));
       }
     }
 
