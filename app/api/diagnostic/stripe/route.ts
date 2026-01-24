@@ -137,9 +137,10 @@ export async function GET(request: NextRequest) {
     };
   }
 
-  // 6. Check database table for webhook events
+  // 6. Check database table for webhook events (table not in generated types)
   try {
-    const { data, error } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
       .from("webhook_events")
       .select("id, event_type, created_at")
       .order("created_at", { ascending: false })
@@ -152,11 +153,12 @@ export async function GET(request: NextRequest) {
         details: error.message,
       };
     } else {
+      const events = data || [];
       results.webhook_events_table = {
         status: "ok",
-        message: `webhook_events table accessible. Found ${data.length} recent events.`,
+        message: `webhook_events table accessible. Found ${events.length} recent events.`,
         details: {
-          recent_events: data.map(e => ({
+          recent_events: events.map((e: { id: string; event_type: string; created_at: string }) => ({
             id: e.id,
             event_type: e.event_type,
             created_at: e.created_at,
