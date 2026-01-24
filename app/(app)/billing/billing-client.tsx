@@ -13,6 +13,7 @@ interface BillingClientProps {
   hasStripeSubscription: boolean;
   showSuccess: boolean;
   showCanceled: boolean;
+  cancelAt: string | null;
 }
 
 const PLAN_PRICES: Record<Exclude<PlanType, "free">, { monthly: number; priceId: string }> = {
@@ -35,6 +36,7 @@ export function BillingClient({
   hasStripeSubscription,
   showSuccess,
   showCanceled,
+  cancelAt,
 }: BillingClientProps) {
   const router = useRouter();
   const [loading, setLoading] = useState<string | null>(null);
@@ -45,6 +47,15 @@ export function BillingClient({
 
   // Check if user can upgrade (needs waiver)
   const canUpgrade = currentPlan === "free" || currentPlan === "starter";
+
+  // Format cancellation date
+  const formatCancelDate = (isoDate: string) => {
+    return new Date(isoDate).toLocaleDateString("es-ES", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  };
 
   // Auto-hide messages after 10 seconds
   useEffect(() => {
@@ -241,6 +252,31 @@ export function BillingClient({
         </div>
       )}
 
+      {/* Subscription scheduled for cancellation notice */}
+      {cancelAt && (
+        <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+          <div className="flex items-start gap-3">
+            <svg className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <p className="font-medium text-amber-800">Suscripcion programada para cancelar</p>
+              <p className="text-sm text-amber-700 mt-1">
+                Tu suscripcion se cancelara el <strong>{formatCancelDate(cancelAt)}</strong>.
+                Hasta esa fecha, mantendras acceso a todas las funciones de tu plan actual.
+              </p>
+              <button
+                onClick={handleManageSubscription}
+                disabled={loading === "portal"}
+                className="mt-2 text-sm text-primary hover:text-primary-dark font-medium"
+              >
+                {loading === "portal" ? "Cargando..." : "Reactivar suscripcion"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Current plan */}
       <div className="card mb-8">
         <h2 className="font-heading text-lg font-semibold text-navy mb-4">
@@ -334,11 +370,11 @@ export function BillingClient({
                         d="M5 13l4 4L19 7"
                       />
                     </svg>
-                    {/* Bold the number at the start of feature text */}
-                    {feature.match(/^\d+/) ? (
+                    {/* Bold only the number 30 in Pro plan features */}
+                    {p.id === "pro" && feature.startsWith("30") ? (
                       <>
-                        <span className="font-bold text-navy">{feature.match(/^\d+/)?.[0]}</span>
-                        {feature.replace(/^\d+/, '')}
+                        <span className="font-bold text-lg text-navy">30</span>
+                        {feature.replace(/^30/, '')}
                       </>
                     ) : feature}
                   </li>

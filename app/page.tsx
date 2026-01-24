@@ -69,7 +69,7 @@ export default function Home() {
               <ArrowRight className="w-5 h-5" />
             </ParticleButton>
             <p className="text-sm text-gray-500">
-              2 conversiones gratis. Sin tarjeta.
+              Primeras conversiones gratis. Sin tarjeta.
             </p>
           </div>
 

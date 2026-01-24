@@ -191,11 +191,11 @@ export default function PlanManagement({
                         d="M5 13l4 4L19 7"
                       />
                     </svg>
-                    {/* Bold the number at the start of feature text */}
-                    {feature.match(/^\d+/) ? (
+                    {/* Bold only the number 30 in Pro plan features */}
+                    {plan.key === "pro" && feature.startsWith("30") ? (
                       <>
-                        <span className="font-bold text-navy">{feature.match(/^\d+/)?.[0]}</span>
-                        {feature.replace(/^\d+/, '')}
+                        <span className="font-bold text-lg text-navy">30</span>
+                        {feature.replace(/^30/, '')}
                       </>
                     ) : feature}
                   </li>
@@ -278,18 +278,6 @@ export default function PlanManagement({
         })}
       </div>
 
-      {/* Cancel subscription link */}
-      {hasStripeSubscription && (
-        <div className="text-center pt-4 border-t border-gray-200">
-          <button
-            onClick={handleManageSubscription}
-            disabled={loading === "portal"}
-            className="text-sm text-gray-500 hover:text-gray-700 underline"
-          >
-            {loading === "portal" ? "Cargando..." : "Cancelar suscripcion"}
-          </button>
-        </div>
-      )}
     </div>
   );
 }

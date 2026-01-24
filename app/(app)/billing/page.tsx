@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getPlanLimits } from "@/lib/config/plans";
 import { BillingClient } from "./billing-client";
 import type { PlanType } from "@/lib/config/plans";
+import { getStripeClient } from "@/lib/stripe";
 
 interface BillingPageProps {
   searchParams: Promise<{ success?: string; canceled?: string }>;
@@ -29,6 +30,21 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
   const conversionsUsed = userData?.conversions_used_this_month || 0;
   const hasStripeSubscription = !!userData?.stripe_subscription_id;
 
+  // Check if subscription is scheduled for cancellation
+  let cancelAt: string | null = null;
+  if (userData?.stripe_subscription_id) {
+    try {
+      const stripe = getStripeClient();
+      const subscription = await stripe.subscriptions.retrieve(userData.stripe_subscription_id);
+      const cancelAtTimestamp = (subscription as unknown as { cancel_at?: number }).cancel_at;
+      if (cancelAtTimestamp) {
+        cancelAt = new Date(cancelAtTimestamp * 1000).toISOString();
+      }
+    } catch {
+      // Subscription might not exist anymore
+    }
+  }
+
   return (
     <BillingClient
       currentPlan={plan}
@@ -39,6 +55,7 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
       hasStripeSubscription={hasStripeSubscription}
       showSuccess={params.success === "true"}
       showCanceled={params.canceled === "true"}
+      cancelAt={cancelAt}
     />
   );
 }
