@@ -207,6 +207,33 @@ export async function GET(request: NextRequest) {
             deleted: customer.deleted,
           },
         };
+
+        // Check for subscriptions associated with this customer (even if not saved in DB)
+        const customerSubscriptions = await stripe.subscriptions.list({
+          customer: userData.stripe_customer_id,
+          status: "active",
+          limit: 5,
+        });
+
+        if (customerSubscriptions.data.length > 0 && !userData.stripe_subscription_id) {
+          const activeSub = customerSubscriptions.data[0];
+          const priceAmount = activeSub.items.data[0]?.price.unit_amount;
+          let detectedPlan: "starter" | "pro" | "unknown" = "unknown";
+          if (priceAmount === 1900) detectedPlan = "starter";
+          else if (priceAmount === 4900) detectedPlan = "pro";
+
+          results.missing_subscription = {
+            status: "error",
+            message: `FOUND ACTIVE SUBSCRIPTION NOT LINKED: ${activeSub.id} (${detectedPlan} plan)`,
+            details: {
+              subscription_id: activeSub.id,
+              status: activeSub.status,
+              price_amount: priceAmount,
+              detected_plan: detectedPlan,
+              fix_instruction: "POST to this endpoint to link subscription and update plan",
+            },
+          };
+        }
       } catch (error) {
         results.stripe_customer = {
           status: "error",
@@ -306,23 +333,38 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    // Get user's subscription ID
+    // Get user data
     const { data: userData } = await supabase
       .from("users")
-      .select("stripe_subscription_id, plan")
+      .select("stripe_customer_id, stripe_subscription_id, plan")
       .eq("id", user.id)
       .single();
 
-    if (!userData?.stripe_subscription_id) {
+    const stripe = getStripeClient();
+    let subscription: Stripe.Subscription | null = null;
+
+    // If we have a subscription ID, use it
+    if (userData?.stripe_subscription_id) {
+      subscription = await stripe.subscriptions.retrieve(userData.stripe_subscription_id) as Stripe.Subscription;
+    }
+    // Otherwise, try to find an active subscription by customer ID
+    else if (userData?.stripe_customer_id) {
+      const customerSubscriptions = await stripe.subscriptions.list({
+        customer: userData.stripe_customer_id,
+        status: "active",
+        limit: 1,
+      });
+      if (customerSubscriptions.data.length > 0) {
+        subscription = customerSubscriptions.data[0];
+      }
+    }
+
+    if (!subscription) {
       return NextResponse.json(
-        { error: "No active subscription found", current_plan: userData?.plan },
+        { error: "No active subscription found in Stripe", current_plan: userData?.plan },
         { status: 400 }
       );
     }
-
-    // Fetch subscription from Stripe
-    const stripe = getStripeClient();
-    const subscription = await stripe.subscriptions.retrieve(userData.stripe_subscription_id) as Stripe.Subscription;
 
     if (subscription.status !== "active") {
       return NextResponse.json(
@@ -345,11 +387,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Update user's plan
+    // Update user's plan and subscription ID
     const { error: updateError } = await supabase
       .from("users")
       .update({
         plan: correctPlan,
+        stripe_subscription_id: subscription.id,
         conversions_used_this_month: 0,
         billing_cycle_start: new Date().toISOString(),
       })
@@ -364,9 +407,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `Plan updated from "${userData.plan}" to "${correctPlan}"`,
-      previous_plan: userData.plan,
+      message: `Plan updated from "${userData?.plan}" to "${correctPlan}"`,
+      previous_plan: userData?.plan,
       new_plan: correctPlan,
+      subscription_id_linked: subscription.id,
     });
   } catch (error) {
     return NextResponse.json(
