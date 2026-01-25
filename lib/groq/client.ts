@@ -1,5 +1,5 @@
-// Model configuration - 8B has 30K TPM vs 12K for 70B (avoids rate limits)
-export const GROQ_MODEL = "llama-3.1-8b-instant";
+// Model configuration - 70B has 12K TPM, need shorter content to avoid rate limits
+export const GROQ_MODEL = "llama-3.3-70b-versatile";
 
 // Default parameters
 export const DEFAULT_TEMPERATURE = 0.7;
