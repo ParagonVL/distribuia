@@ -80,7 +80,10 @@ export async function groqChatCompletion(
     console.error("[Groq] API error response:", errorText);
 
     if (response.status === 429) {
-      throw new Error("Rate limit exceeded");
+      // Parse retry time from Groq error message (e.g., "Please try again in 28.67s")
+      const retryMatch = errorText.match(/try again in (\d+\.?\d*)s/i);
+      const retrySeconds = retryMatch ? Math.ceil(parseFloat(retryMatch[1])) : 30;
+      throw new Error(`Rate limit exceeded|${retrySeconds}`);
     }
     if (response.status === 401) {
       throw new Error("Invalid API key");

@@ -174,7 +174,10 @@ export async function generateContent(
         message.includes("too many requests") ||
         message.includes("429")
       ) {
-        throw new GroqRateLimitError();
+        // Parse retry time from error message (format: "Rate limit exceeded|30")
+        const parts = error.message.split("|");
+        const retrySeconds = parts.length > 1 ? parseInt(parts[1], 10) : 30;
+        throw new GroqRateLimitError(retrySeconds);
       }
 
       // Handle other API errors

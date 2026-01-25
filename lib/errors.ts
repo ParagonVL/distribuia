@@ -205,11 +205,15 @@ export class GroqAPIError extends GenerationError {
 }
 
 export class GroqRateLimitError extends GenerationError {
-  constructor() {
-    super(
-      "El servicio está temporalmente sobrecargado. Por favor, espera unos segundos e inténtalo de nuevo.",
-      "GROQ_RATE_LIMIT"
-    );
+  retryAfterSeconds: number;
+
+  constructor(retryAfterSeconds: number = 30) {
+    const message = retryAfterSeconds > 60
+      ? `El servicio está sobrecargado. Por favor, espera ${Math.ceil(retryAfterSeconds / 60)} minuto(s) e inténtalo de nuevo.`
+      : `El servicio está sobrecargado. Por favor, espera ${retryAfterSeconds} segundos e inténtalo de nuevo.`;
+
+    super(message, "GROQ_RATE_LIMIT");
+    this.retryAfterSeconds = retryAfterSeconds;
   }
 }
 
