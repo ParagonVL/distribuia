@@ -28,15 +28,29 @@ export const apiRatelimit = redis
   : null;
 
 /**
- * Stricter rate limiter for expensive operations (conversions, regenerations)
- * - 5 requests per minute
+ * Stricter rate limiter for conversions
+ * - 2 conversions per 5 minutes (aligned with Groq 12K TPM limit)
+ * - Each conversion uses ~17K tokens, needs ~1.5 min to replenish
  */
 export const conversionRatelimit = redis
   ? new Ratelimit({
       redis,
-      limiter: Ratelimit.slidingWindow(5, "1 m"),
+      limiter: Ratelimit.slidingWindow(2, "5 m"),
       analytics: true,
       prefix: "ratelimit:conversion",
+    })
+  : null;
+
+/**
+ * Rate limiter for regenerations (single Groq call)
+ * - 5 per 2 minutes (less intensive than full conversion)
+ */
+export const regenerateRatelimit = redis
+  ? new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(5, "2 m"),
+      analytics: true,
+      prefix: "ratelimit:regenerate",
     })
   : null;
 

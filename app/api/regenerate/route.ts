@@ -13,7 +13,7 @@ import {
   NotFoundError,
   ValidationError,
 } from "@/lib/errors";
-import { conversionRatelimit, checkRateLimit, getRateLimitIdentifier } from "@/lib/ratelimit";
+import { regenerateRatelimit, checkRateLimit } from "@/lib/ratelimit";
 import { validateCSRF } from "@/lib/csrf";
 import { invalidateUserCache } from "@/lib/cache";
 import logger from "@/lib/logger";
@@ -35,28 +35,6 @@ export async function POST(request: NextRequest) {
   if (csrfError) return csrfError;
 
   try {
-    // Rate limiting check
-    const ip = request.headers.get("x-forwarded-for")?.split(",")[0] || request.headers.get("x-real-ip");
-    const rateLimitResult = await checkRateLimit(conversionRatelimit, getRateLimitIdentifier(null, ip));
-
-    if (rateLimitResult && !rateLimitResult.success) {
-      return NextResponse.json(
-        {
-          error: {
-            code: "RATE_LIMIT_EXCEEDED",
-            message: "Demasiadas solicitudes. Por favor, espera un momento.",
-            retryAfter: Math.ceil((rateLimitResult.reset - Date.now()) / 1000),
-          },
-        },
-        {
-          status: 429,
-          headers: {
-            "Retry-After": String(Math.ceil((rateLimitResult.reset - Date.now()) / 1000)),
-          },
-        }
-      );
-    }
-
     // Parse request body
     const body = await request.json();
 
@@ -81,6 +59,27 @@ export async function POST(request: NextRequest) {
 
     if (authError || !user) {
       throw new UnauthenticatedError();
+    }
+
+    // Rate limiting by user ID (5 regenerations per 2 minutes)
+    const rateLimitResult = await checkRateLimit(regenerateRatelimit, user.id);
+    if (rateLimitResult && !rateLimitResult.success) {
+      const retryAfter = Math.ceil((rateLimitResult.reset - Date.now()) / 1000);
+      return NextResponse.json(
+        {
+          error: {
+            code: "RATE_LIMIT_EXCEEDED",
+            message: `Has alcanzado el límite de regeneraciones. Por favor, espera ${retryAfter} segundos.`,
+            retryAfter,
+          },
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(retryAfter),
+          },
+        }
+      );
     }
 
     // Get the output and verify ownership

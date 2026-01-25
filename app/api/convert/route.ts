@@ -32,29 +32,6 @@ export async function POST(request: NextRequest) {
   if (csrfError) return csrfError;
 
   try {
-    // Rate limiting check (before auth to prevent abuse)
-    const ip = request.headers.get("x-forwarded-for")?.split(",")[0] || request.headers.get("x-real-ip");
-    const rateLimitResult = await checkRateLimit(conversionRatelimit, getRateLimitIdentifier(null, ip));
-
-    if (rateLimitResult && !rateLimitResult.success) {
-      return NextResponse.json(
-        {
-          error: {
-            code: "RATE_LIMIT_EXCEEDED",
-            message: "Demasiadas solicitudes. Por favor, espera un momento.",
-            retryAfter: Math.ceil((rateLimitResult.reset - Date.now()) / 1000),
-          },
-        },
-        {
-          status: 429,
-          headers: {
-            "Retry-After": String(Math.ceil((rateLimitResult.reset - Date.now()) / 1000)),
-            "X-RateLimit-Remaining": String(rateLimitResult.remaining),
-          },
-        }
-      );
-    }
-
     // Parse request body
     const body = await request.json();
 
@@ -79,6 +56,28 @@ export async function POST(request: NextRequest) {
 
     if (authError || !user) {
       throw new UnauthenticatedError();
+    }
+
+    // Rate limiting by user ID (2 conversions per 5 minutes to respect Groq limits)
+    const rateLimitResult = await checkRateLimit(conversionRatelimit, user.id);
+    if (rateLimitResult && !rateLimitResult.success) {
+      const retryAfter = Math.ceil((rateLimitResult.reset - Date.now()) / 1000);
+      return NextResponse.json(
+        {
+          error: {
+            code: "RATE_LIMIT_EXCEEDED",
+            message: `Has alcanzado el límite de conversiones. Por favor, espera ${retryAfter} segundos.`,
+            retryAfter,
+          },
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(retryAfter),
+            "X-RateLimit-Remaining": String(rateLimitResult.remaining),
+          },
+        }
+      );
     }
 
     // Get user data and check limits
