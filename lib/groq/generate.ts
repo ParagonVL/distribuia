@@ -128,17 +128,19 @@ export async function generateContent(
     } catch (error) {
       lastError = error;
 
-      // Check if this is a retryable error (NOT rate limits - fail fast for those)
+      // Check if this is a retryable error
       const isRateLimit = error instanceof Error && error.message.toLowerCase().includes("rate limit");
 
-      if (isRateLimit) {
-        // Don't retry rate limits - fail fast to avoid Vercel timeout
-        console.log(`[Groq] Rate limit hit on attempt ${attempt}, failing fast (no retry)`);
-        break;
+      if (isRateLimit && attempt < MAX_RETRIES) {
+        // Short retry for rate limits (5s) - enough for single regenerate calls
+        const delay = 5000;
+        console.log(`[Groq] Rate limit hit on attempt ${attempt}, retrying in ${delay}ms...`);
+        await sleep(delay);
+        continue;
       }
 
       if (isRetryableError(error) && attempt < MAX_RETRIES) {
-        // Exponential backoff for connection errors only
+        // Exponential backoff for connection errors
         const delay = INITIAL_RETRY_DELAY * Math.pow(2, attempt - 1);
         console.log(`[Groq] Connection error on attempt ${attempt}, retrying in ${delay}ms...`);
         await sleep(delay);
