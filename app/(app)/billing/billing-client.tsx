@@ -46,7 +46,7 @@ export function BillingClient({
   const [waiverAccepted, setWaiverAccepted] = useState(false);
 
   // Check if user can upgrade (needs waiver)
-  const canUpgrade = currentPlan === "free" || currentPlan === "starter";
+  const _canUpgrade = currentPlan === "free" || currentPlan === "starter";
 
   // Format cancellation date
   const formatCancelDate = (isoDate: string) => {

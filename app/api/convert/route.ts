@@ -17,7 +17,7 @@ import {
   GroqAPIError,
 } from "@/lib/errors";
 import { sendLowUsageEmail, shouldSendEmail } from "@/lib/email/send";
-import { conversionRatelimit, checkRateLimit, getRateLimitIdentifier } from "@/lib/ratelimit";
+import { conversionRatelimit, checkRateLimit } from "@/lib/ratelimit";
 import { validateCSRF } from "@/lib/csrf";
 import { invalidateUserCache } from "@/lib/cache";
 import logger from "@/lib/logger";

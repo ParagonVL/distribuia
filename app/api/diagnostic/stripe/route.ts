@@ -7,7 +7,7 @@ import Stripe from "stripe";
  * Diagnostic endpoint to verify Stripe configuration
  * Protected: Only accessible to authenticated users
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   const results: Record<string, { status: "ok" | "error" | "warning"; message: string; details?: unknown }> = {};
 
   // 1. Check authentication
@@ -321,7 +321,7 @@ export async function GET(request: NextRequest) {
  * POST handler to fix plan mismatch
  * Will update user's plan based on their active Stripe subscription
  */
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   const supabase = await createClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 

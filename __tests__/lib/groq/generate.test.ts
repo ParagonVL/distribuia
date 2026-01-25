@@ -20,8 +20,11 @@ jest.mock("@/lib/groq/prompts", () => ({
 }));
 
 import { groqChatCompletion } from "@/lib/groq/client";
+import { getPromptForFormat, getUserPrompt } from "@/lib/groq/prompts";
 
 const mockGroqChatCompletion = groqChatCompletion as jest.MockedFunction<typeof groqChatCompletion>;
+const mockGetPromptForFormat = getPromptForFormat as jest.MockedFunction<typeof getPromptForFormat>;
+const mockGetUserPrompt = getUserPrompt as jest.MockedFunction<typeof getUserPrompt>;
 
 // Mock console methods
 const mockConsoleLog = jest.spyOn(console, "log").mockImplementation();
@@ -75,12 +78,12 @@ describe("Groq Generate", () => {
     });
 
     it("should pass topics to prompt generator", async () => {
-      const { getPromptForFormat } = require("@/lib/groq/prompts");
+      
       mockGroqChatCompletion.mockResolvedValueOnce(mockSuccessResponse);
 
       await generateContent("Test content", "linkedin_post", "casual", ["topic1", "topic2"]);
 
-      expect(getPromptForFormat).toHaveBeenCalledWith("linkedin_post", "casual", ["topic1", "topic2"]);
+      expect(mockGetPromptForFormat).toHaveBeenCalledWith("linkedin_post", "casual", ["topic1", "topic2"]);
     });
 
     it("should call groqChatCompletion with correct parameters", async () => {
@@ -241,13 +244,13 @@ describe("Groq Generate", () => {
 
     describe("Content truncation", () => {
       it("should not truncate short content", async () => {
-        const { getUserPrompt } = require("@/lib/groq/prompts");
+        
         mockGroqChatCompletion.mockResolvedValueOnce(mockSuccessResponse);
 
         const shortContent = "Short content";
         await generateContent(shortContent, "x_thread", "professional");
 
-        expect(getUserPrompt).toHaveBeenCalled();
+        expect(mockGetUserPrompt).toHaveBeenCalled();
       });
 
       it("should truncate very long content", async () => {
@@ -311,7 +314,7 @@ describe("Groq Generate", () => {
     });
 
     it("should add previous content instructions when provided", async () => {
-      const { getUserPrompt } = require("@/lib/groq/prompts");
+      
       mockGroqChatCompletion.mockResolvedValueOnce(mockSuccessResponse);
 
       await regenerateContent(
@@ -323,13 +326,13 @@ describe("Groq Generate", () => {
       );
 
       // Check that getUserPrompt was called with enhanced content
-      const calledContent = getUserPrompt.mock.calls[0][0];
+      const calledContent = mockGetUserPrompt.mock.calls[0][0];
       expect(calledContent).toContain("VERSIÓN ANTERIOR");
       expect(calledContent).toContain("genera algo DIFERENTE");
     });
 
     it("should truncate long previous content to 500 chars", async () => {
-      const { getUserPrompt } = require("@/lib/groq/prompts");
+      
       mockGroqChatCompletion.mockResolvedValueOnce(mockSuccessResponse);
 
       const longPreviousContent = "A".repeat(1000);
@@ -341,13 +344,13 @@ describe("Groq Generate", () => {
         longPreviousContent
       );
 
-      const calledContent = getUserPrompt.mock.calls[0][0];
+      const calledContent = mockGetUserPrompt.mock.calls[0][0];
       // Previous content should be truncated - shouldn't contain 600 A's in a row
       expect(calledContent).not.toContain("A".repeat(600));
     });
 
     it("should pass topics correctly", async () => {
-      const { getPromptForFormat } = require("@/lib/groq/prompts");
+      
       mockGroqChatCompletion.mockResolvedValueOnce(mockSuccessResponse);
 
       await regenerateContent(
@@ -357,7 +360,7 @@ describe("Groq Generate", () => {
         ["AI", "Tech"]
       );
 
-      expect(getPromptForFormat).toHaveBeenCalledWith("linkedin_article", "professional", ["AI", "Tech"]);
+      expect(mockGetPromptForFormat).toHaveBeenCalledWith("linkedin_article", "professional", ["AI", "Tech"]);
     });
   });
 });

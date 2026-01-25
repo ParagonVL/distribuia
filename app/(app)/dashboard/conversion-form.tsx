@@ -40,7 +40,7 @@ export function ConversionForm({
   canConvert: initialCanConvert,
   remaining: initialRemaining,
   hasWatermark,
-  plan,
+  plan: _plan,
 }: ConversionFormProps) {
   const [activeTab, setActiveTab] = useState<InputType>("youtube");
   const [inputValue, setInputValue] = useState("");

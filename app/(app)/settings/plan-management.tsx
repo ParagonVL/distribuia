@@ -28,7 +28,7 @@ export default function PlanManagement({
   const [waiverAccepted, setWaiverAccepted] = useState(false);
 
   // Check if user can upgrade (needs waiver)
-  const canUpgrade = currentPlan === "free" || currentPlan === "starter";
+  const _canUpgrade = currentPlan === "free" || currentPlan === "starter";
 
   const handleUpgrade = async (plan: "starter" | "pro") => {
     setLoading(plan);
