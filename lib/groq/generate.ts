@@ -128,12 +128,19 @@ export async function generateContent(
     } catch (error) {
       lastError = error;
 
-      // Check if this is a retryable error
+      // Check if this is a retryable error (NOT rate limits - fail fast for those)
+      const isRateLimit = error instanceof Error && error.message.toLowerCase().includes("rate limit");
+
+      if (isRateLimit) {
+        // Don't retry rate limits - fail fast to avoid Vercel timeout
+        console.log(`[Groq] Rate limit hit on attempt ${attempt}, failing fast (no retry)`);
+        break;
+      }
+
       if (isRetryableError(error) && attempt < MAX_RETRIES) {
-        // Use longer delay for rate limits, exponential backoff for connection errors
-        const isRateLimit = error instanceof Error && error.message.toLowerCase().includes("rate limit");
-        const delay = isRateLimit ? 30000 : INITIAL_RETRY_DELAY * Math.pow(2, attempt - 1);
-        console.log(`[Groq] ${isRateLimit ? "Rate limit" : "Connection error"} on attempt ${attempt}, retrying in ${delay}ms...`);
+        // Exponential backoff for connection errors only
+        const delay = INITIAL_RETRY_DELAY * Math.pow(2, attempt - 1);
+        console.log(`[Groq] Connection error on attempt ${attempt}, retrying in ${delay}ms...`);
         await sleep(delay);
         continue;
       }
@@ -189,23 +196,22 @@ export async function generateContent(
   }
 }
 
-// Delay between API calls to avoid rate limits (Groq free tier: 12K TPM)
 /**
- * Generate content for all three formats in parallel
+ * Generate content for all three formats sequentially
+ * Sequential avoids rate limits (12K TPM, each call ~5.8K tokens)
+ * No delays needed - just wait for each to complete before starting next
  */
 export async function generateAllFormats(
   content: string,
   tone: ToneType,
   topics?: string[]
 ): Promise<GenerateAllResult> {
-  console.log("[Groq] Starting PARALLEL generation for all formats");
+  console.log("[Groq] Starting SEQUENTIAL generation for all formats");
 
-  // Run all 3 generations in parallel - total time = longest single call
-  const [x_thread, linkedin_post, linkedin_article] = await Promise.all([
-    generateContent(content, "x_thread", tone, topics),
-    generateContent(content, "linkedin_post", tone, topics),
-    generateContent(content, "linkedin_article", tone, topics),
-  ]);
+  // Sequential calls - each ~3-4s, total ~10-12s, avoids rate limit collision
+  const x_thread = await generateContent(content, "x_thread", tone, topics);
+  const linkedin_post = await generateContent(content, "linkedin_post", tone, topics);
+  const linkedin_article = await generateContent(content, "linkedin_article", tone, topics);
 
   console.log("[Groq] All formats generated successfully");
 
