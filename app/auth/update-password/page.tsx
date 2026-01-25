@@ -53,14 +53,14 @@ export default function UpdatePasswordPage() {
       <div className="min-h-screen bg-background flex items-center justify-center px-4">
         <div className="w-full max-w-md text-center">
           <div className="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg aria-hidden="true" className="w-8 h-8 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
           <h1 className="font-heading text-2xl font-bold text-navy mb-2">
             Contrasena actualizada
           </h1>
-          <p className="text-gray-500">
+          <p className="text-gray-600">
             Redirigiendo al dashboard...
           </p>
         </div>
@@ -78,19 +78,19 @@ export default function UpdatePasswordPage() {
           <h1 className="font-heading text-2xl font-bold text-navy mb-2">
             Actualiza tu contrasena
           </h1>
-          <p className="text-gray-500">
+          <p className="text-gray-600">
             Introduce tu nueva contrasena
           </p>
         </div>
 
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
           {error && (
-            <div className="mb-4 p-3 bg-error/10 border border-error/20 rounded-lg">
+            <div id="form-error" className="mb-4 p-3 bg-error/10 border border-error/20 rounded-lg" role="alert">
               <p className="text-sm text-error">{error}</p>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" aria-describedby={error ? "form-error" : undefined}>
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-navy mb-1">
                 Nueva contrasena
@@ -100,11 +100,16 @@ export default function UpdatePasswordPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="input"
+                className={`input ${error?.includes("8 caracteres") ? "border-error" : ""}`}
                 placeholder="Minimo 8 caracteres"
                 required
                 minLength={8}
+                aria-invalid={error?.includes("8 caracteres") ? "true" : undefined}
+                aria-describedby={error ? "form-error" : "password-hint"}
               />
+              <p id="password-hint" className="mt-1 text-xs text-gray-600">
+                Mínimo 8 caracteres
+              </p>
             </div>
 
             <div>
@@ -116,9 +121,11 @@ export default function UpdatePasswordPage() {
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="input"
+                className={`input ${error?.includes("coinciden") ? "border-error" : ""}`}
                 placeholder="Repite la contrasena"
                 required
+                aria-invalid={error?.includes("coinciden") ? "true" : undefined}
+                aria-describedby={error ? "form-error" : undefined}
               />
             </div>
 

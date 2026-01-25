@@ -40,7 +40,7 @@ export default function MarketingLayout({
 
       {/* Footer */}
       <footer className="border-t border-gray-100 py-8">
-        <div className="max-w-4xl mx-auto px-4 text-center text-sm text-gray-500">
+        <div className="max-w-4xl mx-auto px-4 text-center text-sm text-gray-600">
           <p>&copy; {new Date().getFullYear()} Distribuia. Todos los derechos reservados.</p>
           <div className="mt-2 space-x-4">
             <Link href="/privacidad" className="hover:text-primary">

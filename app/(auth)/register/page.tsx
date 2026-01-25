@@ -1,10 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { ArrowLeft } from "lucide-react";
+
+// Email validation regex
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
@@ -13,20 +16,31 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [touched, setTouched] = useState({ email: false, password: false, confirmPassword: false });
+
+  // Client-side validation
+  const validation = useMemo(() => {
+    const emailValid = EMAIL_REGEX.test(email);
+    const passwordValid = password.length >= 6;
+    const confirmValid = confirmPassword === password && confirmPassword.length > 0;
+    return {
+      email: { valid: emailValid, message: !emailValid && touched.email ? "Introduce un email válido" : null },
+      password: { valid: passwordValid, message: !passwordValid && touched.password ? "Mínimo 6 caracteres" : null },
+      confirmPassword: { valid: confirmValid, message: !confirmValid && touched.confirmPassword && confirmPassword.length > 0 ? "Las contraseñas no coinciden" : null },
+      canSubmit: emailValid && passwordValid && confirmValid,
+    };
+  }, [email, password, confirmPassword, touched]);
+
+  const handleBlur = (field: "email" | "password" | "confirmPassword") => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setTouched({ email: true, password: true, confirmPassword: true });
     setError(null);
 
-    // Validate passwords match
-    if (password !== confirmPassword) {
-      setError("Las contraseñas no coinciden");
-      return;
-    }
-
-    // Validate password length
-    if (password.length < 6) {
-      setError("La contraseña debe tener al menos 6 caracteres");
+    if (!validation.canSubmit) {
       return;
     }
 
@@ -82,6 +96,7 @@ export default function RegisterPage() {
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
             <div className="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-6">
               <svg
+                aria-hidden="true"
                 className="w-8 h-8 text-success"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -98,7 +113,7 @@ export default function RegisterPage() {
             <h2 className="font-heading text-xl font-bold text-navy mb-3">
               ¡Revisa tu email!
             </h2>
-            <p className="text-gray-500 mb-6">
+            <p className="text-gray-600 mb-6">
               Hemos enviado un enlace de confirmación a{" "}
               <span className="font-medium text-navy">{email}</span>
             </p>
@@ -120,7 +135,7 @@ export default function RegisterPage() {
         {/* Back to home */}
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-gray-500 hover:text-navy transition-colors mb-6"
+          className="inline-flex items-center gap-2 text-gray-600 hover:text-navy transition-colors mb-6"
         >
           <ArrowLeft className="w-4 h-4" />
           <span className="text-sm font-medium">Volver al inicio</span>
@@ -144,9 +159,9 @@ export default function RegisterPage() {
             Crea tu cuenta
           </h1>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-5" aria-describedby={error ? "form-error" : undefined}>
             {error && (
-              <div className="p-4 bg-error/10 border border-error/20 rounded-lg">
+              <div id="form-error" className="p-4 bg-error/10 border border-error/20 rounded-lg" role="alert">
                 <p className="text-sm text-error">{error}</p>
               </div>
             )}
@@ -163,11 +178,19 @@ export default function RegisterPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onBlur={() => handleBlur("email")}
                 required
                 autoComplete="email"
-                className="input"
+                className={`input ${validation.email.message || error?.includes("email") ? "border-error" : touched.email && validation.email.valid ? "border-success" : ""}`}
                 placeholder="tu@email.com"
+                aria-invalid={validation.email.message || error?.includes("email") ? "true" : undefined}
+                aria-describedby={validation.email.message ? "email-error" : error ? "form-error" : undefined}
               />
+              {validation.email.message && (
+                <p id="email-error" className="mt-1 text-xs text-error" role="alert">
+                  {validation.email.message}
+                </p>
+              )}
             </div>
 
             <div>
@@ -182,14 +205,23 @@ export default function RegisterPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onBlur={() => handleBlur("password")}
                 required
                 autoComplete="new-password"
-                className="input"
+                className={`input ${validation.password.message || error?.includes("contraseña") ? "border-error" : touched.password && validation.password.valid ? "border-success" : ""}`}
                 placeholder="••••••••"
+                aria-invalid={validation.password.message || error?.includes("contraseña") ? "true" : undefined}
+                aria-describedby={validation.password.message ? "password-error" : "password-hint"}
               />
-              <p className="mt-1 text-xs text-gray-500">
-                Mínimo 6 caracteres
-              </p>
+              {validation.password.message ? (
+                <p id="password-error" className="mt-1 text-xs text-error" role="alert">
+                  {validation.password.message}
+                </p>
+              ) : (
+                <p id="password-hint" className="mt-1 text-xs text-gray-600">
+                  Mínimo 6 caracteres
+                </p>
+              )}
             </div>
 
             <div>
@@ -204,25 +236,34 @@ export default function RegisterPage() {
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
+                onBlur={() => handleBlur("confirmPassword")}
                 required
                 autoComplete="new-password"
-                className="input"
+                className={`input ${validation.confirmPassword.message || error?.includes("coinciden") ? "border-error" : touched.confirmPassword && validation.confirmPassword.valid ? "border-success" : ""}`}
                 placeholder="••••••••"
+                aria-invalid={validation.confirmPassword.message || error?.includes("coinciden") ? "true" : undefined}
+                aria-describedby={validation.confirmPassword.message ? "confirm-error" : error ? "form-error" : undefined}
               />
+              {validation.confirmPassword.message && (
+                <p id="confirm-error" className="mt-1 text-xs text-error" role="alert">
+                  {validation.confirmPassword.message}
+                </p>
+              )}
             </div>
 
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || !validation.canSubmit}
               className={`w-full py-3 rounded-lg font-semibold transition-colors ${
-                isLoading
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                isLoading || !validation.canSubmit
+                  ? "bg-gray-300 text-gray-600 cursor-not-allowed"
                   : "bg-primary hover:bg-primary-dark text-white"
               }`}
             >
               {isLoading ? (
                 <span className="inline-flex items-center justify-center gap-2">
                   <svg
+                    aria-hidden="true"
                     className="animate-spin w-5 h-5"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -249,7 +290,7 @@ export default function RegisterPage() {
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-gray-500">
+          <p className="mt-6 text-center text-sm text-gray-600">
             ¿Ya tienes cuenta?{" "}
             <Link
               href="/login"

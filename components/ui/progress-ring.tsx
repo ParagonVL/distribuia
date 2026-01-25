@@ -16,7 +16,7 @@ export function ProgressRing({ progress, size = 140, strokeWidth = 10 }: Progres
   return (
     <div className="relative" style={{ width: size, height: size }}>
       {/* Background circle */}
-      <svg className="absolute" width={size} height={size}>
+      <svg aria-hidden="true" className="absolute" width={size} height={size}>
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -28,7 +28,7 @@ export function ProgressRing({ progress, size = 140, strokeWidth = 10 }: Progres
       </svg>
 
       {/* Progress circle with gradient */}
-      <svg className="absolute -rotate-90" width={size} height={size}>
+      <svg aria-hidden="true" className="absolute -rotate-90" width={size} height={size}>
         <defs>
           <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="#14B8A6" />

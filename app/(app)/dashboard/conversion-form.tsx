@@ -132,7 +132,7 @@ export function ConversionForm({
       {/* Header */}
       <div className="flex items-center gap-3">
         <div className="p-2 rounded-xl bg-gradient-to-br from-primary to-teal-400 shadow-lg shadow-primary/30">
-          <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg aria-hidden="true" className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
         </div>
@@ -150,7 +150,7 @@ export function ConversionForm({
         >
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-start gap-3">
-              <svg className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg aria-hidden="true" className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
               <div>
@@ -165,7 +165,7 @@ export function ConversionForm({
               whileTap={{ scale: 0.98 }}
             >
               Mejora tu plan
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg aria-hidden="true" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
             </motion.a>
@@ -182,7 +182,7 @@ export function ConversionForm({
         >
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-start gap-3">
-              <svg className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg aria-hidden="true" className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <div>
@@ -197,7 +197,7 @@ export function ConversionForm({
               whileTap={{ scale: 0.98 }}
             >
               Ver planes
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg aria-hidden="true" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
             </motion.a>
@@ -293,8 +293,9 @@ export function ConversionForm({
           placeholder={canAddMore ? "Escribe y pulsa coma para anadir..." : "Maximo 5 temas"}
           className="input"
           disabled={isLoading || !canAddMore}
+          aria-describedby="topics-hint"
         />
-        <p className="mt-1 text-xs text-gray-600">
+        <p id="topics-hint" className="mt-1 text-xs text-gray-600">
           Los temas se integraran naturalmente en el contenido generado
         </p>
       </div>
@@ -374,8 +375,9 @@ function InputPanel({
         placeholder="Pega aqui el contenido que quieres transformar..."
         className="input min-h-[200px] resize-y"
         disabled={isLoading}
+        aria-describedby="text-content-hint"
       />
-      <p className="mt-1 text-xs text-gray-600">
+      <p id="text-content-hint" className="mt-1 text-xs text-gray-600">
         Minimo 100 palabras, maximo 50.000 caracteres
       </p>
     </div>

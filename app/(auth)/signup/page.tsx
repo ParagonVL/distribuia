@@ -54,6 +54,7 @@ export default function SignupPage() {
           <div className="card text-center">
             <div className="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg
+                aria-hidden="true"
                 className="w-8 h-8 text-success"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -70,7 +71,7 @@ export default function SignupPage() {
             <h2 className="font-heading text-xl font-bold text-navy mb-2">
               Revisa tu email
             </h2>
-            <p className="text-gray-500 mb-4">
+            <p className="text-gray-600 mb-4">
               Hemos enviado un enlace de confirmacion a{" "}
               <span className="font-medium text-navy">{email}</span>
             </p>
@@ -94,7 +95,7 @@ export default function SignupPage() {
         <h2 className="mt-6 text-center text-2xl font-heading font-bold text-navy">
           Crea tu cuenta
         </h2>
-        <p className="mt-2 text-center text-sm text-gray-500">
+        <p className="mt-2 text-center text-sm text-gray-600">
           Ya tienes cuenta?{" "}
           <Link
             href="/login"
@@ -107,9 +108,9 @@ export default function SignupPage() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="card">
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6" aria-describedby={error ? "form-error" : undefined}>
             {error && (
-              <div className="p-3 bg-error/10 border border-error/20 rounded-lg">
+              <div id="form-error" className="p-3 bg-error/10 border border-error/20 rounded-lg" role="alert">
                 <p className="text-sm text-error">{error}</p>
               </div>
             )}
@@ -127,8 +128,10 @@ export default function SignupPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="input mt-1"
+                className={`input mt-1 ${error ? "border-error" : ""}`}
                 placeholder="tu@email.com"
+                aria-invalid={error ? "true" : undefined}
+                aria-describedby={error ? "form-error" : undefined}
               />
             </div>
 
@@ -145,10 +148,12 @@ export default function SignupPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="input mt-1"
+                className={`input mt-1 ${error?.includes("contrasena") ? "border-error" : ""}`}
                 placeholder="••••••••"
+                aria-invalid={error?.includes("contrasena") ? "true" : undefined}
+                aria-describedby="password-hint"
               />
-              <p className="mt-1 text-xs text-gray-500">
+              <p id="password-hint" className="mt-1 text-xs text-gray-600">
                 Minimo 6 caracteres
               </p>
             </div>
@@ -166,8 +171,10 @@ export default function SignupPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
-                className="input mt-1"
+                className={`input mt-1 ${error?.includes("coinciden") ? "border-error" : ""}`}
                 placeholder="••••••••"
+                aria-invalid={error?.includes("coinciden") ? "true" : undefined}
+                aria-describedby={error ? "form-error" : undefined}
               />
             </div>
 
@@ -179,7 +186,7 @@ export default function SignupPage() {
               {isLoading ? "Creando cuenta..." : "Crear cuenta"}
             </button>
 
-            <p className="text-xs text-gray-500 text-center">
+            <p className="text-xs text-gray-600 text-center">
               Al crear una cuenta, aceptas nuestros{" "}
               <Link href="/terms" className="text-primary hover:text-primary-dark">
                 terminos de servicio

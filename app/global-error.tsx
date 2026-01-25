@@ -38,7 +38,7 @@ export default function GlobalError({
             <h1 className="text-2xl font-bold text-gray-900 mb-3">
               Error critico
             </h1>
-            <p className="text-gray-500 mb-8">
+            <p className="text-gray-600 mb-8">
               Ha ocurrido un error inesperado. Por favor, recarga la pagina.
             </p>
 

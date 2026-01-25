@@ -70,7 +70,7 @@ export function PricingSlider() {
         <div className="grid lg:grid-cols-2">
           {/* Left: Slider */}
           <div className="p-8 lg:p-10 border-b lg:border-b-0 lg:border-r border-gray-100">
-            <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-6">
+            <h3 className="text-sm font-medium text-gray-600 uppercase tracking-wide mb-6">
               Elige tu plan
             </h3>
 
@@ -171,7 +171,7 @@ export function PricingSlider() {
                     <h3 className="font-heading text-xl font-bold text-navy">
                       {selectedPlan.name}
                     </h3>
-                    <p className="text-sm text-gray-500">{selectedPlan.description}</p>
+                    <p className="text-sm text-gray-600">{selectedPlan.description}</p>
                   </div>
                   {selectedPlan.popular && (
                     <span className="px-3 py-1 bg-primary text-white text-xs font-semibold rounded-full">
@@ -189,7 +189,7 @@ export function PricingSlider() {
                       </span>
                     )}
                     <span className="text-5xl font-bold text-navy">€{selectedPlan.price}</span>
-                    <span className="text-gray-500">/mes</span>
+                    <span className="text-gray-600">/mes</span>
                   </div>
                   {selectedPlan.originalPrice > selectedPlan.price && (
                     <span className="inline-block mt-2 px-3 py-1 bg-success/10 text-success text-xs font-semibold rounded-full">
@@ -226,7 +226,7 @@ export function PricingSlider() {
                   <ArrowRight className="w-4 h-4" />
                 </ParticleButton>
                 {selectedPlan.price > 0 && (
-                  <p className="text-xs text-center text-gray-500 mt-2">
+                  <p className="text-xs text-center text-gray-600 mt-2">
                     Podras actualizar a {selectedPlan.name} despues de registrarte
                   </p>
                 )}
@@ -238,7 +238,7 @@ export function PricingSlider() {
 
       {/* Always visible: Free plan reminder */}
       <div className="mt-6 text-center">
-        <p className="text-gray-500 text-sm">
+        <p className="text-gray-600 text-sm">
           Siempre puedes empezar con el plan{" "}
           <button
             onClick={() => setSelectedIndex(0)}

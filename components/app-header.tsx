@@ -131,7 +131,7 @@ export function AppHeader({
                   ? "bg-error/10 text-error hover:bg-error/20"
                   : isNearLimit
                     ? "bg-warning/10 text-warning hover:bg-warning/20"
-                    : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
               role="status"
               aria-label={`${conversionsUsed} de ${conversionsLimit} conversiones usadas${status.label ? `. ${status.label}` : ""}. Haz clic para ver planes.`}
@@ -162,7 +162,7 @@ export function AppHeader({
                   </span>
                 </div>
                 <svg
-                  className={`w-4 h-4 text-gray-500 transition-transform ${
+                  className={`w-4 h-4 text-gray-600 transition-transform ${
                     isMenuOpen ? "rotate-180" : ""
                   }`}
                   fill="none"
@@ -187,7 +187,7 @@ export function AppHeader({
                   aria-labelledby="user-menu-button"
                 >
                   <div className="px-4 py-2 border-b border-gray-100">
-                    <p className="text-sm text-gray-500 truncate">{userEmail}</p>
+                    <p className="text-sm text-gray-600 truncate">{userEmail}</p>
                   </div>
                   {menuItems.map((item, index) => (
                     <Link

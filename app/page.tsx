@@ -55,7 +55,7 @@ export default function Home() {
           </h1>
 
           {/* Subtitle */}
-          <p className="text-xl text-gray-500 max-w-2xl mx-auto mb-10">
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-10">
             De YouTube a LinkedIn en 2 minutos. Espanol nativo, no traducido.
           </p>
 
@@ -68,7 +68,7 @@ export default function Home() {
               Empieza gratis
               <ArrowRight className="w-5 h-5" />
             </ParticleButton>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-600">
               Primeras conversiones gratis. Sin tarjeta.
             </p>
           </div>
@@ -105,7 +105,7 @@ export default function Home() {
             <h2 className="font-heading text-3xl sm:text-4xl font-bold text-navy mb-4">
               Elige tu plan
             </h2>
-            <p className="text-gray-500 max-w-xl mx-auto">
+            <p className="text-gray-600 max-w-xl mx-auto">
               Empieza gratis y escala cuando lo necesites. Sin compromisos.
             </p>
           </div>
@@ -120,10 +120,10 @@ export default function Home() {
       <footer className="py-6 border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-6">
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-600">
               © 2026 Distribuia
             </p>
-            <div className="flex items-center gap-4 text-sm text-gray-500">
+            <div className="flex items-center gap-4 text-sm text-gray-600">
               <Link href="/privacidad" className="hover:text-primary transition-colors">
                 Privacidad
               </Link>

@@ -1,21 +1,46 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { ArrowLeft } from "lucide-react";
 
+// Email validation regex
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [touched, setTouched] = useState({ email: false, password: false });
   const router = useRouter();
+
+  // Client-side validation
+  const validation = useMemo(() => {
+    const emailValid = EMAIL_REGEX.test(email);
+    const passwordValid = password.length > 0;
+    return {
+      email: { valid: emailValid, message: !emailValid && touched.email ? "Introduce un email válido" : null },
+      password: { valid: passwordValid, message: !passwordValid && touched.password ? "La contraseña es obligatoria" : null },
+      canSubmit: emailValid && passwordValid,
+    };
+  }, [email, password, touched]);
+
+  const handleBlur = (field: "email" | "password") => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setTouched({ email: true, password: true });
+
+    if (!validation.canSubmit) {
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
@@ -47,7 +72,7 @@ export default function LoginPage() {
         {/* Back to home */}
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-gray-500 hover:text-navy transition-colors mb-6"
+          className="inline-flex items-center gap-2 text-gray-600 hover:text-navy transition-colors mb-6"
         >
           <ArrowLeft className="w-4 h-4" />
           <span className="text-sm font-medium">Volver al inicio</span>
@@ -71,9 +96,9 @@ export default function LoginPage() {
             Inicia sesión
           </h1>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-5" aria-describedby={error ? "form-error" : undefined}>
             {error && (
-              <div className="p-4 bg-error/10 border border-error/20 rounded-lg">
+              <div id="form-error" className="p-4 bg-error/10 border border-error/20 rounded-lg" role="alert">
                 <p className="text-sm text-error">{error}</p>
               </div>
             )}
@@ -90,11 +115,19 @@ export default function LoginPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onBlur={() => handleBlur("email")}
                 required
                 autoComplete="email"
-                className="input"
+                className={`input ${validation.email.message || error ? "border-error" : touched.email && validation.email.valid ? "border-success" : ""}`}
                 placeholder="tu@email.com"
+                aria-invalid={validation.email.message || error ? "true" : undefined}
+                aria-describedby={validation.email.message ? "email-error" : error ? "form-error" : undefined}
               />
+              {validation.email.message && (
+                <p id="email-error" className="mt-1 text-xs text-error" role="alert">
+                  {validation.email.message}
+                </p>
+              )}
             </div>
 
             <div>
@@ -109,25 +142,34 @@ export default function LoginPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onBlur={() => handleBlur("password")}
                 required
                 autoComplete="current-password"
-                className="input"
+                className={`input ${validation.password.message || error ? "border-error" : touched.password && validation.password.valid ? "border-success" : ""}`}
                 placeholder="••••••••"
+                aria-invalid={validation.password.message || error ? "true" : undefined}
+                aria-describedby={validation.password.message ? "password-error" : error ? "form-error" : undefined}
               />
+              {validation.password.message && (
+                <p id="password-error" className="mt-1 text-xs text-error" role="alert">
+                  {validation.password.message}
+                </p>
+              )}
             </div>
 
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || !validation.canSubmit}
               className={`w-full py-3 rounded-lg font-semibold transition-colors ${
-                isLoading
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                isLoading || !validation.canSubmit
+                  ? "bg-gray-300 text-gray-600 cursor-not-allowed"
                   : "bg-primary hover:bg-primary-dark text-white"
               }`}
             >
               {isLoading ? (
                 <span className="inline-flex items-center justify-center gap-2">
                   <svg
+                    aria-hidden="true"
                     className="animate-spin w-5 h-5"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -154,7 +196,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-gray-500">
+          <p className="mt-6 text-center text-sm text-gray-600">
             ¿No tienes cuenta?{" "}
             <Link
               href="/register"

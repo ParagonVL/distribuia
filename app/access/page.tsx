@@ -44,7 +44,7 @@ export default function AccessPage() {
           <h1 className="font-heading text-3xl font-bold text-navy mb-2">
             distribuia
           </h1>
-          <p className="text-gray-500">
+          <p className="text-gray-600">
             Acceso restringido
           </p>
         </div>

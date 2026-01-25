@@ -149,7 +149,7 @@ export function EligeTonoAnimation() {
   return (
     <div className="relative w-full h-full flex items-center justify-center p-6">
       <div className="w-full max-w-sm">
-        <div className="text-sm text-gray-500 mb-3 text-center">Selecciona el tono</div>
+        <div className="text-sm text-gray-600 mb-3 text-center">Selecciona el tono</div>
         <div className="flex gap-2 justify-center">
           {tones.map((tone, index) => (
             <motion.button
@@ -212,7 +212,7 @@ export function CopiaPublicaAnimation() {
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 mb-3">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-6 h-6 rounded bg-blue-600" />
-            <span className="text-xs text-gray-500">LinkedIn</span>
+            <span className="text-xs text-gray-600">LinkedIn</span>
           </div>
           <div className="space-y-1.5">
             <div className="h-2.5 bg-gray-200 rounded w-full" />
@@ -288,7 +288,7 @@ export function EspanolNativoAnimation() {
                 <div className="w-4 h-4 rounded-full bg-red-400" />
                 <span className="text-xs text-red-500 font-medium">Traducido</span>
               </div>
-              <p className="text-sm text-gray-500 italic">
+              <p className="text-sm text-gray-600 italic">
                 &quot;Estoy muy emocionado de compartir que he estado trabajando en...&quot;
               </p>
               <div className="mt-2 text-xs text-red-400">Suena robotico</div>
@@ -332,7 +332,7 @@ export function EspanolNativoAnimation() {
 // Icons
 function CursorIcon() {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="drop-shadow-md">
+    <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" className="drop-shadow-md">
       <path d="M5 2L19 12L12 13L9 20L5 2Z" fill="white" stroke="#1E2A4A" strokeWidth="1.5" strokeLinejoin="round" />
     </svg>
   );
@@ -340,7 +340,7 @@ function CursorIcon() {
 
 function CursorClickIcon() {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="drop-shadow-md">
+    <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" className="drop-shadow-md">
       <path d="M5 2L19 12L12 13L9 20L5 2Z" fill="#14b8a6" stroke="#0d9488" strokeWidth="1.5" strokeLinejoin="round" />
       <circle cx="12" cy="12" r="6" fill="none" stroke="#14b8a6" strokeWidth="1" opacity="0.5" />
     </svg>
@@ -349,7 +349,7 @@ function CursorClickIcon() {
 
 function CheckIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#14b8a6" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#14b8a6" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
       <polyline points="20 6 9 17 4 12" />
     </svg>
   );
@@ -357,7 +357,7 @@ function CheckIcon() {
 
 function CopyIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
     </svg>
@@ -366,7 +366,7 @@ function CopyIcon() {
 
 function RefreshIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <polyline points="23 4 23 10 17 10" />
       <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
     </svg>

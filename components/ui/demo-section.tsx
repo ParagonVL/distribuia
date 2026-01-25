@@ -37,7 +37,7 @@ export function DemoSection() {
           <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-navy">
             Mira como funciona
           </h2>
-          <p className="mt-4 text-lg text-gray-500">
+          <p className="mt-4 text-lg text-gray-600">
             Transforma cualquier video de YouTube en contenido profesional para tus redes sociales en cuestion de segundos.
           </p>
         </div>
@@ -129,7 +129,7 @@ export function DemoSection() {
                     {item.title}
                   </h3>
                 </div>
-                <p className="text-sm text-gray-500">{item.description}</p>
+                <p className="text-sm text-gray-600">{item.description}</p>
               </div>
             );
           })}
