@@ -24,6 +24,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Set user context for Sentry error tracking
+    logger.setUser({
+      id: user.id,
+      email: user.email,
+    });
+    logger.setTags({
+      route: "stripe/create-portal",
+    });
+
     // Get user's Stripe customer ID
     const { data: userData } = await supabase
       .from("users")

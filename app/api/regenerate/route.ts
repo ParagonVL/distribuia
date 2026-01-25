@@ -129,6 +129,17 @@ export async function POST(request: NextRequest) {
       throw new UnauthenticatedError();
     }
 
+    // Set user context for Sentry error tracking
+    logger.setUser({
+      id: user.id,
+      email: user.email,
+      plan: userData.plan,
+    });
+    logger.setTags({
+      format,
+      plan: userData.plan,
+    });
+
     // Count existing versions for this conversion + format
     const { count: versionCount, error: countError } = await supabase
       .from("outputs")

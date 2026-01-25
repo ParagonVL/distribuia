@@ -43,6 +43,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Set user context for Sentry error tracking
+    logger.setUser({
+      id: user.id,
+      email: user.email,
+    });
+    logger.setTags({
+      route: "stripe/create-checkout",
+    });
+
     // Parse request body
     const body = await request.json();
     const { priceId, waiverAccepted } = body;

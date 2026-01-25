@@ -4,14 +4,44 @@ interface LogContext {
   [key: string]: unknown;
 }
 
+interface UserContext {
+  id: string;
+  email?: string;
+  plan?: string;
+}
+
 const isProduction = process.env.NODE_ENV === "production";
 
 /**
  * Structured logger that integrates with Sentry
  * In production, only warn and error levels are logged to console
- * All errors are sent to Sentry
+ * All errors are sent to Sentry with context
  */
 export const logger = {
+  /**
+   * Set user context for all subsequent Sentry events
+   */
+  setUser(user: UserContext | null) {
+    if (user) {
+      Sentry.setUser({
+        id: user.id,
+        email: user.email,
+      });
+      Sentry.setTag("plan", user.plan || "free");
+    } else {
+      Sentry.setUser(null);
+    }
+  },
+
+  /**
+   * Set custom tags for filtering in Sentry
+   */
+  setTags(tags: Record<string, string>) {
+    Object.entries(tags).forEach(([key, value]) => {
+      Sentry.setTag(key, value);
+    });
+  },
+
   debug(message: string, context?: LogContext) {
     if (!isProduction) {
       console.log(`[DEBUG] ${message}`, context || "");
@@ -41,6 +71,7 @@ export const logger = {
     if (isProduction && error instanceof Error) {
       Sentry.captureException(error, {
         extra: { message, ...context },
+        tags: context?.errorType ? { errorType: String(context.errorType) } : undefined,
       });
     } else if (isProduction) {
       Sentry.captureMessage(message, {

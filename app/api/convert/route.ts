@@ -91,6 +91,17 @@ export async function POST(request: NextRequest) {
       throw new UnauthenticatedError();
     }
 
+    // Set user context for Sentry error tracking
+    logger.setUser({
+      id: user.id,
+      email: user.email,
+      plan: userData.plan,
+    });
+    logger.setTags({
+      inputType,
+      plan: userData.plan,
+    });
+
     // Check conversion limit
     const planLimits = getPlanLimits(userData.plan);
     if (!canCreateConversion(userData.plan, userData.conversions_used_this_month)) {
