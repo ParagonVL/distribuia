@@ -65,7 +65,7 @@ describe("Groq Generate", () => {
     it("should generate content successfully", async () => {
       mockGroqChatCompletion.mockResolvedValueOnce(mockSuccessResponse);
 
-      const result = await generateContent("Test content", "x_thread", "professional");
+      const result = await generateContent("Test content", "x_thread", "profesional");
 
       expect(result).toEqual({
         content: "Generated content here",
@@ -81,15 +81,15 @@ describe("Groq Generate", () => {
       
       mockGroqChatCompletion.mockResolvedValueOnce(mockSuccessResponse);
 
-      await generateContent("Test content", "linkedin_post", "casual", ["topic1", "topic2"]);
+      await generateContent("Test content", "linkedin_post", "cercano", ["topic1", "topic2"]);
 
-      expect(mockGetPromptForFormat).toHaveBeenCalledWith("linkedin_post", "casual", ["topic1", "topic2"]);
+      expect(mockGetPromptForFormat).toHaveBeenCalledWith("linkedin_post", "cercano", ["topic1", "topic2"]);
     });
 
     it("should call groqChatCompletion with correct parameters", async () => {
       mockGroqChatCompletion.mockResolvedValueOnce(mockSuccessResponse);
 
-      await generateContent("Test content", "x_thread", "professional");
+      await generateContent("Test content", "x_thread", "profesional");
 
       expect(mockGroqChatCompletion).toHaveBeenCalledWith({
         model: "llama-3.3-70b-versatile",
@@ -108,7 +108,7 @@ describe("Groq Generate", () => {
         choices: [{ index: 0, message: { role: "assistant", content: "  Content with spaces  " }, finish_reason: "stop" }],
       });
 
-      const result = await generateContent("Test", "x_thread", "professional");
+      const result = await generateContent("Test", "x_thread", "profesional");
 
       expect(result.content).toBe("Content with spaces");
     });
@@ -119,7 +119,7 @@ describe("Groq Generate", () => {
         choices: [{ index: 0, message: { role: "assistant", content: "" }, finish_reason: "stop" }],
       });
 
-      await expect(generateContent("Test", "x_thread", "professional")).rejects.toThrow("No se recibió contenido");
+      await expect(generateContent("Test", "x_thread", "profesional")).rejects.toThrow("No se recibió contenido");
     });
 
     it("should throw error when choices are empty", async () => {
@@ -128,16 +128,16 @@ describe("Groq Generate", () => {
         choices: [],
       });
 
-      await expect(generateContent("Test", "x_thread", "professional")).rejects.toThrow("No se recibió contenido");
+      await expect(generateContent("Test", "x_thread", "profesional")).rejects.toThrow("No se recibió contenido");
     });
 
     it("should handle missing usage data gracefully", async () => {
-      mockGroqChatCompletion.mockResolvedValueOnce({
-        ...mockSuccessResponse,
-        usage: undefined,
-      });
+      const responseWithoutUsage = { ...mockSuccessResponse };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (responseWithoutUsage as any).usage = undefined;
+      mockGroqChatCompletion.mockResolvedValueOnce(responseWithoutUsage);
 
-      const result = await generateContent("Test", "x_thread", "professional");
+      const result = await generateContent("Test", "x_thread", "profesional");
 
       expect(result.tokensUsed).toEqual({
         prompt: 0,
@@ -151,7 +151,7 @@ describe("Groq Generate", () => {
         mockGroqChatCompletion.mockRejectedValueOnce(new Error("Groq API returned error"));
 
         try {
-          await generateContent("Test", "x_thread", "professional");
+          await generateContent("Test", "x_thread", "profesional");
           fail("Should have thrown");
         } catch (error) {
           expect(error).toBeInstanceOf(DistribuiaError);
@@ -163,7 +163,7 @@ describe("Groq Generate", () => {
         mockGroqChatCompletion.mockRejectedValueOnce(new Error("Model not found"));
 
         try {
-          await generateContent("Test", "x_thread", "professional");
+          await generateContent("Test", "x_thread", "profesional");
           fail("Should have thrown");
         } catch (error) {
           expect(error).toBeInstanceOf(DistribuiaError);
@@ -179,7 +179,7 @@ describe("Groq Generate", () => {
           .mockRejectedValueOnce(new Error("Rate limit exceeded|30"));
 
         try {
-          await generateContent("Test", "x_thread", "professional");
+          await generateContent("Test", "x_thread", "profesional");
           fail("Should have thrown");
         } catch (error) {
           expect(error).toBeInstanceOf(DistribuiaError);
@@ -194,7 +194,7 @@ describe("Groq Generate", () => {
           .mockRejectedValueOnce(new Error("Rate limit exceeded|45"));
 
         try {
-          await generateContent("Test", "x_thread", "professional");
+          await generateContent("Test", "x_thread", "profesional");
           fail("Should have thrown");
         } catch (error) {
           expect((error as Error).message).toContain("45 segundos");
@@ -208,7 +208,7 @@ describe("Groq Generate", () => {
           .mockRejectedValueOnce(new Error("Error 429: Too many requests"));
 
         try {
-          await generateContent("Test", "x_thread", "professional");
+          await generateContent("Test", "x_thread", "profesional");
           fail("Should have thrown");
         } catch (error) {
           expect(error).toBeInstanceOf(DistribuiaError);
@@ -220,7 +220,7 @@ describe("Groq Generate", () => {
         mockGroqChatCompletion.mockRejectedValueOnce(new Error("Unknown error xyz"));
 
         try {
-          await generateContent("Test", "x_thread", "professional");
+          await generateContent("Test", "x_thread", "profesional");
           fail("Should have thrown");
         } catch (error) {
           expect(error).toBeInstanceOf(DistribuiaError);
@@ -233,7 +233,7 @@ describe("Groq Generate", () => {
         mockGroqChatCompletion.mockRejectedValueOnce("String error");
 
         try {
-          await generateContent("Test", "x_thread", "professional");
+          await generateContent("Test", "x_thread", "profesional");
           fail("Should have thrown");
         } catch (error) {
           expect(error).toBeInstanceOf(DistribuiaError);
@@ -248,7 +248,7 @@ describe("Groq Generate", () => {
         mockGroqChatCompletion.mockResolvedValueOnce(mockSuccessResponse);
 
         const shortContent = "Short content";
-        await generateContent(shortContent, "x_thread", "professional");
+        await generateContent(shortContent, "x_thread", "profesional");
 
         expect(mockGetUserPrompt).toHaveBeenCalled();
       });
@@ -258,7 +258,7 @@ describe("Groq Generate", () => {
 
         // Content over 20000 chars
         const longContent = "A".repeat(25000);
-        const result = await generateContent(longContent, "x_thread", "professional");
+        const result = await generateContent(longContent, "x_thread", "profesional");
 
         expect(result.content).toBe("Generated content here");
         // The mock was called, meaning truncation happened internally
@@ -287,7 +287,7 @@ describe("Groq Generate", () => {
         .mockResolvedValueOnce(linkedInPostResponse)
         .mockResolvedValueOnce(linkedInArticleResponse);
 
-      const result = await generateAllFormats("Test content", "professional", ["topic"]);
+      const result = await generateAllFormats("Test content", "profesional", ["topic"]);
 
       expect(result.x_thread.content).toBe("X thread");
       expect(result.linkedin_post.content).toBe("LinkedIn post");
@@ -300,7 +300,7 @@ describe("Groq Generate", () => {
         .mockResolvedValueOnce(mockSuccessResponse)
         .mockRejectedValueOnce(new Error("API error on second call"));
 
-      await expect(generateAllFormats("Test", "professional")).rejects.toThrow();
+      await expect(generateAllFormats("Test", "profesional")).rejects.toThrow();
     }, 60000);
   });
 
@@ -308,7 +308,7 @@ describe("Groq Generate", () => {
     it("should generate content without previous content", async () => {
       mockGroqChatCompletion.mockResolvedValueOnce(mockSuccessResponse);
 
-      const result = await regenerateContent("Test content", "x_thread", "professional");
+      const result = await regenerateContent("Test content", "x_thread", "profesional");
 
       expect(result.content).toBe("Generated content here");
     });
@@ -320,7 +320,7 @@ describe("Groq Generate", () => {
       await regenerateContent(
         "Original content",
         "linkedin_post",
-        "casual",
+        "cercano",
         ["topic"],
         "Previous generated content"
       );
@@ -339,7 +339,7 @@ describe("Groq Generate", () => {
       await regenerateContent(
         "Original content",
         "x_thread",
-        "professional",
+        "profesional",
         undefined,
         longPreviousContent
       );
@@ -356,11 +356,11 @@ describe("Groq Generate", () => {
       await regenerateContent(
         "Content",
         "linkedin_article",
-        "professional",
+        "profesional",
         ["AI", "Tech"]
       );
 
-      expect(mockGetPromptForFormat).toHaveBeenCalledWith("linkedin_article", "professional", ["AI", "Tech"]);
+      expect(mockGetPromptForFormat).toHaveBeenCalledWith("linkedin_article", "profesional", ["AI", "Tech"]);
     });
   });
 });
