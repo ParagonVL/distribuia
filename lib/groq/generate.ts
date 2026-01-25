@@ -196,21 +196,31 @@ export async function generateContent(
   }
 }
 
+// Delay between API calls to allow rate limit tokens to replenish
+const DELAY_BETWEEN_CALLS = 15000; // 15 seconds
+
 /**
- * Generate content for all three formats sequentially
- * Sequential avoids rate limits (12K TPM, each call ~5.8K tokens)
- * No delays needed - just wait for each to complete before starting next
+ * Generate content for all three formats sequentially with delays
+ * 15s delays allow ~3K tokens to replenish (12K TPM = 200 tokens/sec)
+ * Total time: ~42 seconds (within Vercel 60s timeout)
  */
 export async function generateAllFormats(
   content: string,
   tone: ToneType,
   topics?: string[]
 ): Promise<GenerateAllResult> {
-  console.log("[Groq] Starting SEQUENTIAL generation for all formats");
+  console.log("[Groq] Starting SEQUENTIAL generation with delays");
 
-  // Sequential calls - each ~3-4s, total ~10-12s, avoids rate limit collision
   const x_thread = await generateContent(content, "x_thread", tone, topics);
+
+  console.log(`[Groq] Waiting ${DELAY_BETWEEN_CALLS/1000}s for rate limit to replenish...`);
+  await sleep(DELAY_BETWEEN_CALLS);
+
   const linkedin_post = await generateContent(content, "linkedin_post", tone, topics);
+
+  console.log(`[Groq] Waiting ${DELAY_BETWEEN_CALLS/1000}s for rate limit to replenish...`);
+  await sleep(DELAY_BETWEEN_CALLS);
+
   const linkedin_article = await generateContent(content, "linkedin_article", tone, topics);
 
   console.log("[Groq] All formats generated successfully");
