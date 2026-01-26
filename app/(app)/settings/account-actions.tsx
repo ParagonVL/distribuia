@@ -20,7 +20,7 @@ export function ChangePasswordButton({ userEmail }: AccountActionsProps) {
     try {
       const supabase = createClient();
       const { error } = await supabase.auth.resetPasswordForEmail(userEmail, {
-        redirectTo: `${window.location.origin}/auth/callback?next=/settings`,
+        redirectTo: `${window.location.origin}/auth/update-password`,
       });
 
       if (error) {
