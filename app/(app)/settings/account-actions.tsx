@@ -120,7 +120,7 @@ export function DeleteAccountButton() {
       )}
       <div className="p-4 bg-error/5 border border-error/20 rounded-lg">
         <p className="text-sm text-navy mb-4">
-          Esta accion es <strong>irreversible</strong>. Se eliminaran:
+          Esta acción es <strong>irreversible</strong>. Se eliminarán:
         </p>
         <ul className="text-sm text-gray-600 space-y-1 mb-4">
           <li>• Todas tus conversiones y contenido generado</li>

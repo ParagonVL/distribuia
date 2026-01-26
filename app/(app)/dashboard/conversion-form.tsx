@@ -31,7 +31,7 @@ const TABS: { id: InputType; label: string }[] = [
 ];
 
 const TONES: { id: ToneType; label: string; description: string }[] = [
-  { id: "profesional", label: "Profesional", description: "Formal, basado en datos, terminologia del sector" },
+  { id: "profesional", label: "Profesional", description: "Formal, basado en datos, terminología del sector" },
   { id: "cercano", label: "Cercano", description: "Personal, conversacional, conecta emocionalmente" },
   { id: "tecnico", label: "Técnico", description: "Jerga especializada, detallado, experto a experto" },
 ];
@@ -154,7 +154,7 @@ export function ConversionForm({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
               <div>
-                <p className="text-amber-700 font-semibold">Has alcanzado el limite de tu plan</p>
+                <p className="text-amber-700 font-semibold">Has alcanzado el límite de tu plan</p>
                 <p className="text-sm text-gray-600 mt-1">Desbloquea más conversiones para seguir creando contenido</p>
               </div>
             </div>
@@ -290,7 +290,7 @@ export function ConversionForm({
           value={topicInput}
           onChange={(e) => setTopicInput(e.target.value)}
           onKeyDown={addTopic}
-          placeholder={canAddMore ? "Escribe y pulsa coma para anadir..." : "Máximo 5 temas"}
+          placeholder={canAddMore ? "Escribe y pulsa coma para añadir..." : "Máximo 5 temas"}
           className="input"
           disabled={isLoading || !canAddMore}
           aria-describedby="topics-hint"

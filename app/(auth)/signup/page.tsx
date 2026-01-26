@@ -72,7 +72,7 @@ export default function SignupPage() {
               Revisa tu email
             </h2>
             <p className="text-gray-600 mb-4">
-              Hemos enviado un enlace de confirmacion a{" "}
+              Hemos enviado un enlace de confirmación a{" "}
               <span className="font-medium text-navy">{email}</span>
             </p>
             <Link href="/login" className="text-primary hover:text-primary-dark font-medium">
@@ -96,7 +96,7 @@ export default function SignupPage() {
           Crea tu cuenta
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          Ya tienes cuenta?{" "}
+          ¿Ya tienes cuenta?{" "}
           <Link
             href="/login"
             className="text-primary hover:text-primary-dark font-medium"
@@ -193,7 +193,7 @@ export default function SignupPage() {
               </Link>{" "}
               y{" "}
               <Link href="/privacy" className="text-primary hover:text-primary-dark">
-                politica de privacidad
+                política de privacidad
               </Link>
             </p>
           </form>
