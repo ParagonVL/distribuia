@@ -15,19 +15,19 @@ interface ConversionWithOutputs extends Conversion {
 const formatLabels = {
   x_thread: "Hilo de X",
   linkedin_post: "Post de LinkedIn",
-  linkedin_article: "Articulo",
+  linkedin_article: "Artículo",
 };
 
 const inputTypeLabels = {
   youtube: "YouTube",
-  article: "Articulo",
+  article: "Artículo",
   text: "Texto",
 };
 
 const toneLabels = {
   profesional: "Profesional",
   cercano: "Cercano",
-  tecnico: "Tecnico",
+  tecnico: "Técnico",
 };
 
 const PAGE_SIZE = 10;
@@ -59,13 +59,13 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
 
   const userPlan: PlanType = userData?.plan || "free";
 
-  // Get total count for pagination
+  // Get total count for págination
   const { count: totalCount } = await supabase
     .from("conversions")
     .select("*", { count: "exact", head: true })
     .eq("user_id", user.id);
 
-  // Get user's conversions with outputs (paginated)
+  // Get user's conversions with outputs (páginated)
   const { data: conversions, error } = await supabase
     .from("conversions")
     .select(`
@@ -95,7 +95,7 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
           href="/dashboard"
           className="btn-primary text-sm"
         >
-          Nueva conversion
+          Nueva conversión
         </Link>
       </div>
 
@@ -116,16 +116,16 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
             />
           </svg>
           <h2 className="font-heading text-lg font-semibold text-navy mb-2">
-            Sin conversiones todavia
+            Sin conversiones todavía
           </h2>
           <p className="text-gray-600 mb-6">
-            Tus conversiones apareceran aqui una vez que empieces a crear contenido.
+            Tus conversiones aparecerán aquí una vez que empieces a crear contenido.
           </p>
           <Link
             href="/dashboard"
             className="btn-primary"
           >
-            Crear mi primera conversion
+            Crear mi primera conversión
           </Link>
         </div>
       ) : (
@@ -136,14 +136,14 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
             ))}
           </div>
 
-          {/* Pagination */}
+          {/* Págination */}
           {totalPages > 1 && (
             <nav
               className="flex items-center justify-between mt-8 pt-6 border-t border-gray-100"
-              aria-label="Paginacion del historial"
+              aria-label="Páginacion del historial"
             >
               <p className="text-sm text-gray-600">
-                Pagina {currentPage} de {totalPages} ({totalCount} conversiones)
+                Página {currentPage} de {totalPages} ({totalCount} conversiones)
               </p>
               <div className="flex gap-2">
                 {hasPrevPage ? (

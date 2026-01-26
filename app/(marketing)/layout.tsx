@@ -46,8 +46,8 @@ export default function MarketingLayout({
             <Link href="/privacidad" className="hover:text-primary">
               Privacidad
             </Link>
-            <Link href="/terminos" className="hover:text-primary">
-              Terminos
+            <Link href="/términos" className="hover:text-primary">
+              Términos
             </Link>
           </div>
         </div>

@@ -33,7 +33,7 @@ export default function Home() {
               href="/login"
               className="px-4 py-2 rounded-lg text-navy font-medium border border-gray-300 hover:bg-gray-50 transition-colors"
             >
-              Iniciar sesion
+              Iniciar sesión
             </Link>
             <ParticleButton href="/register" className="px-4 py-2">
               Prueba gratis
@@ -128,8 +128,8 @@ export default function Home() {
                 Privacidad
               </Link>
               <span className="text-gray-300">|</span>
-              <Link href="/terminos" className="hover:text-primary transition-colors">
-                Terminos
+              <Link href="/términos" className="hover:text-primary transition-colors">
+                Términos
               </Link>
             </div>
           </div>

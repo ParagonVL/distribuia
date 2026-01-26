@@ -17,12 +17,12 @@ export default function SignupPage() {
     setError(null);
 
     if (password !== confirmPassword) {
-      setError("Las contrasenas no coinciden");
+      setError("Las contraseñas no coinciden");
       return;
     }
 
     if (password.length < 6) {
-      setError("La contrasena debe tener al menos 6 caracteres");
+      setError("La contraseña debe tener al menos 6 caracteres");
       return;
     }
 
@@ -76,7 +76,7 @@ export default function SignupPage() {
               <span className="font-medium text-navy">{email}</span>
             </p>
             <Link href="/login" className="text-primary hover:text-primary-dark font-medium">
-              Volver a iniciar sesion
+              Volver a iniciar sesión
             </Link>
           </div>
         </div>
@@ -101,7 +101,7 @@ export default function SignupPage() {
             href="/login"
             className="text-primary hover:text-primary-dark font-medium"
           >
-            Inicia sesion
+            Inicia sesión
           </Link>
         </p>
       </div>
@@ -140,7 +140,7 @@ export default function SignupPage() {
                 htmlFor="password"
                 className="block text-sm font-medium text-navy"
               >
-                Contrasena
+                Contraseña
               </label>
               <input
                 id="password"
@@ -148,13 +148,13 @@ export default function SignupPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className={`input mt-1 ${error?.includes("contrasena") ? "border-error" : ""}`}
+                className={`input mt-1 ${error?.includes("contraseña") ? "border-error" : ""}`}
                 placeholder="••••••••"
-                aria-invalid={error?.includes("contrasena") ? "true" : undefined}
+                aria-invalid={error?.includes("contraseña") ? "true" : undefined}
                 aria-describedby="password-hint"
               />
               <p id="password-hint" className="mt-1 text-xs text-gray-600">
-                Minimo 6 caracteres
+                Mínimo 6 caracteres
               </p>
             </div>
 
@@ -163,7 +163,7 @@ export default function SignupPage() {
                 htmlFor="confirmPassword"
                 className="block text-sm font-medium text-navy"
               >
-                Confirmar contrasena
+                Confirmar contraseña
               </label>
               <input
                 id="confirmPassword"
@@ -189,7 +189,7 @@ export default function SignupPage() {
             <p className="text-xs text-gray-600 text-center">
               Al crear una cuenta, aceptas nuestros{" "}
               <Link href="/terms" className="text-primary hover:text-primary-dark">
-                terminos de servicio
+                términos de servicio
               </Link>{" "}
               y{" "}
               <Link href="/privacy" className="text-primary hover:text-primary-dark">

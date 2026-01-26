@@ -47,7 +47,7 @@ export default function PlanManagement({
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error?.message || "Error al crear la sesion de pago");
+        throw new Error(data.error?.message || "Error al crear la sesión de pago");
       }
 
       if (data.url) {
@@ -227,7 +227,7 @@ export default function PlanManagement({
                     disabled={loading === "portal"}
                     className="w-full btn-secondary text-sm"
                   >
-                    {loading === "portal" ? "Cargando..." : "Gestionar suscripcion"}
+                    {loading === "portal" ? "Cargando..." : "Gestionar suscripción"}
                   </button>
                 ) : null
               ) : isUpgrade ? (
@@ -242,7 +242,7 @@ export default function PlanManagement({
                         className="mt-0.5 w-3.5 h-3.5 text-primary border-gray-300 rounded focus:ring-primary focus:ring-1"
                       />
                       <span>
-                        Solicito acceso inmediato y renuncio al derecho de desistimiento de 14 dias (art. 103.m RDL 1/2007).
+                        Solicito acceso inmediato y renuncio al derecho de desistimiento de 14días (art. 103.m RDL 1/2007).
                       </span>
                     </label>
                   )}
@@ -270,7 +270,7 @@ export default function PlanManagement({
                       : "bg-gray-100 text-navy hover:bg-gray-200"
                   }`}
                 >
-                  {loading === "portal" ? "Cargando..." : plan.key === "free" ? "Cancelar suscripcion" : "Cambiar plan"}
+                  {loading === "portal" ? "Cargando..." : plan.key === "free" ? "Cancelar suscripción" : "Cambiar plan"}
                 </button>
               ) : null}
             </div>

@@ -60,7 +60,7 @@ export default async function SettingsPage() {
         {/* Account info */}
         <div className="card">
           <h2 className="font-heading text-lg font-semibold text-navy mb-4">
-            Informacion de la cuenta
+            Información de la cuenta
           </h2>
           <div className="space-y-4">
             <div>

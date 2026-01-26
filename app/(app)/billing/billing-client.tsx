@@ -96,7 +96,7 @@ export function BillingClient({
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error?.message || "Error al crear la sesion de pago");
+        throw new Error(data.error?.message || "Error al crear la sesión de pago");
       }
 
       if (data.url) {
@@ -198,14 +198,14 @@ export function BillingClient({
             <div>
               <p className="font-medium text-success">Pago completado correctamente</p>
               <p className="text-sm text-gray-600 mt-1">
-                Tu suscripcion se esta procesando. Los cambios pueden tardar unos segundos en reflejarse.
-                Si no ves tu nuevo plan, recarga la pagina.
+                Tu suscripción se esta procesando. Los cambios pueden tardar unos segundos en reflejarse.
+                Si no ves tu nuevo plan, recarga la página.
               </p>
               <button
                 onClick={() => router.refresh()}
                 className="mt-2 text-sm text-primary hover:text-primary-dark font-medium"
               >
-                Recargar pagina
+                Recargar página
               </button>
             </div>
             <button
@@ -260,17 +260,17 @@ export function BillingClient({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <div>
-              <p className="font-medium text-amber-800">Suscripcion programada para cancelar</p>
+              <p className="font-medium text-amber-800">Suscripción programada para cancelar</p>
               <p className="text-sm text-amber-700 mt-1">
-                Tu suscripcion se cancelara el <strong>{formatCancelDate(cancelAt)}</strong>.
-                Hasta esa fecha, mantendras acceso a todas las funciones de tu plan actual.
+                Tu suscripción se cancelara el <strong>{formatCancelDate(cancelAt)}</strong>.
+                Hasta esa fecha, mantendrás acceso a todas las funciones de tu plan actual.
               </p>
               <button
                 onClick={handleManageSubscription}
                 disabled={loading === "portal"}
                 className="mt-2 text-sm text-primary hover:text-primary-dark font-medium"
               >
-                {loading === "portal" ? "Cargando..." : "Reactivar suscripcion"}
+                {loading === "portal" ? "Cargando..." : "Reactivar suscripción"}
               </button>
             </div>
           </div>
@@ -301,7 +301,7 @@ export function BillingClient({
               disabled={loading === "portal"}
               className="text-sm text-primary hover:text-primary-dark font-medium"
             >
-              {loading === "portal" ? "Cargando..." : "Gestionar suscripcion en Stripe"}
+              {loading === "portal" ? "Cargando..." : "Gestionar suscripción en Stripe"}
             </button>
           </div>
         )}
@@ -418,7 +418,7 @@ export function BillingClient({
                         className="mt-0.5 w-3.5 h-3.5 text-primary border-gray-300 rounded focus:ring-primary focus:ring-1"
                       />
                       <span>
-                        Solicito acceso inmediato y renuncio al derecho de desistimiento de 14 dias (art. 103.m RDL 1/2007).
+                        Solicito acceso inmediato y renuncio al derecho de desistimiento de 14días (art. 103.m RDL 1/2007).
                       </span>
                     </label>
                   )}
@@ -446,7 +446,7 @@ export function BillingClient({
                       : "bg-gray-100 text-navy hover:bg-gray-200"
                   }`}
                 >
-                  {loading === "portal" ? "Cargando..." : p.id === "free" ? "Cancelar suscripcion" : "Cambiar plan"}
+                  {loading === "portal" ? "Cargando..." : p.id === "free" ? "Cancelar suscripción" : "Cambiar plan"}
                 </button>
               ) : (
                 <button
@@ -464,14 +464,14 @@ export function BillingClient({
       {/* Payment info */}
       <div className="card mt-8">
         <h2 className="font-heading text-lg font-semibold text-navy mb-4">
-          Informacion de pago
+          Información de pago
         </h2>
         <p className="text-gray-600 text-sm">
           Los pagos se gestionan de forma segura a traves de Stripe.
-          Al cambiar de plan, seras redirigido al portal de pago de Stripe donde podras gestionar tu suscripcion y metodos de pago.
+          Al cambiar de plan, serás redirigido al portal de pago de Stripe donde podrás gestionar tu suscripción y métodos de pago.
         </p>
         <p className="text-gray-600 text-sm mt-2">
-          <strong>Cambio de plan:</strong> Si ya tienes una suscripcion activa y quieres cambiar a un plan superior,
+          <strong>Cambio de plan:</strong> Si ya tienes una suscripción activa y quieres cambiar a un plan superior,
           Stripe calculara automaticamente la diferencia proporcional al tiempo restante de tu ciclo actual.
         </p>
       </div>

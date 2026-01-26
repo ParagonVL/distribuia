@@ -46,7 +46,7 @@ export default function Error({
         {/* Error digest for debugging */}
         {error.digest && (
           <p className="text-xs font-mono text-gray-400 mb-6">
-            Codigo: {error.digest}
+            Código: {error.digest}
           </p>
         )}
 

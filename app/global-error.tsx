@@ -39,12 +39,12 @@ export default function GlobalError({
               Error critico
             </h1>
             <p className="text-gray-600 mb-8">
-              Ha ocurrido un error inesperado. Por favor, recarga la pagina.
+              Ha ocurrido un error inesperado. Por favor, recarga la página.
             </p>
 
             {error.digest && (
               <p className="text-xs font-mono text-gray-400 mb-6">
-                Codigo: {error.digest}
+                Código: {error.digest}
               </p>
             )}
 
@@ -52,7 +52,7 @@ export default function GlobalError({
               onClick={() => reset()}
               className="inline-flex items-center gap-2 px-6 py-3 bg-teal-500 hover:bg-teal-600 text-white font-semibold rounded-lg transition-colors"
             >
-              Recargar pagina
+              Recargar página
             </button>
           </div>
         </div>

@@ -35,10 +35,10 @@ export default function NotFound() {
 
         {/* Message */}
         <h2 className="font-heading text-2xl font-bold text-navy mb-3">
-          Pagina no encontrada
+          Página no encontrada
         </h2>
         <p className="text-gray-600 mb-8">
-          La pagina que buscas no existe o ha sido movida.
+          La página que buscas no existe o ha sido movida.
         </p>
 
         {/* Button */}

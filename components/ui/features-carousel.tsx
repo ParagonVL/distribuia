@@ -14,13 +14,13 @@ const features = [
   {
     icon: Link2,
     title: "Pega el enlace",
-    description: "Introduce una URL de YouTube, un articulo web o simplemente pega el texto que quieras transformar.",
+    description: "Introduce una URL de YouTube, un artículo web o simplemente pega el texto que quieras transformar.",
     Animation: PegaEnlaceAnimation,
   },
   {
     icon: Sliders,
     title: "Elige el tono",
-    description: "Selecciona entre profesional, cercano o tecnico. El contenido se adapta a tu estilo personal.",
+    description: "Selecciona entre profesional, cercano o técnico. El contenido se adapta a tu estilo personal.",
     Animation: EligeTonoAnimation,
   },
   {

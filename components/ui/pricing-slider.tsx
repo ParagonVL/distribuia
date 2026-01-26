@@ -15,9 +15,9 @@ const plans = [
     conversions: 2,
     regenerations: 1,
     features: [
-      "2 videos o articulos al mes",
+      "2 videos o artículos al mes",
       "1 version alternativa por contenido",
-      "3 formatos: X, LinkedIn post y articulo",
+      "3 formatos: X, LinkedIn post y artículo",
     ],
   },
   {
@@ -29,9 +29,9 @@ const plans = [
     conversions: 10,
     regenerations: 3,
     features: [
-      "10 videos o articulos al mes",
+      "10 videos o artículos al mes",
       "3 versiones alternativas por contenido",
-      "3 formatos: X, LinkedIn post y articulo",
+      "3 formatos: X, LinkedIn post y artículo",
     ],
   },
   {
@@ -44,9 +44,9 @@ const plans = [
     regenerations: 3,
     popular: true,
     features: [
-      "30 videos o articulos al mes",
+      "30 videos o artículos al mes",
       "3 versiones alternativas por contenido",
-      "3 formatos: X, LinkedIn post y articulo",
+      "3 formatos: X, LinkedIn post y artículo",
       "Soporte prioritario",
     ],
   },

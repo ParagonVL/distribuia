@@ -39,7 +39,7 @@ export function ChangePasswordButton({ userEmail }: AccountActionsProps) {
     return (
       <div className="p-4 bg-success/10 border border-success/20 rounded-lg">
         <p className="text-sm text-success">
-          Te hemos enviado un email a <strong>{userEmail}</strong> con instrucciones para cambiar tu contrasena.
+          Te hemos enviado un email a <strong>{userEmail}</strong> con instrucciones para cambiar tu contraseña.
         </p>
       </div>
     );
@@ -57,10 +57,10 @@ export function ChangePasswordButton({ userEmail }: AccountActionsProps) {
         disabled={loading}
         className="btn-secondary"
       >
-        {loading ? "Enviando..." : "Cambiar contrasena"}
+        {loading ? "Enviando..." : "Cambiar contraseña"}
       </button>
       <p className="mt-2 text-xs text-gray-600">
-        Recibiras un email con un enlace para cambiar tu contrasena.
+        Recibirás un email con un enlace para cambiar tu contraseña.
       </p>
     </div>
   );
@@ -125,7 +125,7 @@ export function DeleteAccountButton() {
         <ul className="text-sm text-gray-600 space-y-1 mb-4">
           <li>• Todas tus conversiones y contenido generado</li>
           <li>• Tu historial de uso</li>
-          <li>• Tu suscripcion (si la tienes)</li>
+          <li>• Tu suscripción (si la tienes)</li>
         </ul>
         <p className="text-sm text-navy mb-3">
           Escribe <strong>ELIMINAR</strong> para confirmar:
@@ -148,7 +148,7 @@ export function DeleteAccountButton() {
                 : "bg-gray-200 text-gray-400 cursor-not-allowed"
             }`}
           >
-            {loading ? "Eliminando..." : "Confirmar eliminacion"}
+            {loading ? "Eliminando..." : "Confirmar eliminación"}
           </button>
           <button
             onClick={() => {

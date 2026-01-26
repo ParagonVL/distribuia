@@ -36,14 +36,14 @@ export default function PrivacidadPage() {
           2. Datos que recopilamos
         </h2>
         <p className="text-gray-600 mb-4">
-          Recopilamos la siguiente informacion cuando usas Distribuia:
+          Recopilamos la siguiente información cuando usas Distribuia:
         </p>
         <ul className="list-disc pl-6 space-y-2 text-gray-600">
-          <li><strong>Informacion de cuenta:</strong> Email y contrasena cuando te registras.</li>
-          <li><strong>Contenido procesado:</strong> URLs de YouTube, articulos y textos que introduces para transformar. Este contenido se procesa mediante inteligencia artificial pero no se almacena permanentemente despues de la conversion.</li>
-          <li><strong>Datos de uso:</strong> Numero de conversiones realizadas, fechas de uso y preferencias de configuracion.</li>
-          <li><strong>Informacion de pago:</strong> Procesada de forma segura a traves de Stripe. No almacenamos datos de tarjetas de credito en nuestros servidores.</li>
-          <li><strong>Datos tecnicos:</strong> Direccion IP y tipo de navegador, para el funcionamiento del servicio.</li>
+          <li><strong>Información de cuenta:</strong> Email y contraseña cuando te registras.</li>
+          <li><strong>Contenido procesado:</strong> URLs de YouTube, artículos y textos que introduces para transformar. Este contenido se procesa mediante inteligencia artificial pero no se almacena permanentemente despues de la conversion.</li>
+          <li><strong>Datos de uso:</strong> Numero de conversiones realizadas, fechas de uso y preferencias de configuración.</li>
+          <li><strong>Información de pago:</strong> Procesada de forma segura a traves de Stripe. No almacenamos datos de tarjetas de credito en nuestros servidores.</li>
+          <li><strong>Datos técnicos:</strong> Dirección IP y tipo de navegador, para el funcionamiento del servicio.</li>
         </ul>
       </section>
 
@@ -52,12 +52,12 @@ export default function PrivacidadPage() {
           3. Finalidad del tratamiento
         </h2>
         <p className="text-gray-600 mb-4">
-          Utilizamos tu informacion para:
+          Utilizamos tu información para:
         </p>
         <ul className="list-disc pl-6 space-y-2 text-gray-600">
           <li>Crear y gestionar tu cuenta de usuario</li>
           <li>Proporcionar el servicio de transformacion de contenido</li>
-          <li>Gestionar tu suscripcion y procesar pagos</li>
+          <li>Gestionar tu suscripción y procesar pagos</li>
           <li>Enviarte comunicaciones relacionadas con el servicio</li>
           <li>Mejorar nuestros productos y servicios</li>
           <li>Cumplir con obligaciones legales</li>
@@ -75,7 +75,7 @@ export default function PrivacidadPage() {
           <li><strong>Ejecucion de contrato:</strong> Para prestarte el servicio de Distribuia que has contratado.</li>
           <li><strong>Interes legitimo:</strong> Para mejorar el servicio, prevenir fraudes y garantizar la seguridad.</li>
           <li><strong>Consentimiento:</strong> Para el envio de comunicaciones comerciales (si lo autorizas expresamente).</li>
-          <li><strong>Obligacion legal:</strong> Para conservar datos de facturacion segun la normativa fiscal espanola.</li>
+          <li><strong>Obligacion legal:</strong> Para conservar datos de facturación segun la normativa fiscal espanola.</li>
         </ul>
       </section>
 
@@ -99,7 +99,7 @@ export default function PrivacidadPage() {
               <tr>
                 <td className="px-4 py-3 font-medium">Supabase</td>
                 <td className="px-4 py-3">Autenticacion y almacenamiento de datos</td>
-                <td className="px-4 py-3">Union Europea</td>
+                <td className="px-4 py-3">Unión Europea</td>
               </tr>
               <tr>
                 <td className="px-4 py-3 font-medium">Groq</td>
@@ -109,12 +109,12 @@ export default function PrivacidadPage() {
               <tr>
                 <td className="px-4 py-3 font-medium">Stripe</td>
                 <td className="px-4 py-3">Procesamiento seguro de pagos. Certificado PCI-DSS.</td>
-                <td className="px-4 py-3">Union Europea</td>
+                <td className="px-4 py-3">Unión Europea</td>
               </tr>
               <tr>
                 <td className="px-4 py-3 font-medium">Vercel</td>
                 <td className="px-4 py-3">Alojamiento de la aplicacion</td>
-                <td className="px-4 py-3">Union Europea</td>
+                <td className="px-4 py-3">Unión Europea</td>
               </tr>
             </tbody>
           </table>
@@ -137,7 +137,7 @@ export default function PrivacidadPage() {
           <li>Certificacion bajo el EU-US Data Privacy Framework</li>
         </ul>
         <p className="text-gray-600">
-          El contenido que procesas a traves de Groq se transmite de forma cifrada, se utiliza unicamente
+          El contenido que procesas a traves de Groq se transmite de forma cifrada, se utiliza únicamente
           para generar la transformacion solicitada, y no se almacena permanentemente ni se utiliza para
           entrenar modelos de IA.
         </p>
@@ -153,7 +153,7 @@ export default function PrivacidadPage() {
         </h3>
         <p className="text-gray-600 mb-4">
           Las cookies son pequenos archivos de texto que los sitios web almacenan en tu dispositivo
-          para recordar informacion sobre tu visita.
+          para recordar información sobre tu visita.
         </p>
 
         <h3 className="font-heading text-lg font-medium text-navy mt-6 mb-3">
@@ -183,7 +183,7 @@ export default function PrivacidadPage() {
               <tr>
                 <td className="px-4 py-3 font-mono text-xs">sb-refresh-token</td>
                 <td className="px-4 py-3">Supabase</td>
-                <td className="px-4 py-3">Renovacion de sesion</td>
+                <td className="px-4 py-3">Renovación de sesion</td>
                 <td className="px-4 py-3">7 dias</td>
               </tr>
               <tr>
@@ -213,7 +213,7 @@ export default function PrivacidadPage() {
           Como gestionar las cookies
         </h3>
         <p className="text-gray-600 mb-4">
-          Puedes gestionar las cookies desde la configuracion de privacidad de tu navegador.
+          Puedes gestionar las cookies desde la configuración de privacidad de tu navegador.
           Ten en cuenta que bloquear las cookies esenciales puede afectar al funcionamiento del servicio.
         </p>
 
@@ -322,19 +322,19 @@ export default function PrivacidadPage() {
         <ul className="list-disc pl-6 space-y-2 text-gray-600 mb-4">
           <li><strong>Acceso:</strong> Solicitar una copia de tus datos personales.</li>
           <li><strong>Rectificacion:</strong> Corregir datos incorrectos o incompletos.</li>
-          <li><strong>Supresion:</strong> Solicitar la eliminacion de tus datos (&quot;derecho al olvido&quot;).</li>
+          <li><strong>Supresion:</strong> Solicitar la eliminación de tus datos (&quot;derecho al olvido&quot;).</li>
           <li><strong>Portabilidad:</strong> Recibir tus datos en un formato estructurado y de uso comun.</li>
           <li><strong>Oposicion:</strong> Oponerte al tratamiento de tus datos en determinadas circunstancias.</li>
           <li><strong>Limitacion:</strong> Solicitar la limitacion del tratamiento.</li>
         </ul>
         <p className="text-gray-600 mb-4">
-          Puedes ejercer estos derechos desde la configuracion de tu cuenta o contactandonos en{" "}
+          Puedes ejercer estos derechos desde la configuración de tu cuenta o contactandonos en{" "}
           <a href="mailto:legal@distribuia.com" className="text-primary hover:text-primary-dark">
             legal@distribuia.com
-          </a>. Responderemos en un plazo maximo de 30 dias.
+          </a>. Responderemos en un plazo máximo de 30 dias.
         </p>
         <p className="text-gray-600">
-          Tambien tienes derecho a presentar una reclamacion ante la Agencia Espanola de Proteccion
+          También tienes derecho a presentar una reclamacion ante la Agencia Espanola de Proteccion
           de Datos (AEPD) si consideras que tus derechos han sido vulnerados:{" "}
           <a
             href="https://www.aepd.es"
@@ -357,7 +357,7 @@ export default function PrivacidadPage() {
         <ul className="list-disc pl-6 space-y-2 text-gray-600">
           <li>Cifrado en transito (TLS) y en reposo</li>
           <li>Autenticacion segura</li>
-          <li>Acceso restringido a los datos basado en principio de minimo privilegio</li>
+          <li>Acceso restringido a los datos basado en principio de mínimo privilegio</li>
           <li>Monitorizacion y auditoria de accesos</li>
         </ul>
       </section>

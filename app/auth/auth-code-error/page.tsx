@@ -7,19 +7,19 @@ import { useState, Suspense } from "react";
 const ERROR_MESSAGES: Record<string, { title: string; description: string }> = {
   expired: {
     title: "Enlace expirado",
-    description: "El enlace de verificacion ha expirado. Los enlaces son validos durante 24 horas por seguridad.",
+    description: "El enlace de verificación ha expirado. Los enlaces son válidos durante 24 horas por seguridad.",
   },
   already_used: {
     title: "Enlace ya utilizado",
-    description: "Este enlace de verificacion ya ha sido usado. Si ya confirmaste tu email, puedes iniciar sesion directamente.",
+    description: "Este enlace de verificación ya ha sido usado. Si ya confirmaste tu email, puedes iniciar sesión directamente.",
   },
   not_confirmed: {
     title: "Email no confirmado",
-    description: "Tu cuenta existe pero el email no ha sido confirmado. Solicita un nuevo enlace de verificacion.",
+    description: "Tu cuenta existe pero el email no ha sido confirmado. Solicita un nuevo enlace de verificación.",
   },
   unknown: {
-    title: "Enlace invalido",
-    description: "El enlace que has usado no es valido. Puede que haya sido modificado o este incompleto.",
+    title: "Enlace inválido",
+    description: "El enlace que has usado no es válido. Puede que haya sido modificado o este incompleto.",
   },
 };
 
@@ -94,7 +94,7 @@ function AuthCodeErrorContent() {
                 disabled={resending}
                 className="w-full btn-secondary py-2 disabled:opacity-50"
               >
-                {resending ? "Enviando..." : "Reenviar enlace de verificacion"}
+                {resending ? "Enviando..." : "Reenviar enlace de verificación"}
               </button>
             </form>
             {resendStatus === "success" && (
@@ -115,7 +115,7 @@ function AuthCodeErrorContent() {
             href="/login"
             className="block w-full btn-primary py-3 text-center"
           >
-            Ir a iniciar sesion
+            Ir a iniciar sesión
           </Link>
           <p className="text-sm text-gray-600">
             ¿No tienes cuenta?{" "}

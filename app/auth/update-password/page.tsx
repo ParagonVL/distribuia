@@ -64,12 +64,12 @@ export default function UpdatePasswordPage() {
     setFormError(null);
 
     if (password !== confirmPassword) {
-      setFormError("Las contrasenas no coinciden");
+      setFormError("Las contraseñas no coinciden");
       return;
     }
 
     if (password.length < 8) {
-      setFormError("La contrasena debe tener al menos 8 caracteres");
+      setFormError("La contraseña debe tener al menos 8 caracteres");
       return;
     }
 
@@ -88,7 +88,7 @@ export default function UpdatePasswordPage() {
         router.push("/dashboard");
       }, 2000);
     } catch (err) {
-      setFormError(err instanceof Error ? err.message : "Error al actualizar la contrasena");
+      setFormError(err instanceof Error ? err.message : "Error al actualizar la contraseña");
     } finally {
       setLoading(false);
     }
@@ -120,20 +120,20 @@ export default function UpdatePasswordPage() {
             Enlace expirado
           </h1>
           <p className="text-gray-600 mb-6">
-            El enlace para restablecer tu contrasena ha expirado. Por favor, solicita uno nuevo desde la configuracion de tu cuenta.
+            El enlace para restablecer tu contraseña ha expirado. Por favor, solicita uno nuevo desde la configuración de tu cuenta.
           </p>
           <div className="flex flex-col gap-3">
             <Link
               href="/settings"
               className="w-full btn-primary py-3 text-center"
             >
-              Ir a configuracion
+              Ir a configuración
             </Link>
             <Link
               href="/login"
               className="text-primary hover:text-primary-dark font-medium"
             >
-              Volver a iniciar sesion
+              Volver a iniciar sesión
             </Link>
           </div>
         </div>
@@ -152,23 +152,23 @@ export default function UpdatePasswordPage() {
             </svg>
           </div>
           <h1 className="font-heading text-2xl font-bold text-navy mb-2">
-            Enlace no valido
+            Enlace no válido
           </h1>
           <p className="text-gray-600 mb-6">
-            Este enlace no es valido o ya ha sido utilizado. Por favor, solicita uno nuevo.
+            Este enlace no es válido o ya ha sido utilizado. Por favor, solicita uno nuevo.
           </p>
           <div className="flex flex-col gap-3">
             <Link
               href="/settings"
               className="w-full btn-primary py-3 text-center"
             >
-              Ir a configuracion
+              Ir a configuración
             </Link>
             <Link
               href="/login"
               className="text-primary hover:text-primary-dark font-medium"
             >
-              Volver a iniciar sesion
+              Volver a iniciar sesión
             </Link>
           </div>
         </div>
@@ -187,7 +187,7 @@ export default function UpdatePasswordPage() {
             </svg>
           </div>
           <h1 className="font-heading text-2xl font-bold text-navy mb-2">
-            Contrasena actualizada
+            Contraseña actualizada
           </h1>
           <p className="text-gray-600">
             Redirigiendo al dashboard...
@@ -206,10 +206,10 @@ export default function UpdatePasswordPage() {
             distribuia
           </Link>
           <h1 className="font-heading text-2xl font-bold text-navy mb-2">
-            Actualiza tu contrasena
+            Actualiza tu contraseña
           </h1>
           <p className="text-gray-600">
-            Introduce tu nueva contrasena
+            Introduce tu nueva contraseña
           </p>
         </div>
 
@@ -223,7 +223,7 @@ export default function UpdatePasswordPage() {
           <form onSubmit={handleSubmit} className="space-y-4" aria-describedby={formError ? "form-error" : undefined}>
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-navy mb-1">
-                Nueva contrasena
+                Nueva contraseña
               </label>
               <input
                 id="password"
@@ -231,20 +231,20 @@ export default function UpdatePasswordPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className={`input ${formError?.includes("8 caracteres") ? "border-error" : ""}`}
-                placeholder="Minimo 8 caracteres"
+                placeholder="Mínimo 8 caracteres"
                 required
                 minLength={8}
                 aria-invalid={formError?.includes("8 caracteres") ? "true" : undefined}
                 aria-describedby={formError ? "form-error" : "password-hint"}
               />
               <p id="password-hint" className="mt-1 text-xs text-gray-600">
-                Minimo 8 caracteres
+                Mínimo 8 caracteres
               </p>
             </div>
 
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-navy mb-1">
-                Confirmar contrasena
+                Confirmar contraseña
               </label>
               <input
                 id="confirmPassword"
@@ -252,7 +252,7 @@ export default function UpdatePasswordPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 className={`input ${formError?.includes("coinciden") ? "border-error" : ""}`}
-                placeholder="Repite la contrasena"
+                placeholder="Repite la contraseña"
                 required
                 aria-invalid={formError?.includes("coinciden") ? "true" : undefined}
                 aria-describedby={formError ? "form-error" : undefined}
@@ -264,7 +264,7 @@ export default function UpdatePasswordPage() {
               disabled={loading}
               className="w-full btn-primary py-3"
             >
-              {loading ? "Actualizando..." : "Actualizar contrasena"}
+              {loading ? "Actualizando..." : "Actualizar contraseña"}
             </button>
           </form>
         </div>

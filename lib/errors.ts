@@ -314,37 +314,37 @@ export class PlanLimitError extends DistribuiaError {
 // Error code to user-friendly message mapping (Spanish)
 export const ERROR_MESSAGES: Record<string, string> = {
   // YouTube errors
-  YOUTUBE_INVALID_URL: "La URL de YouTube no es valida.",
+  YOUTUBE_INVALID_URL: "La URL de YouTube no es válida.",
   YOUTUBE_NO_CAPTIONS: "Este video no tiene subtitulos disponibles.",
   YOUTUBE_PRIVATE_VIDEO: "Este video es privado o ha sido eliminado.",
   YOUTUBE_TRANSCRIPT_ERROR: "No se pudo obtener la transcripcion del video.",
 
   // Article errors
-  ARTICLE_INVALID_URL: "La URL del articulo no es valida.",
+  ARTICLE_INVALID_URL: "La URL del artículo no es válida.",
   ARTICLE_PAYWALL: "Este articulo esta detras de un muro de pago.",
   ARTICLE_JS_HEAVY: "Esta pagina requiere JavaScript. Copia y pega el texto directamente.",
-  ARTICLE_FETCH_ERROR: "No se pudo obtener el contenido del articulo.",
-  ARTICLE_PARSE_ERROR: "No se pudo extraer el contenido del articulo.",
+  ARTICLE_FETCH_ERROR: "No se pudo obtener el contenido del artículo.",
+  ARTICLE_PARSE_ERROR: "No se pudo extraer el contenido del artículo.",
 
   // Text errors
   TEXT_TOO_SHORT: "El texto es demasiado corto. Necesitas al menos 100 palabras.",
-  TEXT_TOO_LONG: "El texto es demasiado largo. Maximo 50.000 caracteres.",
+  TEXT_TOO_LONG: "El texto es demasiado largo. Máximo 50.000 caracteres.",
 
   // Auth errors
   UNAUTHENTICATED: "Debes iniciar sesion para continuar.",
 
   // Limit errors
-  CONVERSION_LIMIT_EXCEEDED: "Has alcanzado tu limite mensual de conversiones.",
-  REGENERATE_LIMIT_EXCEEDED: "Has alcanzado el limite de regeneraciones para este contenido.",
-  PLAN_LIMIT_EXCEEDED: "Has alcanzado el limite de tu plan actual.",
+  CONVERSION_LIMIT_EXCEEDED: "Has alcanzado tu límite mensual de conversiones.",
+  REGENERATE_LIMIT_EXCEEDED: "Has alcanzado el límite de regeneraciones para este contenido.",
+  PLAN_LIMIT_EXCEEDED: "Has alcanzado el límite de tu plan actual.",
   RATE_LIMIT_EXCEEDED: "Demasiadas peticiones. Espera unos segundos.",
 
   // Generation errors
-  GROQ_API_ERROR: "Error al generar el contenido. Intentalo de nuevo.",
-  GROQ_RATE_LIMIT: "El servicio esta sobrecargado. Intentalo en unos segundos.",
+  GROQ_API_ERROR: "Error al generar el contenido. Inténtalo de nuevo.",
+  GROQ_RATE_LIMIT: "El servicio esta sobrecargado. Inténtalo en unos segundos.",
 
   // Generic errors
-  INTERNAL_ERROR: "Ha ocurrido un error inesperado. Intentalo de nuevo.",
+  INTERNAL_ERROR: "Ha ocurrido un error inesperado. Inténtalo de nuevo.",
   VALIDATION_ERROR: "Los datos introducidos no son validos.",
   NOT_FOUND: "No se encontro el recurso solicitado.",
 };

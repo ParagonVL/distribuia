@@ -135,7 +135,7 @@ export function AppHeader({
               }`}
               role="status"
               aria-label={`${conversionsUsed} de ${conversionsLimit} conversiones usadas${status.label ? `. ${status.label}` : ""}. Haz clic para ver planes.`}
-              title="Ver planes y facturacion"
+              title="Ver planes y facturación"
             >
               {status.icon && (
                 <span className="font-bold" aria-hidden="true">
@@ -215,7 +215,7 @@ export function AppHeader({
                     className="block w-full text-left px-4 py-2 text-sm text-error hover:bg-gray-50 focus:bg-gray-50 focus:outline-none"
                     onKeyDown={handleKeyDown}
                   >
-                    Cerrar sesion
+                    Cerrar sesión
                   </button>
                 </div>
               )}

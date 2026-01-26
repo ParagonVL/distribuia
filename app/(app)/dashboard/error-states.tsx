@@ -26,7 +26,7 @@ export function NoCaptionsError({ onRetry }: ErrorStateProps) {
       </h3>
       <p className="text-gray-600 mb-6 max-w-md mx-auto">
         Este video no tiene subtitulos disponibles. Solo podemos procesar videos con
-        subtitulos activados (automaticos o manuales).
+        subtitulos activados (automáticos o manuales).
       </p>
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
         {onRetry && (
@@ -57,10 +57,10 @@ export function ArticleScrapingError({ onRetry }: ErrorStateProps) {
         </svg>
       </div>
       <h3 className="font-heading text-lg font-semibold text-navy mb-2">
-        No se pudo leer el articulo
+        No se pudo leer el artículo
       </h3>
       <p className="text-gray-600 mb-6 max-w-md mx-auto">
-        No pudimos extraer el contenido de este articulo. Puede estar detras de un muro
+        No pudimos extraer el contenido de este artículo. Puede estar detras de un muro
         de pago o requerir JavaScript para cargar.
       </p>
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -74,7 +74,7 @@ export function ArticleScrapingError({ onRetry }: ErrorStateProps) {
         </Link>
       </div>
       <p className="text-xs text-gray-400 mt-4">
-        Consejo: Copia el texto del articulo y pegalo en la pestana &quot;Texto&quot;
+        Consejo: Copia el texto del artículo y pegalo en la pestaña &quot;Texto&quot;
       </p>
     </div>
   );
@@ -124,7 +124,7 @@ export function PlanLimitError({
         </Link>
       </div>
       <p className="text-xs text-gray-400 mt-4">
-        Tu limite se reinicia el primer dia de cada ciclo de facturacion.
+        Tu limite se reinicia el primer día de cada ciclo de facturación.
       </p>
     </div>
   );
@@ -194,7 +194,7 @@ export function GenericError({
       <h3 className="font-heading text-lg font-semibold text-navy mb-2">{title}</h3>
       <p className="text-gray-600 mb-6 max-w-md mx-auto">{message}</p>
       {code && (
-        <p className="text-xs font-mono text-gray-400 mb-4">Codigo: {code}</p>
+        <p className="text-xs font-mono text-gray-400 mb-4">Código: {code}</p>
       )}
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
         {onRetry && (

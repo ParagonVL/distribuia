@@ -49,7 +49,7 @@ export function CookieConsent() {
           Usamos cookies esenciales para el funcionamiento del sitio (autenticacion, pagos).
           No usamos cookies de seguimiento ni publicidad.{" "}
           <Link href="/privacidad" className="text-primary hover:underline">
-            Mas informacion
+            Mas información
           </Link>
         </p>
         <div className="flex gap-3">

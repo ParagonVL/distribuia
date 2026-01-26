@@ -137,7 +137,7 @@ export function PegaEnlaceAnimation() {
 // Animation 2: Elige el tono - Tone selection animation
 export function EligeTonoAnimation() {
   const [selected, setSelected] = useState(0);
-  const tones = ["Profesional", "Cercano", "Tecnico"];
+  const tones = ["Profesional", "Cercano", "Técnico"];
 
   useEffect(() => {
     const interval = setInterval(() => {

@@ -26,14 +26,14 @@ interface ConversionFormProps {
 
 const TABS: { id: InputType; label: string }[] = [
   { id: "youtube", label: "YouTube" },
-  { id: "article", label: "Articulo" },
+  { id: "article", label: "Artículo" },
   { id: "text", label: "Texto" },
 ];
 
 const TONES: { id: ToneType; label: string; description: string }[] = [
   { id: "profesional", label: "Profesional", description: "Formal, basado en datos, terminologia del sector" },
   { id: "cercano", label: "Cercano", description: "Personal, conversacional, conecta emocionalmente" },
-  { id: "tecnico", label: "Tecnico", description: "Jerga especializada, detallado, experto a experto" },
+  { id: "tecnico", label: "Técnico", description: "Jerga especializada, detallado, experto a experto" },
 ];
 
 export function ConversionForm({
@@ -137,7 +137,7 @@ export function ConversionForm({
           </svg>
         </div>
         <h1 className="font-heading text-2xl sm:text-3xl font-bold text-navy">
-          Nueva conversion
+          Nueva conversión
         </h1>
       </div>
 
@@ -155,7 +155,7 @@ export function ConversionForm({
               </svg>
               <div>
                 <p className="text-amber-700 font-semibold">Has alcanzado el limite de tu plan</p>
-                <p className="text-sm text-gray-600 mt-1">Desbloquea mas conversiones para seguir creando contenido</p>
+                <p className="text-sm text-gray-600 mt-1">Desbloquea más conversiones para seguir creando contenido</p>
               </div>
             </div>
             <motion.a
@@ -290,13 +290,13 @@ export function ConversionForm({
           value={topicInput}
           onChange={(e) => setTopicInput(e.target.value)}
           onKeyDown={addTopic}
-          placeholder={canAddMore ? "Escribe y pulsa coma para anadir..." : "Maximo 5 temas"}
+          placeholder={canAddMore ? "Escribe y pulsa coma para anadir..." : "Máximo 5 temas"}
           className="input"
           disabled={isLoading || !canAddMore}
           aria-describedby="topics-hint"
         />
         <p id="topics-hint" className="mt-1 text-xs text-gray-600">
-          Los temas se integraran naturalmente en el contenido generado
+          Los temas se integrarán naturalmente en el contenido generado
         </p>
       </div>
 
@@ -348,14 +348,14 @@ function InputPanel({
     return (
       <div>
         <label htmlFor="article-url" className="block text-sm font-medium text-navy mb-2">
-          URL del articulo
+          URL del artículo
         </label>
         <input
           id="article-url"
           type="url"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          placeholder="https://ejemplo.com/articulo"
+          placeholder="https://ejemplo.com/artículo"
           className="input"
           disabled={isLoading}
         />
@@ -372,13 +372,13 @@ function InputPanel({
         id="text-content"
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
-        placeholder="Pega aqui el contenido que quieres transformar..."
+        placeholder="Pega aquí el contenido que quieres transformar..."
         className="input min-h-[200px] resize-y"
         disabled={isLoading}
         aria-describedby="text-content-hint"
       />
       <p id="text-content-hint" className="mt-1 text-xs text-gray-600">
-        Minimo 100 palabras, maximo 50.000 caracteres
+        Mínimo 100 palabras, máximo 50.000 caracteres
       </p>
     </div>
   );
@@ -492,7 +492,7 @@ function SubmitSection({
         )}
       </motion.button>
       <p className="text-sm text-gray-600">
-        {remaining} {remaining === 1 ? "conversion restante" : "conversiones restantes"}
+        {remaining} {remaining === 1 ? "conversión restante" : "conversiones restantes"}
       </p>
     </div>
   );
