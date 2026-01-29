@@ -3,6 +3,9 @@ import { headers } from "next/headers";
 import Stripe from "stripe";
 import { getStripeClient, getPlanFromPriceId } from "@/lib/stripe";
 import { createClient } from "@supabase/supabase-js";
+import { sendSubscriptionConfirmedEmail, sendSubscriptionCancelledEmail } from "@/lib/email/send";
+import { getPlanLimits } from "@/lib/config/plans";
+import type { PlanType } from "@/lib/config/plans";
 import logger from "@/lib/logger";
 
 type SupabaseAdmin = ReturnType<typeof getSupabaseAdmin>;
@@ -278,6 +281,24 @@ async function handleCheckoutCompleted(
   }
 
   logger.info(`User ${userId} upgraded to ${plan}`);
+
+  // Send subscription confirmation email (background)
+  const customerEmail = session.customer_details?.email || session.customer_email;
+  if (customerEmail) {
+    const planLimits = getPlanLimits(plan as PlanType);
+    sendSubscriptionConfirmedEmail(
+      customerEmail,
+      planLimits.name,
+      planLimits.conversionsPerMonth,
+      userId
+    ).then((result) => {
+      if (result.success) {
+        logger.info("Subscription confirmed email sent", { email: customerEmail });
+      } else {
+        logger.error("Failed to send subscription confirmed email", new Error(result.error || "Unknown error"));
+      }
+    });
+  }
 }
 
 async function handleSubscriptionDeleted(supabase: SupabaseAdmin, subscription: Stripe.Subscription) {
@@ -291,6 +312,17 @@ async function handleSubscriptionDeleted(supabase: SupabaseAdmin, subscription: 
     logger.error("Could not find user for subscription:", subscription.id);
     return;
   }
+
+  // Get current plan name before downgrading
+  const { data: userData } = await supabase
+    .from("users")
+    .select("plan")
+    .eq("id", targetUserId)
+    .single();
+
+  const previousPlanName = userData?.plan
+    ? getPlanLimits(userData.plan as PlanType).name
+    : "Starter";
 
   const { error } = await supabase
     .from("users")
@@ -306,6 +338,28 @@ async function handleSubscriptionDeleted(supabase: SupabaseAdmin, subscription: 
   }
 
   logger.info(`User ${targetUserId} downgraded to free`);
+
+  // Send cancellation email (background)
+  // Get user email from Supabase auth
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+  const adminClient = createClient(supabaseUrl, serviceRoleKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+  const { data: authUser } = await adminClient.auth.admin.getUserById(targetUserId);
+  if (authUser?.user?.email) {
+    sendSubscriptionCancelledEmail(
+      authUser.user.email,
+      previousPlanName,
+      targetUserId
+    ).then((result) => {
+      if (result.success) {
+        logger.info("Subscription cancelled email sent", { userId: targetUserId });
+      } else {
+        logger.error("Failed to send subscription cancelled email", new Error(result.error || "Unknown error"));
+      }
+    });
+  }
 }
 
 async function handleSubscriptionUpdated(supabase: SupabaseAdmin, subscription: Stripe.Subscription) {

@@ -16,7 +16,7 @@ import {
   ArticleError,
   GroqAPIError,
 } from "@/lib/errors";
-import { sendLowUsageEmail, shouldSendEmail } from "@/lib/email/send";
+import { sendLowUsageEmail, sendLimitReachedEmail, shouldSendEmail } from "@/lib/email/send";
 import { conversionRatelimit, checkRateLimit } from "@/lib/ratelimit";
 import { validateCSRF } from "@/lib/csrf";
 import { invalidateUserCache } from "@/lib/cache";
@@ -105,6 +105,28 @@ export async function POST(request: NextRequest) {
     // Check conversion limit
     const planLimits = getPlanLimits(userData.plan);
     if (!canCreateConversion(userData.plan, userData.conversions_used_this_month)) {
+      // Send limit reached email in background (only if not already at limit last check)
+      if (user.email && userData.conversions_used_this_month === planLimits.conversionsPerMonth) {
+        const canSendEmail = await shouldSendEmail(supabase, user.id);
+        if (canSendEmail) {
+          const nextReset = new Date(userData.billing_cycle_start);
+          nextReset.setMonth(nextReset.getMonth() + 1);
+          const nextResetDate = nextReset.toLocaleDateString("es-ES", {
+            day: "numeric",
+            month: "long",
+          });
+          sendLimitReachedEmail(
+            user.email,
+            planLimits.conversionsPerMonth,
+            userData.plan,
+            nextResetDate,
+            user.id
+          ).catch((err) => {
+            logger.error("Failed to send limit reached email", err);
+          });
+        }
+      }
+
       throw new ConversionLimitExceededError(
         planLimits.conversionsPerMonth,
         planLimits.name
@@ -168,12 +190,14 @@ export async function POST(request: NextRequest) {
       throw new Error("Error al guardar los outputs");
     }
 
-    // Increment user's conversion count
+    // Increment user's conversion count and track last conversion time
     const newUsageCount = userData.conversions_used_this_month + 1;
     const { error: updateError } = await supabase
       .from("users")
       .update({
         conversions_used_this_month: newUsageCount,
+        last_conversion_at: new Date().toISOString(),
+        reengagement_email_sent: false,
       })
       .eq("id", user.id);
 

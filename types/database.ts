@@ -13,6 +13,8 @@ export interface User {
   stripe_subscription_id: string | null;
   low_usage_email_sent_this_cycle: boolean;
   email_notifications_enabled: boolean;
+  last_conversion_at: string | null;
+  reengagement_email_sent: boolean;
   created_at: string;
 }
 
@@ -54,6 +56,8 @@ export type Database = {
           stripe_subscription_id: string | null;
           low_usage_email_sent_this_cycle: boolean;
           email_notifications_enabled: boolean;
+          last_conversion_at: string | null;
+          reengagement_email_sent: boolean;
           created_at: string;
         };
         Insert: {
@@ -65,6 +69,8 @@ export type Database = {
           stripe_subscription_id?: string | null;
           low_usage_email_sent_this_cycle?: boolean;
           email_notifications_enabled?: boolean;
+          last_conversion_at?: string | null;
+          reengagement_email_sent?: boolean;
           created_at?: string;
         };
         Update: {
@@ -76,6 +82,8 @@ export type Database = {
           stripe_subscription_id?: string | null;
           low_usage_email_sent_this_cycle?: boolean;
           email_notifications_enabled?: boolean;
+          last_conversion_at?: string | null;
+          reengagement_email_sent?: boolean;
           created_at?: string;
         };
         Relationships: [];
