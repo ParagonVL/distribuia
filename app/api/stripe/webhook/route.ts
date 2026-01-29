@@ -283,7 +283,9 @@ async function handleCheckoutCompleted(
   logger.info(`User ${userId} upgraded to ${plan}`);
 
   // Send subscription confirmation email (background)
-  const customerEmail = session.customer_details?.email || session.customer_email;
+  // Look up email from Supabase auth (more reliable than session.customer_details)
+  const { data: authUser } = await supabase.auth.admin.getUserById(userId);
+  const customerEmail = authUser?.user?.email || session.customer_details?.email || session.customer_email;
   if (customerEmail) {
     const planLimits = getPlanLimits(plan as PlanType);
     sendSubscriptionConfirmedEmail(
@@ -298,6 +300,8 @@ async function handleCheckoutCompleted(
         logger.error("Failed to send subscription confirmed email", new Error(result.error || "Unknown error"));
       }
     });
+  } else {
+    logger.error("No email found for subscription confirmation", { userId });
   }
 }
 
