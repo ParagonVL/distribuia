@@ -1,4 +1,4 @@
-export const welcomeEmailSubject = "Bienvenido a Distribuia!";
+export const welcomeEmailSubject = "¡Bienvenido a Distribuia!";
 
 export function getWelcomeEmailHtml(userName?: string): string {
   const greeting = userName ? `Hola ${userName}!` : "Hola!";
@@ -26,19 +26,19 @@ export function getWelcomeEmailHtml(userName?: string): string {
     </p>
 
     <p style="color: #334155; font-size: 16px; line-height: 24px; margin: 0 0 8px 0; font-weight: 600;">
-      Como empezar:
+      Cómo empezar:
     </p>
 
     <ol style="color: #334155; font-size: 16px; line-height: 28px; margin: 0 0 24px 0; padding-left: 20px;">
-      <li>Pega un enlace de YouTube o articulo</li>
-      <li>Elige el tono (profesional, cercano o tecnico)</li>
+      <li>Pega un enlace de YouTube o artículo</li>
+      <li>Elige el tono (profesional, cercano o técnico)</li>
       <li>Copia el resultado y publica</li>
     </ol>
 
     <div style="background-color: #F0FDFA; border-radius: 8px; padding: 16px; margin: 0 0 24px 0;">
       <p style="color: #0F766E; font-size: 14px; line-height: 20px; margin: 0;">
         <strong>Tu plan gratuito incluye:</strong><br>
-        2 conversiones al mes · 3 formatos (X, LinkedIn post, articulo) · Regeneracion incluida
+        2 conversiones al mes · 3 formatos (X, LinkedIn post, artículo) · Regeneración incluida
       </p>
     </div>
 
@@ -49,7 +49,7 @@ export function getWelcomeEmailHtml(userName?: string): string {
     </div>
 
     <p style="color: #64748B; font-size: 14px; line-height: 20px; margin: 0 0 16px 0;">
-      Tienes alguna duda? Responde a este correo y te ayudamos.
+      ¿Tienes alguna duda? Responde a este correo y te ayudamos.
     </p>
 
     <hr style="border: none; border-top: 1px solid #E2E8F0; margin: 32px 0;">
@@ -57,7 +57,7 @@ export function getWelcomeEmailHtml(userName?: string): string {
     <p style="color: #94A3B8; font-size: 12px; line-height: 18px; margin: 0; text-align: center;">
       © 2026 Distribuia · Convierte videos en posts de LinkedIn<br>
       <a href="https://distribuia.com/privacidad" style="color: #94A3B8;">Privacidad</a> ·
-      <a href="https://distribuia.com/terminos" style="color: #94A3B8;">Terminos</a>
+      <a href="https://distribuia.com/terminos" style="color: #94A3B8;">Términos</a>
     </p>
 
   </div>
