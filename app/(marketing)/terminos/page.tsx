@@ -20,7 +20,7 @@ export default function TérminosPage() {
           Identificacion del prestador
         </h2>
         <p className="text-gray-600">
-          Distribuia es un servicio prestado por <strong>Paragonum S.L.U.</strong>, con CIF [PENDIENTE DE REGISTRO],
+          Distribuia es un servicio prestado por <strong>Paragonum S.L.U.</strong>, con CIF B26660944,
           domicilio en Carrer de Sant Vicent Martir 85, 8º dcha, 46007 Valencia,
           correo electronico: legal@distribuia.com.
         </p>

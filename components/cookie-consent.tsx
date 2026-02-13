@@ -41,7 +41,7 @@ export function CookieConsent() {
       <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
         <p className="text-sm text-gray-600 text-center sm:text-left">
           Usamos solo cookies esenciales para el funcionamiento del sitio (autenticación y pagos).
-          Nuestras analíticas (Plausible) no usan cookies ni rastrean datos personales.{" "}
+          No utilizamos cookies analíticas ni de marketing.{" "}
           <Link href="/privacidad" className="text-primary hover:underline">
             Política de privacidad
           </Link>

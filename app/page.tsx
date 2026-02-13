@@ -121,14 +121,18 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-6">
             <p className="text-sm text-gray-600">
-              © 2026 Distribuia
+              © {new Date().getFullYear()} Paragonum S.L.U. (Distribuia)
             </p>
             <div className="flex items-center gap-4 text-sm text-gray-600">
+              <Link href="/aviso-legal" className="hover:text-primary transition-colors">
+                Aviso Legal
+              </Link>
+              <span className="text-gray-300">|</span>
               <Link href="/privacidad" className="hover:text-primary transition-colors">
                 Privacidad
               </Link>
               <span className="text-gray-300">|</span>
-              <Link href="/términos" className="hover:text-primary transition-colors">
+              <Link href="/terminos" className="hover:text-primary transition-colors">
                 Términos
               </Link>
             </div>

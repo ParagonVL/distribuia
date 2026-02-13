@@ -188,11 +188,11 @@ export default function SignupPage() {
 
             <p className="text-xs text-gray-600 text-center">
               Al crear una cuenta, aceptas nuestros{" "}
-              <Link href="/terms" className="text-primary hover:text-primary-dark">
+              <Link href="/terminos" className="text-primary hover:text-primary-dark">
                 términos de servicio
               </Link>{" "}
               y{" "}
-              <Link href="/privacy" className="text-primary hover:text-primary-dark">
+              <Link href="/privacidad" className="text-primary hover:text-primary-dark">
                 política de privacidad
               </Link>
             </p>

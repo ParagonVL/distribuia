@@ -21,7 +21,7 @@ export default function PrivacidadPage() {
         </h2>
         <p className="text-gray-600 mb-4">
           El responsable del tratamiento de tus datos personales es <strong>Paragonum S.L.U.</strong>,
-          con CIF [PENDIENTE DE REGISTRO], domicilio en Carrer de Sant Vicent Martir 85, 8º dcha, 46007 Valencia.
+          con CIF B26660944, domicilio en Carrer de Sant Vicent Màrtir 85, 8º dcha, 46007 Valencia.
         </p>
         <p className="text-gray-600">
           Para cualquier consulta relacionada con la privacidad, puedes contactarnos en:{" "}

@@ -41,12 +41,15 @@ export default function MarketingLayout({
       {/* Footer */}
       <footer className="border-t border-gray-100 py-8">
         <div className="max-w-4xl mx-auto px-4 text-center text-sm text-gray-600">
-          <p>&copy; {new Date().getFullYear()} Distribuia. Todos los derechos reservados.</p>
+          <p>&copy; {new Date().getFullYear()} Paragonum S.L.U. (Distribuia). Todos los derechos reservados.</p>
           <div className="mt-2 space-x-4">
+            <Link href="/aviso-legal" className="hover:text-primary">
+              Aviso Legal
+            </Link>
             <Link href="/privacidad" className="hover:text-primary">
               Privacidad
             </Link>
-            <Link href="/términos" className="hover:text-primary">
+            <Link href="/terminos" className="hover:text-primary">
               Términos
             </Link>
           </div>
