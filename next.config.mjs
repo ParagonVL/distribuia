@@ -13,6 +13,10 @@ const nextConfig = {
         source: "/:path*",
         headers: [
           {
+            key: "Access-Control-Allow-Origin",
+            value: "https://distribuia.es",
+          },
+          {
             key: "X-DNS-Prefetch-Control",
             value: "on",
           },
