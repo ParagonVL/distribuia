@@ -42,7 +42,7 @@ export default function AvisoLegalPage() {
           2. Objeto
         </h2>
         <p className="text-gray-600">
-          El presente aviso legal regula el uso y acceso al sitio web distribuia.com
+          El presente aviso legal regula el uso y acceso al sitio web distribuia.es
           (en adelante, &quot;el Sitio Web&quot;), que Paragonum S.L.U. pone a disposición de los
           usuarios de Internet. El acceso al Sitio Web atribuye la condición de usuario e implica
           la aceptación plena de todas las disposiciones incluidas en este aviso legal.

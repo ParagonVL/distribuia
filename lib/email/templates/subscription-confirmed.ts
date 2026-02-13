@@ -34,21 +34,21 @@ export function getSubscriptionConfirmedEmailHtml(
     </div>
 
     <div style="text-align: center; margin: 32px 0;">
-      <a href="https://distribuia.com/dashboard" style="display: inline-block; background-color: #2DD4BF; color: #FFFFFF; font-size: 16px; font-weight: 600; text-decoration: none; padding: 14px 32px; border-radius: 8px;">
+      <a href="https://distribuia.es/dashboard" style="display: inline-block; background-color: #2DD4BF; color: #FFFFFF; font-size: 16px; font-weight: 600; text-decoration: none; padding: 14px 32px; border-radius: 8px;">
         Ir al dashboard
       </a>
     </div>
 
     <p style="color: #64748B; font-size: 14px; line-height: 20px; margin: 0 0 16px 0;">
-      Puedes gestionar tu suscripción en cualquier momento desde <a href="https://distribuia.com/settings" style="color: #2DD4BF; text-decoration: none;">Configuración</a>.
+      Puedes gestionar tu suscripción en cualquier momento desde <a href="https://distribuia.es/settings" style="color: #2DD4BF; text-decoration: none;">Configuración</a>.
     </p>
 
     <hr style="border: none; border-top: 1px solid #E2E8F0; margin: 32px 0;">
 
     <p style="color: #94A3B8; font-size: 12px; line-height: 18px; margin: 0; text-align: center;">
       © 2026 Distribuia · Convierte videos en posts de LinkedIn<br>
-      <a href="https://distribuia.com/privacidad" style="color: #94A3B8;">Privacidad</a> ·
-      <a href="https://distribuia.com/terminos" style="color: #94A3B8;">Términos</a>
+      <a href="https://distribuia.es/privacidad" style="color: #94A3B8;">Privacidad</a> ·
+      <a href="https://distribuia.es/terminos" style="color: #94A3B8;">Términos</a>
     </p>
 
   </div>

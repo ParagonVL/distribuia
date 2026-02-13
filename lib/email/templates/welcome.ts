@@ -43,7 +43,7 @@ export function getWelcomeEmailHtml(userName?: string): string {
     </div>
 
     <div style="text-align: center; margin: 32px 0;">
-      <a href="https://distribuia.com/dashboard" style="display: inline-block; background-color: #2DD4BF; color: #FFFFFF; font-size: 16px; font-weight: 600; text-decoration: none; padding: 14px 32px; border-radius: 8px;">
+      <a href="https://distribuia.es/dashboard" style="display: inline-block; background-color: #2DD4BF; color: #FFFFFF; font-size: 16px; font-weight: 600; text-decoration: none; padding: 14px 32px; border-radius: 8px;">
         Crear mi primera conversion
       </a>
     </div>
@@ -56,8 +56,8 @@ export function getWelcomeEmailHtml(userName?: string): string {
 
     <p style="color: #94A3B8; font-size: 12px; line-height: 18px; margin: 0; text-align: center;">
       © 2026 Distribuia · Convierte videos en posts de LinkedIn<br>
-      <a href="https://distribuia.com/privacidad" style="color: #94A3B8;">Privacidad</a> ·
-      <a href="https://distribuia.com/terminos" style="color: #94A3B8;">Términos</a>
+      <a href="https://distribuia.es/privacidad" style="color: #94A3B8;">Privacidad</a> ·
+      <a href="https://distribuia.es/terminos" style="color: #94A3B8;">Términos</a>
     </p>
 
   </div>

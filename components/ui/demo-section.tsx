@@ -61,7 +61,7 @@ export function DemoSection() {
                     </div>
                     <div className="flex-1 mx-4">
                       <div className="bg-white rounded-md px-3 py-1 text-sm text-gray-400 border border-gray-200 max-w-md">
-                        distribuia.com/dashboard
+                        distribuia.es/dashboard
                       </div>
                     </div>
                   </div>

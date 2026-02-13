@@ -21,11 +21,11 @@ export default function RegisterPage() {
   // Client-side validation
   const validation = useMemo(() => {
     const emailValid = EMAIL_REGEX.test(email);
-    const passwordValid = password.length >= 6;
+    const passwordValid = password.length >= 8;
     const confirmValid = confirmPassword === password && confirmPassword.length > 0;
     return {
       email: { valid: emailValid, message: !emailValid && touched.email ? "Introduce un email válido" : null },
-      password: { valid: passwordValid, message: !passwordValid && touched.password ? "Mínimo 6 caracteres" : null },
+      password: { valid: passwordValid, message: !passwordValid && touched.password ? "Mínimo 8 caracteres" : null },
       confirmPassword: { valid: confirmValid, message: !confirmValid && touched.confirmPassword && confirmPassword.length > 0 ? "Las contraseñas no coinciden" : null },
       canSubmit: emailValid && passwordValid && confirmValid,
     };
@@ -219,7 +219,7 @@ export default function RegisterPage() {
                 </p>
               ) : (
                 <p id="password-hint" className="mt-1 text-xs text-gray-600">
-                  Mínimo 6 caracteres
+                  Mínimo 8 caracteres
                 </p>
               )}
             </div>

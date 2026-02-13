@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "@/components/ui/error-toast";
 
 type InputType = "youtube" | "article" | "text";
-type ToneType = "profesional" | "cercano" | "tecnico";
+type ToneType = "profesional" | "cercano" | "tecnico" | "inspirador";
 
 type ErrorType =
   | "YOUTUBE_NO_CAPTIONS"

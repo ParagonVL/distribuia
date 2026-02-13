@@ -24,10 +24,11 @@ const inputTypeLabels = {
   text: "Texto",
 };
 
-const toneLabels = {
+const toneLabels: Record<string, string> = {
   profesional: "Profesional",
   cercano: "Cercano",
   tecnico: "Técnico",
+  inspirador: "Inspirador",
 };
 
 const PAGE_SIZE = 10;

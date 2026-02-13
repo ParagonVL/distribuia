@@ -1,6 +1,6 @@
 export type UserPlan = "free" | "starter" | "pro";
 export type InputType = "youtube" | "article" | "text";
-export type ToneType = "profesional" | "cercano" | "tecnico";
+export type ToneType = "profesional" | "cercano" | "tecnico" | "inspirador";
 export type OutputFormat = "x_thread" | "linkedin_post" | "linkedin_article";
 export type ConversionStatus = "pending" | "processing" | "completed" | "failed";
 

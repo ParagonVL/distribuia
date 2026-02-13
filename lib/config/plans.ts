@@ -69,11 +69,11 @@ export function shouldAddWatermark(plan: PlanType): boolean {
  */
 export const WATERMARK = {
   // For X threads: embedded in the last tweet
-  x_thread: "\n\n🔗 Creado con Distribuia.com",
+  x_thread: "\n\n🔗 Creado con Distribuia.es",
   // For LinkedIn posts: appears at the end
-  linkedin_post: "\n\n🔗 Creado con Distribuia.com",
+  linkedin_post: "\n\n🔗 Creado con Distribuia.es",
   // For LinkedIn articles: appears at the end with link
-  linkedin_article: "\n\n---\n\n*Creado con [Distribuia.com](https://distribuia.com)*",
+  linkedin_article: "\n\n---\n\n*Creado con [Distribuia.es](https://distribuia.es)*",
 } as const;
 
 /**

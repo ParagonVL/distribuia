@@ -5,7 +5,7 @@ import { sanitizeUrl, sanitizeText } from "./security";
 export const inputTypeSchema = z.enum(["youtube", "article", "text"]);
 
 // Tone types enum
-export const toneSchema = z.enum(["profesional", "cercano", "tecnico"]);
+export const toneSchema = z.enum(["profesional", "cercano", "tecnico", "inspirador"]);
 
 // Output format enum
 export const outputFormatSchema = z.enum([

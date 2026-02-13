@@ -108,15 +108,15 @@ describe("shouldAddWatermark", () => {
 
 describe("WATERMARK", () => {
   it("should have watermark for x_thread format", () => {
-    expect(WATERMARK.x_thread).toContain("Distribuia.com");
+    expect(WATERMARK.x_thread).toContain("Distribuia.es");
   });
 
   it("should have watermark for linkedin_post format", () => {
-    expect(WATERMARK.linkedin_post).toContain("Distribuia.com");
+    expect(WATERMARK.linkedin_post).toContain("Distribuia.es");
   });
 
   it("should have watermark for linkedin_article format", () => {
-    expect(WATERMARK.linkedin_article).toContain("Distribuia.com");
+    expect(WATERMARK.linkedin_article).toContain("Distribuia.es");
   });
 });
 
@@ -126,19 +126,19 @@ describe("addWatermarkIfNeeded", () => {
   it("should add watermark for free plan", () => {
     const result = addWatermarkIfNeeded(testContent, "x_thread", "free");
     expect(result).toContain(testContent);
-    expect(result).toContain("Distribuia.com");
+    expect(result).toContain("Distribuia.es");
   });
 
   it("should not add watermark for starter plan", () => {
     const result = addWatermarkIfNeeded(testContent, "x_thread", "starter");
     expect(result).toBe(testContent);
-    expect(result).not.toContain("Distribuia.com");
+    expect(result).not.toContain("Distribuia.es");
   });
 
   it("should not add watermark for pro plan", () => {
     const result = addWatermarkIfNeeded(testContent, "linkedin_post", "pro");
     expect(result).toBe(testContent);
-    expect(result).not.toContain("Distribuia.com");
+    expect(result).not.toContain("Distribuia.es");
   });
 
   it("should add correct watermark for each format", () => {

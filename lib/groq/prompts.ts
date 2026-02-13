@@ -30,6 +30,17 @@ const TONE_DESCRIPTIONS: Record<ToneType, string> = {
 - Prioriza la precisión sobre la accesibilidad
 - Incluye métricas, frameworks y metodologías cuando aplique
 - Estructura la información de forma sistemática`,
+
+  inspirador: `TONO INSPIRADOR:
+- Cuenta historias y usa metáforas para conectar emocionalmente
+- Apela a las aspiraciones y motivaciones del lector
+- Incluye ejemplos de superación o transformación
+- Usa preguntas retóricas que inviten a la reflexión
+- Incluye llamadas a la acción motivadoras
+- Mantén un ritmo narrativo que enganche
+- Termina con un mensaje esperanzador o una visión de futuro
+- Usa un lenguaje evocador pero sin caer en lo cursi
+- Combina emoción con contenido de valor real`,
 };
 
 // System prompt base for all formats

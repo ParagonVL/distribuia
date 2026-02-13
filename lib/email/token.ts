@@ -58,7 +58,7 @@ export function validateUnsubscribeToken(userId: string, token: string): boolean
  * @returns Full unsubscribe URL
  */
 export function getUnsubscribeUrl(userId: string): string {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://distribuia.com";
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://distribuia.es";
   const token = generateUnsubscribeToken(userId);
   return `${baseUrl}/api/user/email-preferences?token=${token}&user=${userId}`;
 }

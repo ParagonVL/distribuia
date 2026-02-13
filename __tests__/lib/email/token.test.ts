@@ -94,7 +94,7 @@ describe("Email Token Utilities", () => {
       delete process.env.NEXT_PUBLIC_APP_URL;
       const url = getUnsubscribeUrl(testUserId);
 
-      expect(url).toContain("https://distribuia.com/api/user/email-preferences");
+      expect(url).toContain("https://distribuia.es/api/user/email-preferences");
     });
 
     it("should include a valid token in the URL", () => {

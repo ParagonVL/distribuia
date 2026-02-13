@@ -15,7 +15,7 @@ import { GenerationProgress } from "@/components/ui/generation-progress";
 import { useTopics, useConversion } from "./hooks";
 
 type InputType = "youtube" | "article" | "text";
-type ToneType = "profesional" | "cercano" | "tecnico";
+type ToneType = "profesional" | "cercano" | "tecnico" | "inspirador";
 
 interface ConversionFormProps {
   canConvert: boolean;
@@ -34,6 +34,7 @@ const TONES: { id: ToneType; label: string; description: string }[] = [
   { id: "profesional", label: "Profesional", description: "Formal, basado en datos, terminología del sector" },
   { id: "cercano", label: "Cercano", description: "Personal, conversacional, conecta emocionalmente" },
   { id: "tecnico", label: "Técnico", description: "Jerga especializada, detallado, experto a experto" },
+  { id: "inspirador", label: "Inspirador", description: "Motivacional, storytelling, apela a las emociones" },
 ];
 
 export function ConversionForm({

@@ -4,9 +4,9 @@ import { useState } from "react";
 
 // Watermark for free tier (must match server-side)
 const WATERMARK = {
-  x_thread: "\n\n---\n🔗 Creado con Distribuia.com",
-  linkedin_post: "\n\n🔗 Creado con Distribuia.com",
-  linkedin_article: "\n\n---\n\n*Creado con [Distribuia.com](https://distribuia.com)*",
+  x_thread: "\n\n---\n🔗 Creado con Distribuia.es",
+  linkedin_post: "\n\n🔗 Creado con Distribuia.es",
+  linkedin_article: "\n\n---\n\n*Creado con [Distribuia.es](https://distribuia.es)*",
 } as const;
 
 type OutputFormat = "x_thread" | "linkedin_post" | "linkedin_article";

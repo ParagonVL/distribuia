@@ -129,8 +129,8 @@ describe("POST /api/stripe/create-checkout", () => {
     });
 
     it("should set correct success/cancel URLs", () => {
-      const successUrl = "https://distribuia.com/billing?success=true";
-      const cancelUrl = "https://distribuia.com/billing?canceled=true";
+      const successUrl = "https://distribuia.es/billing?success=true";
+      const cancelUrl = "https://distribuia.es/billing?canceled=true";
       expect(successUrl).toContain("success=true");
       expect(cancelUrl).toContain("canceled=true");
     });

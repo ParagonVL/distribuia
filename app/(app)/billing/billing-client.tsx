@@ -90,7 +90,7 @@ export function BillingClient({
           "Content-Type": "application/json",
           "X-Requested-With": "XMLHttpRequest",
         },
-        body: JSON.stringify({ priceId: PLAN_PRICES[plan].priceId, waiverAccepted: true }),
+        body: JSON.stringify({ priceId: PLAN_PRICES[plan].priceId, waiverAccepted: waiverAccepted || hasStripeSubscription }),
       });
 
       const data = await response.json();
